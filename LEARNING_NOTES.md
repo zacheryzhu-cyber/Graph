@@ -115,3 +115,37 @@ emulating neosemantics (n10s) conventions, and checks whether SHACL tooling hand
   (tool without power feed; load 2,500 kW > capacity) in 342 ms. **Tool gap:** rdflib 7.6 **cannot parse RDF 1.2** (`<<( )>>` fails), so SHACL had to run on the
   RDF 1.1 n-ary copy. Oxigraph handles RDF 1.2, but the Python validation ecosystem doesn't yet. Check this before committing to RDF 1.2 in a project.
 - Neo4j's own answer to governance is constraints (uniqueness, existence, property type in 5.x Enterprise), which is much weaker than SHACL shapes over class hierarchies.
+
+---
+## Stage 6 — where each one hits the wall
+**Why:** At fab-building scale everything is fast (< 25 ms). Real decisions hinge on the failure modes:
+1. **Redundancy explosion:** fabs and data centres are built N+1 / 2N, so the number of *paths* grows exponentially with depth while the number of *nodes* grows linearly.
+   Cypher matches **paths** (with relationship-uniqueness), while SPARQL property paths use **set semantics** (reachability only).
+2. **SCADA write rate:** WinCC OA tags change many times a second. Can the graph hold live values?
+3. **Scale trend** of everything from stages 2–4 (consolidated table).
+**Watch for:** a single query going from milliseconds to timeout, and which model can't even *express* the question.
+**What happened** (full output: `out/step6_output.txt`, table: `out/comparison.md`):
+
+**1. Redundancy path explosion (2N mesh, k layers):**
+| k | distinct paths | SPARQL `feeds+` reach | Cypher `count(DISTINCT x)` reach | Cypher `count(p)` paths | Cypher `shortestPath` |
+|---|---|---|---|---|---|
+| 8  | 256       | 0.4 ms | 38 ms (cold) | 41 ms    | 29 ms (cold) |
+| 16 | 65,536    | 0.2 ms | 2 ms | 170 ms   | 6 ms |
+| 20 | 1,048,576 | 0.2 ms | 2 ms | **1,662 ms** | 4 ms |
+| 22 | 4,194,304 | 0.2 ms | 2 ms | skipped (projected ~7 s) | 3 ms |
+- Asking "*what* is reachable" is cheap in both: SPARQL set semantics, and Neo4j's planner rewrites `[:FEEDS*]` + `DISTINCT` into a pruning BFS.
+- **Enumerating paths is exponential**, and only Cypher can even express it. That's the double edge: Cypher lets you ask "list every power path to this EUV scanner", which is a legitimate redundancy audit, but in a 2N/N+1 data centre with 20 tiers it takes seconds to minutes and can exhaust memory.
+  **Rule:** use `DISTINCT` reachability or `shortestPath`/`allShortestPaths`, bound the depth (`*..8`), or use GDS. Never write an unbounded `MATCH p=...-[*]->...` on a redundant topology.
+- **SPARQL can't enumerate paths at all.** In a redundancy audit ("is there any tool with only ONE independent power path?") RDF has to fall back to client-side code or unrolled patterns.
+
+**2. SCADA live-value writes (5,000 values per tick):**
+- Oxigraph SPARQL UPDATE, batched: **~350k values/s** (in-memory, no durability).
+- Neo4j batched `UNWIND … SET`: **~76k values/s** (durable transactions).
+- Neo4j one transaction per value: **~360 values/s**, about **200× slower** than batching.
+- **My own measurement mistake:** before I added `CALL db.awaitIndexes()`, batched Neo4j writes measured **1.6k/s**. The index was still building, so every `MATCH` label-scanned. Make index readiness part of the deployment checklist.
+- **Verdict:** a mid-size fab's WinCC OA produces 10k–100k value changes/s. **Neither graph is a historian.** Keep values in WinCC OA archive / NGA / a TSDB.
+  Put **only the tag identity and its context** (which asset, which area, which feed) in the graph, plus *slow* state (alarm active, maintenance mode), and join at query time by tag name.
+
+**3. Optimizer bottleneck behind Stage 2's slow Q1 (SCALE=50):**
+- n-ary path alone: 0.7 ms. Path + `?t a/rdfs:subClassOf* fab:ProductionTool`: **187 ms**. Same query with the traversal forced first via a subquery: **2.7 ms**.
+- The SPARQL planner started from "all ProductionTools in all 50 buildings" and tested reachability for each. **Declarative isn't plan-proof**; check plans (Oxigraph `explain`, Cypher `EXPLAIN/PROFILE`).
