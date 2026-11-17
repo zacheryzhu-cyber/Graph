@@ -214,3 +214,17 @@ Decision guide: **SUMMARY.md**. Latest numbers: **RESULTS.md**.
 
   Neo4j's per-value cost includes the Bolt round trip and the transaction commit, so it isn't a pure engine comparison, but it's what an app that writes naively experiences.
   The historian verdict stands.
+
+---
+## Stage 8 — working demo (Fab Graph Workbench)
+**Why:** Numbers in a table don't show a customer *why* the model choice matters. The workbench lets you trip assets, change thresholds and inject a
+BIM claim, then watch three engines answer side by side, each checked against an independent reference.
+
+**What happened:**
+- Live mode (`demo/server.py`): all six questions agree with the reference on all three engines at scale 1. Per-query p50: Oxigraph 0.1–0.7 ms; Neo4j 5–8 ms client / 2–3.5 ms server.
+- **The BIM-claim scenario reproduces live, and it is worse than Stage 5b showed.** With the n10s-style import, Neo4j differs on **Q6** (29 instead of 30 SPOF tools),
+  and also on **Q1**: tripping PDU-B01-01 now "impacts" T-B01-107, which it doesn't feed. Switching Neo4j to the claim-node model makes every engine agree again.
+- Another reminder of planner sensitivity: the obvious RDF 1.1 Q1 (`fab:x (^fab:feedFrom/fab:feedTo)+ ?x . ?x a ?type`) took **30 ms vs 0.26 ms** for RDF 1.2.
+  The demo uses the traversal-first sub-select and says so in the query note.
+- **Published copy:** running the downloaded Oxigraph JS/WASM build was blocked by the session's permission policy, so the published page is a *recorded edition*.
+  Every preset × parameter × claim state (8,088 runs) is embedded, keyed by a hash of the exact query text. The topology, scenarios and correctness checks still run in the browser.

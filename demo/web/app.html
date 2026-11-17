@@ -1,0 +1,558 @@
+<title>Fab Graph Workbench</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: HMI-style workbench. Header bar → topology (left) + scenario rail (right) → question workbench with three engine faceplates. */
+:root {
+  --bg: #eef1f4; --panel: #ffffff; --panel2: #f6f8fa; --ink: #15202b; --muted: #5a6776; --line: #d3dae2;
+  --accent: #0b7a8a; --rdf11: #7a5af5; --rdf12: #0b7a8a; --lpg: #d9711c; --ref: #3b4a5a;
+  --ok: #1f8a4c; --warn: #b7791f; --crit: #c2373b; --hit: #f2c94c; --code: #f1f4f7;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1318; --panel: #141c23; --panel2: #18222b; --ink: #e3e9ef; --muted: #91a0ae; --line: #283440;
+  --accent: #3cc3d3; --rdf11: #a08bff; --rdf12: #3cc3d3; --lpg: #f2994a; --ref: #b8c4cf;
+  --ok: #4cc27f; --warn: #e2b04a; --crit: #ff6b6f; --hit: #e9c04a; --code: #1a242d; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0d1318; --panel: #141c23; --panel2: #18222b; --ink: #e3e9ef; --muted: #91a0ae; --line: #283440;
+  --accent: #3cc3d3; --rdf11: #a08bff; --rdf12: #3cc3d3; --lpg: #f2994a; --ref: #b8c4cf;
+  --ok: #4cc27f; --warn: #e2b04a; --crit: #ff6b6f; --hit: #e9c04a; --code: #1a242d; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--f-body); margin: 0; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 16px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 1.05rem; font-weight: 600; }
+code, .mono { font-family: var(--f-mono); }
+button, select, textarea { font: inherit; color: inherit; }
+button:focus-visible, select:focus-visible, textarea:focus-visible, .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
+.ph { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.pb { padding: 12px 14px; display: grid; gap: 10px; }
+.eyebrow { font: 600 0.68rem/1 var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.small { font-size: 0.82rem; }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.brand { display: grid; gap: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font-size: 0.8rem; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.on { background: var(--ok); } .dot.off { background: var(--crit); }
+.mode { font: 600 0.7rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 8px; border-radius: 5px; border: 1px solid currentColor; }
+.mode.live { color: var(--ok); } .mode.rec { color: var(--warn); }
+.banner { border: 1px solid var(--warn); border-left-width: 4px; background: var(--panel); border-radius: 6px; padding: 9px 12px; font-size: 0.86rem; }
+
+/* main grid */
+.g1 { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; align-items: start; }
+@media (max-width: 1000px) { .g1 { grid-template-columns: minmax(0, 1fr); } }
+
+/* topology */
+.topo { overflow-x: auto; }
+.topo svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.col-h { font: 600 10px var(--f-mono); letter-spacing: 0.08em; fill: var(--muted); text-transform: uppercase; }
+.area-box { fill: var(--panel2); stroke: var(--line); }
+.area-lbl { font: 600 10.5px var(--f-mono); fill: var(--muted); }
+.edge { fill: none; stroke-width: 1; opacity: 0.22; }
+.edge.power { stroke: var(--lpg); } .edge.pcw { stroke: var(--rdf12); }
+.edge.on { opacity: 0.95; stroke-width: 2.2; }
+.edge.flag { opacity: 0.95; stroke-width: 2.4; stroke: var(--crit); }
+.edge.claim { stroke: var(--crit); stroke-dasharray: 5 4; opacity: 0.9; stroke-width: 2; }
+.node { cursor: pointer; }
+.node rect { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; transition: fill .15s; }
+.node.power rect { stroke: var(--lpg); } .node.cool rect { stroke: var(--rdf12); } .node.tool rect { stroke: var(--muted); }
+.node text { font: 600 10.5px var(--f-mono); fill: var(--ink); pointer-events: none; }
+.node text.k { font: 500 8.5px var(--f-mono); fill: var(--muted); }
+.node.hit rect { fill: var(--hit); stroke: var(--hit); } .node.hit text, .node.hit text.k { fill: #15202b; }
+.node.src rect { fill: var(--crit); stroke: var(--crit); } .node.src text, .node.src text.k { fill: #fff; }
+.node.spof rect { fill: var(--crit); stroke: var(--crit); } .node.spof text, .node.spof text.k { fill: #fff; }
+.node.path rect { fill: var(--accent); stroke: var(--accent); } .node.path text, .node.path text.k { fill: #fff; }
+.node.flag rect { stroke: var(--crit); stroke-width: 2.4; }
+.node.sel rect { stroke: var(--ink); stroke-width: 2.6; }
+.alarm { fill: var(--crit); }
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; box-shadow: 0 6px 20px rgb(0 0 0 / .18); max-width: 280px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.78rem; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; border: 1px solid var(--line); }
+
+/* rail */
+.rail { display: grid; gap: 14px; align-content: start; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: 0.78rem; color: var(--muted); }
+select { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; min-width: 0; max-width: 100%; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 7px 12px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.danger { border-color: var(--crit); color: var(--crit); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; padding: 6px 10px; cursor: pointer; font-size: 0.8rem; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.state { font-size: 0.84rem; padding: 8px 10px; border-radius: 6px; background: var(--panel2); }
+.state b { font-weight: 600; }
+
+/* workbench */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+.tab { border: 1px solid transparent; background: transparent; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 0.85rem; }
+.tab .n { font-family: var(--f-mono); font-weight: 600; margin-right: 6px; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--panel2); border-color: var(--line); font-weight: 600; }
+.tab[aria-selected="true"] .n { color: var(--accent); }
+.ask { font: 600 1.05rem/1.35 var(--f-display); }
+.ref { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 0.86rem; padding: 8px 12px; border-radius: 6px; background: var(--panel2); border-left: 3px solid var(--ref); }
+.engines { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 1000px) { .engines { grid-template-columns: minmax(0, 1fr); } }
+.eng { display: grid; grid-template-rows: auto auto auto auto 1fr; gap: 8px; border-top: 3px solid var(--c); padding: 12px; }
+.eng.rdf11 { --c: var(--rdf11); } .eng.rdf12 { --c: var(--rdf12); } .eng.neo4j { --c: var(--lpg); }
+.eng .name { font: 600 0.72rem/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--c); }
+.eng .sub { font-size: 0.76rem; color: var(--muted); }
+textarea { width: 100%; min-height: 150px; resize: vertical; background: var(--code); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: 0.74rem/1.5 var(--f-mono); tab-size: 2; }
+textarea[readonly] { opacity: .92; }
+.note { font-size: 0.78rem; color: var(--muted); }
+.stat { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font: 600 0.68rem/1 var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 7px; border-radius: 4px; border: 1px solid currentColor; }
+.pill.ok { color: var(--ok); } .pill.bad { color: var(--crit); } .pill.na { color: var(--muted); }
+.res { overflow: auto; max-height: 240px; border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.76rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { position: sticky; top: 0; background: var(--panel2); font: 600 0.68rem var(--f-mono); color: var(--muted); }
+.err { color: var(--crit); font-size: 0.8rem; white-space: pre-wrap; }
+.diff { font-size: 0.78rem; }
+.diff b { color: var(--crit); }
+.summary { font-size: 0.86rem; font-weight: 500; }
+.busy { opacity: .55; }
+.foot { font-size: 0.78rem; color: var(--muted); display: grid; gap: 4px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">RDF 1.1 · RDF 1.2 · LPG on one fab utility network</span>
+      <h1>Fab Graph Workbench</h1>
+    </div>
+    <div class="chips" id="chips"></div>
+  </header>
+  <div id="banner" hidden></div>
+
+  <div class="g1">
+    <section class="panel">
+      <div class="ph"><div><span class="eyebrow">Building B01 · click an asset</span><h2 id="topoTitle">Utility topology</h2></div>
+        <div class="row"><span class="small muted">Highlight from</span><div class="seg" id="hlSeg" role="group" aria-label="Highlight results from"></div></div></div>
+      <div class="pb">
+        <div class="topo" id="topo"></div>
+        <div class="legend">
+          <span><i style="background:var(--crit);border-color:var(--crit)"></i>tripped / single point of failure</span>
+          <span><i style="background:var(--hit);border-color:var(--hit)"></i>impacted</span>
+          <span><i style="background:var(--accent);border-color:var(--accent)"></i>path</span>
+          <span><i style="border-color:var(--lpg)"></i>power feed</span>
+          <span><i style="border-color:var(--rdf12)"></i>process cooling (PCW)</span>
+          <span><i style="background:transparent;border:2px dashed var(--crit)"></i>BIM claim</span>
+          <span>● active alarm</span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="rail">
+      <section class="panel">
+        <div class="ph"><h2>Trip an asset</h2></div>
+        <div class="pb">
+          <p class="small muted" style="margin:0">Click switchgear, a UPS, PDU, chiller or cooling loop on the diagram, or pick one here. All three engines answer Q1.</p>
+          <div class="row"><div class="field" style="flex:1"><label for="tripSel">Asset</label><select id="tripSel"></select></div>
+            <button class="btn primary" id="tripBtn">Trip it</button></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="ph"><h2>BIM claim scenario</h2><span class="pill na" id="claimPill">off</span></div>
+        <div class="pb">
+          <p class="small muted" style="margin:0">The BIM model claims a PDU also powers a tool. Nobody has confirmed it. RDF 1.2 stores it as an <b>unasserted</b> statement. How does it reach Neo4j?</p>
+          <div class="field"><label for="claimSrc">Claimed source</label><select id="claimSrc"></select></div>
+          <div class="field"><label for="claimDst">Claimed target tool</label><select id="claimDst"></select></div>
+          <div class="field"><label for="claimMode">Import into Neo4j as</label>
+            <select id="claimMode"><option value="n10s">n10s 5.26 import → real FEEDS edge</option><option value="node">Claim node (recommended) → off the traversal graph</option></select></div>
+          <div class="row"><button class="btn primary" id="claimAdd">Inject claim</button><button class="btn danger" id="claimDel">Remove</button></div>
+          <div class="state" id="claimState">No claim injected. Q6 should report the same set in every engine.</div>
+        </div>
+      </section>
+      <section class="panel" id="scalePanel">
+        <div class="ph"><h2>Dataset</h2></div>
+        <div class="pb">
+          <div class="row"><div class="field"><label for="scaleSel">Scale (fab buildings)</label><select id="scaleSel"></select></div>
+            <button class="btn" id="scaleBtn">Reload</button></div>
+          <div class="small muted" id="counts"></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="panel">
+    <div class="ph"><div class="tabs" role="tablist" id="tabs"></div>
+      <button class="btn primary" id="runAll">Run on all three</button></div>
+    <div class="pb" id="bench"></div>
+  </section>
+
+  <div class="foot" id="foot"></div>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+(() => {
+"use strict";
+const EMBED = window.__EMBED || null;
+const LIVE = !EMBED;
+const ENGINES = ["rdf11", "rdf12", "neo4j"];
+const ENAME = { rdf11: "RDF 1.1 · n-ary", rdf12: "RDF 1.2 · triple terms", neo4j: "LPG · Neo4j" };
+const TOOL_TYPES = new Set(["EUVScanner", "EtchTool", "CVDTool", "CMPTool", "MetrologyTool"]);
+const TOOL_ABBR = { EUVScanner: "EUV", EtchTool: "ETCH", CVDTool: "CVD", CMPTool: "CMP", MetrologyTool: "MET" };
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let META, CAT, D, IX;
+const st = { q: "Q1", params: {}, edited: {}, res: {}, hl: "neo4j", claim: null, sel: null };
+
+/* ---------------- backend: live server or recorded edition ---------------- */
+const claimKey = () => st.claim ? `${st.claim.neo_mode}:${st.claim.src}>${st.claim.dst}` : "none";
+const api = LIVE ? {
+  async get(p) { const r = await fetch(p); return r.json(); },
+  async post(p, b) { const r = await fetch(p, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }); const j = await r.json(); if (j.error) throw new Error(j.error); return j; },
+  meta() { return this.get("/api/meta"); },
+  dataset() { return this.get("/api/dataset"); },
+  query(engine, text, repeat = 5) { return this.post("/api/query", { engine, text, repeat }); },
+  load(scale) { return this.post("/api/load", { scale }); },
+  claim(action, src, dst, neo_mode) { return this.post("/api/claim", { action, src, dst, neo_mode }); },
+} : {
+  async meta() { return EMBED.meta; },
+  async dataset() { return EMBED.dataset; },
+  async query(engine, text) {
+    const r = EMBED.rec[claimKey() + "|" + engine + "|" + cyrb53(text)];
+    if (!r) throw new Error("Not recorded in this published copy. It holds every preset, exactly as each engine ran it. Run edited or custom queries in the live demo (python demo/server.py).");
+    return { ...r, recorded: true };
+  },
+  async load() { return EMBED.meta; },
+  async claim(action, src, dst, neo_mode) { return { claim: action === "add" ? { src, dst, neo_mode } : null }; },
+};
+
+/* 53-bit string hash, identical to demo/build_published.py: recordings are keyed by the exact query text */
+function cyrb53(str) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return String(4294967296 * (2097151 & h2) + (h1 >>> 0));
+}
+window.__cyrb53 = cyrb53;
+
+/* ---------------- dataset index + reference answers (computed here, independently) ---------------- */
+function index(d) {
+  const type = {}, out = {}, area = {}, dps = {}, alarmsOn = {}, active = new Set();
+  d.nodes.forEach(n => { type[n.id] = n.type; if (n.type === "Alarm" && n.active) active.add(n.id); });
+  const feeds = d.edges.filter(e => e.type === "feeds");
+  feeds.forEach(e => (out[e.src] = out[e.src] || []).push(e));
+  d.edges.forEach(e => {
+    if (e.type === "locatedIn" && type[e.dst] === "Area") area[e.src] = e.dst;
+    if (e.type === "hasDatapoint") (dps[e.src] = dps[e.src] || []).push(e.dst);
+    if (e.type === "raisedOn" && active.has(e.src)) alarmsOn[e.dst] = (alarmsOn[e.dst] || 0) + 1;
+  });
+  return { type, out, feeds, area, dps, alarmsOn };
+}
+const toolAlarms = id => (IX.dps[id] || []).reduce((a, dp) => a + (IX.alarmsOn[dp] || 0), 0);
+function bfs(start, ok = () => true) {
+  const dist = { [start]: 0 }, par = {}, q = [start];
+  while (q.length) { const u = q.shift(); for (const e of IX.out[u] || []) if (ok(e) && !(e.dst in dist)) { dist[e.dst] = dist[u] + 1; par[e.dst] = u; q.push(e.dst); } }
+  return { dist, par };
+}
+const REF = {
+  Q1: p => Object.keys(bfs(p.asset).dist).filter(x => x !== p.asset).sort(),
+  Q2: p => IX.feeds.filter(e => !e.redundant && e.installed < +p.year && e.load_kw / e.capacity_kw > +p.ratio).map(e => e.src + ">" + e.dst).sort(),
+  Q3: p => IX.feeds.filter(e => e.source === p.source && e.confidence < +p.conf).map(e => e.src + ">" + e.dst).sort(),
+  Q4: p => { const { dist, par } = bfs(p.src); if (!(p.dst in dist)) return ["no path"]; const path = [p.dst]; while (path[0] !== p.src) path.unshift(par[path[0]]); return ["length " + (path.length - 1)]; },
+  Q5: () => { const c = {}; Object.entries(IX.dps).forEach(([a, l]) => { const ar = IX.area[a]; if (!ar) return; c[ar] = c[ar] || [0, 0]; c[ar][0] += l.length; c[ar][1] += l.reduce((s, dp) => s + (IX.alarmsOn[dp] || 0), 0); }); return Object.entries(c).map(([a, v]) => `${a}|${v[0]}|${v[1]}`).sort(); },
+  Q6: p => { const power = p.filter === "power only"; const res = [];
+    const sw = Object.keys(IX.type).filter(k => IX.type[k] === "Switchgear"); const hits = {};
+    sw.forEach(s => Object.keys(bfs(s, e => !power || e.medium === "power").dist).forEach(t => { if (t !== s) (hits[t] = hits[t] || new Set()).add(s); }));
+    Object.entries(hits).forEach(([t, s]) => { if (TOOL_TYPES.has(IX.type[t]) && s.size === 1) res.push(t); }); return res.sort(); },
+};
+const refPath = p => { const { dist, par } = bfs(p.src); if (!(p.dst in dist)) return []; const path = [p.dst]; while (path[0] !== p.src) path.unshift(par[path[0]]); return path; };
+
+/* engine rows → canonical form, comparable with REF */
+function canon(q, r, p) {
+  const col = n => r.cols.indexOf(n);
+  if (q === "Q1") return [...new Set(r.rows.map(x => x[col("x")]))].sort();
+  if (q === "Q2" || q === "Q3") return r.rows.map(x => x[col("s")] + ">" + x[col("d")]).sort();
+  if (q === "Q4") { const path = enginePath(r, p); return path.length ? ["length " + (path.length - 1)] : ["no path"]; }
+  if (q === "Q5") return r.rows.map(x => `${x[col("area")]}|${x[col("datapoints")]}|${x[col("alarms")]}`).sort();
+  if (q === "Q6") return r.rows.map(x => x[col("t")]).sort();
+  return [];
+}
+function enginePath(r, p) {
+  if (!r.rows.length) return [];
+  if (r.cols[0] === "path") return r.rows[0][0];
+  return [p.src, ...r.rows[0].slice(1).filter(x => x != null), p.dst];
+}
+const same = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+function diff(got, want) { const g = new Set(got), w = new Set(want); return { extra: got.filter(x => !w.has(x)), missing: want.filter(x => !g.has(x)) }; }
+
+/* ---------------- query text ---------------- */
+const Qdef = id => CAT.questions.find(q => q.id === id);
+function fill(t, p) { let s = t; Object.keys(p).sort((a, b) => b.length - a.length).forEach(k => { s = s.split("$" + k).join(String(p[k])); }); return s; }
+function template(q, engine) { const d = Qdef(q); return d.variants ? d.variants[st.params[q].filter][engine] : d[engine]; }
+function queryText(q, engine) {
+  const k = q + engine; if (LIVE && st.edited[k] != null) return st.edited[k];
+  const p = { ...st.params[q] }; delete p.filter; return fill(template(q, engine), p);
+}
+
+/* ---------------- topology ---------------- */
+const SVGNS = "http://www.w3.org/2000/svg";
+const POS = {};
+function layout() {
+  const B = "B01", put = (id, x, y, w = 92, h = 26) => { if (IX.type[id]) POS[id] = { x, y, w, h }; };
+  put(`SWG-${B}-A`, 30, 150); put(`SWG-${B}-B`, 30, 330);
+  for (let i = 1; i <= 4; i++) put(`UPS-${B}-${i}`, 190, 40 + (i - 1) * 50);
+  for (let i = 1; i <= 3; i++) put(`CH-${B}-0${i}`, 190, 330 + (i - 1) * 56);
+  for (let i = 1; i <= 8; i++) put(`PDU-${B}-0${i}`, 350, 22 + (i - 1) * 37);
+  for (let i = 1; i <= 4; i++) put(`PCW-${B}-${i}`, 350, 340 + (i - 1) * 48);
+  for (let a = 1; a <= 4; a++) for (let t = 1; t <= 10; t++) put(`T-${B}-${a}${String(t).padStart(2, "0")}`, 548 + ((t - 1) % 5) * 84, 30 + (a - 1) * 132 + Math.floor((t - 1) / 5) * 40 + 22, 76, 30);
+}
+const short = id => id.replace(/-B01-?/, "-").replace(/^T-/, "");
+function drawTopo() {
+  const host = $("#topo"); host.innerHTML = "";
+  const svg = document.createElementNS(SVGNS, "svg"); svg.setAttribute("viewBox", "0 0 980 560");
+  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Building B01 utility topology");
+  const el = (t, a, p = svg) => { const e = document.createElementNS(SVGNS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+  [["Switchgear", 30], ["UPS · chillers", 190], ["PDU · PCW loops", 350], ["Production tools by area", 548]].forEach(([t, x]) => { const e = el("text", { x, y: 12, class: "col-h" }); e.textContent = t; });
+  for (let a = 1; a <= 4; a++) { el("rect", { x: 538, y: 22 + (a - 1) * 132, width: 434, height: 118, rx: 6, class: "area-box" });
+    const l = el("text", { x: 548, y: 40 + (a - 1) * 132, class: "area-lbl" }); l.textContent = `AREA-B01-${a} · ISO 5`; }
+  const eg = el("g", {});
+  IX.feeds.forEach(e => { const s = POS[e.src], d = POS[e.dst]; if (!s || !d) return;
+    const x1 = s.x + s.w, y1 = s.y + s.h / 2, x2 = d.x, y2 = d.y + d.h / 2, mx = (x1 + x2) / 2;
+    el("path", { d: `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`, class: `edge ${e.medium}`, "data-k": e.src + ">" + e.dst }, eg); });
+  if (st.claim && POS[st.claim.src] && POS[st.claim.dst]) { const s = POS[st.claim.src], d = POS[st.claim.dst];
+    const x1 = s.x + s.w, y1 = s.y + s.h / 2, x2 = d.x, y2 = d.y + d.h / 2, mx = (x1 + x2) / 2;
+    el("path", { d: `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`, class: "edge claim" }, eg); }
+  Object.entries(POS).forEach(([id, p]) => {
+    const t = IX.type[id], cls = TOOL_TYPES.has(t) ? "tool" : (["Chiller", "CoolingLoop"].includes(t) ? "cool" : "power");
+    const g = el("g", { class: `node ${cls}`, "data-id": id, tabindex: "0", role: "button", "aria-label": `${id} (${t})` });
+    el("rect", { x: p.x, y: p.y, width: p.w, height: p.h, rx: 4 }, g);
+    if (cls === "tool") { const a = el("text", { x: p.x + 6, y: p.y + 12 }, g); a.textContent = short(id);
+      const k = el("text", { x: p.x + 6, y: p.y + 24, class: "k" }, g); k.textContent = TOOL_ABBR[t];
+      if (toolAlarms(id)) el("circle", { cx: p.x + p.w - 8, cy: p.y + 8, r: 3.5, class: "alarm" }, g); }
+    else { const a = el("text", { x: p.x + 7, y: p.y + 17 }, g); a.textContent = short(id); }
+    g.addEventListener("click", () => pick(id)); g.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(id); } });
+    g.addEventListener("mousemove", ev => tip(ev, id)); g.addEventListener("mouseleave", () => $("#tip").hidden = true);
+  });
+  host.appendChild(svg); paint();
+}
+function tip(ev, id) {
+  const t = IX.type[id], n = D.nodes.find(x => x.id === id), T = $("#tip");
+  const ins = IX.feeds.filter(e => e.dst === id), outs = IX.out[id] || [];
+  let h = `<b class="mono">${esc(id)}</b> · ${esc(t)}<br>`;
+  if (TOOL_TYPES.has(t)) h += `${(IX.dps[id] || []).length} WinCC OA datapoints · ${toolAlarms(id)} active alarm(s)<br>`;
+  h += `fed by: ${ins.map(e => `${esc(short(e.src))} (${e.medium}, ${e.source} ${e.confidence})`).join(", ") || "none"}`;
+  if (outs.length) h += `<br>feeds ${outs.length} downstream`;
+  T.innerHTML = h; T.hidden = false;
+  T.style.left = Math.min(ev.clientX + 14, innerWidth - 300) + "px"; T.style.top = (ev.clientY + 14) + "px";
+}
+function pick(id) {
+  const t = IX.type[id];
+  if (TOOL_TYPES.has(t)) { st.params.Q4.dst = id; setTab("Q4"); runAll(); }
+  else { st.params.Q1.asset = id; $("#tripSel").value = id; setTab("Q1"); runAll(); }
+}
+function paint() {
+  document.querySelectorAll(".node").forEach(n => n.classList.remove("hit", "src", "spof", "path", "flag", "sel"));
+  document.querySelectorAll(".edge").forEach(e => e.classList.remove("on", "flag"));
+  const q = st.q, p = st.params[q] || {};
+  let set;
+  if (st.hl === "reference") set = q === "Q4" ? refPath(p) : REF[q] ? REF[q](p) : [];
+  else { const r = st.res[q] && st.res[q][st.hl]; if (!r || !r.result) return; set = q === "Q4" ? enginePath(r.result, p) : r.canon; }
+  const N = id => document.querySelector(`.node[data-id="${CSS.escape(id)}"]`);
+  const E = k => document.querySelector(`.edge[data-k="${CSS.escape(k)}"]`);
+  if (q === "Q1") { const s = new Set(set); s.forEach(id => N(id)?.classList.add("hit")); N(p.asset)?.classList.add("src");
+    IX.feeds.forEach(e => { if ((s.has(e.src) || e.src === p.asset) && s.has(e.dst)) E(e.src + ">" + e.dst)?.classList.add("on"); }); }
+  if (q === "Q2" || q === "Q3") set.forEach(k => { E(k)?.classList.add("flag"); k.split(">").forEach(id => N(id)?.classList.add("flag")); });
+  if (q === "Q4") { set.forEach(id => N(id)?.classList.add("path")); for (let i = 1; i < set.length; i++) E(set[i - 1] + ">" + set[i])?.classList.add("on"); }
+  if (q === "Q6") set.forEach(id => N(id)?.classList.add("spof"));
+}
+
+/* ---------------- workbench ---------------- */
+function setTab(q) {
+  st.q = q; document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.q === q));
+  renderBench(); paint();
+}
+function paramControls(q) {
+  const d = Qdef(q); if (!d) return "";
+  return Object.entries(d.params).map(([k, spec]) => {
+    let opts = spec.kind === "choice" ? spec.options : spec.kind === "infra" ? infraIds() : toolIds();
+    return `<div class="field"><label for="p_${k}">${esc(spec.label)}</label><select id="p_${k}" data-k="${k}">${opts.map(o => `<option ${String(o) === String(st.params[q][k]) ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></div>`;
+  }).join("");
+}
+const infraIds = () => Object.keys(IX.type).filter(k => ["Switchgear", "UPS", "PDU", "Chiller", "CoolingLoop"].includes(IX.type[k]) && k.includes("-B01-")).sort();
+const toolIds = () => Object.keys(IX.type).filter(k => TOOL_TYPES.has(IX.type[k]) && k.includes("-B01-")).sort();
+function askText(q) { const d = Qdef(q); return fill(d.ask, st.params[q]); }
+
+function renderBench() {
+  const q = st.q, b = $("#bench");
+  if (q === "console") return renderConsole();
+  const d = Qdef(q), ref = REF[q](st.params[q]);
+  b.innerHTML = `
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div style="display:grid;gap:4px;min-width:0"><span class="eyebrow">${esc(d.id)} · stresses: ${esc(d.stresses)}</span><div class="ask">${esc(askText(q))}</div></div>
+      <div class="row">${paramControls(q)}</div>
+    </div>
+    <div class="ref"><span class="pill na" style="color:var(--ref)">Reference</span><span>${esc(refSummary(q, ref))}</span><span class="muted small">Plain JavaScript over the source dataset, run in your browser. Engines are checked against it.</span></div>
+    <div class="engines">${ENGINES.map(e => engineCard(q, e)).join("")}</div>`;
+  b.querySelectorAll("select[data-k]").forEach(s => s.addEventListener("change", () => {
+    st.params[q][s.dataset.k] = isNaN(+s.value) || s.value === "" ? s.value : (s.value.includes(".") ? parseFloat(s.value) : parseInt(s.value, 10));
+    ENGINES.forEach(e => delete st.edited[q + e]); runAll(); }));
+  b.querySelectorAll("textarea[data-e]").forEach(t => t.addEventListener("input", () => { st.edited[q + t.dataset.e] = t.value; }));
+  b.querySelectorAll("button[data-run]").forEach(btn => btn.addEventListener("click", () => runOne(q, btn.dataset.run)));
+  b.querySelectorAll("button[data-reset]").forEach(btn => btn.addEventListener("click", () => { delete st.edited[q + btn.dataset.reset]; renderBench(); }));
+}
+function engineCard(q, e) {
+  const d = Qdef(q), r = st.res[q] && st.res[q][e], online = META.engines[e].online;
+  const txt = queryText(q, e), edited = LIVE && st.edited[q + e] != null;
+  return `<div class="panel eng ${e}" id="eng_${e}">
+    <div><div class="name">${esc(ENAME[e])}</div><div class="sub">${esc(META.engines[e].name)}${online ? "" : " · offline"}</div></div>
+    <textarea data-e="${e}" spellcheck="false" aria-label="${esc(ENAME[e])} query" ${LIVE ? "" : "readonly"}>${esc(txt)}</textarea>
+    <div class="note">${esc(d.notes[e] || "")}</div>
+    <div class="row"><button class="btn" data-run="${e}" ${online ? "" : "disabled"}>Run</button>${edited ? `<button class="btn" data-reset="${e}">Reset query</button>` : ""}${resultStat(r)}</div>
+    <div>${resultBody(q, r)}</div></div>`;
+}
+function resultStat(r) {
+  if (!r) return "";
+  if (r.busy) return `<span class="stat muted">running…</span>`;
+  if (r.error) return `<span class="pill bad">error</span>`;
+  const x = r.result, t = x.ms != null ? `${x.ms < 10 ? x.ms.toFixed(2) : x.ms.toFixed(1)} ms` : "";
+  const srv = x.server_ms != null ? ` · server ${x.server_ms} ms` : "";
+  const pill = r.ok === true ? `<span class="pill ok">matches reference</span>` : r.ok === false ? `<span class="pill bad">differs</span>` : "";
+  return `<span class="stat">${pill}<span>${x.total} row${x.total === 1 ? "" : "s"}</span><span class="muted">${t}${srv}${x.recorded ? " · recorded" : ` · p50 of ${x.runs}`}</span></span>`;
+}
+function resultBody(q, r) {
+  if (!r || r.busy) return "";
+  if (r.error) return `<div class="err">${esc(r.error)}</div>`;
+  const x = r.result; let h = "";
+  if (r.summary) h += `<div class="summary">${esc(r.summary)}</div>`;
+  if (r.ok === false && r.d) h += `<div class="diff">${r.d.extra.length ? `<b>+${r.d.extra.length}</b> not in reference: ${esc(r.d.extra.slice(0, 6).join(", "))} ` : ""}${r.d.missing.length ? `<b>−${r.d.missing.length}</b> missing: ${esc(r.d.missing.slice(0, 6).join(", "))}` : ""}</div>`;
+  h += `<div class="res"><table><thead><tr>${x.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${x.rows.slice(0, 200).map(row => `<tr>${row.map(v => `<td>${esc(fmt(v))}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  return h;
+}
+const fmt = v => v == null ? "" : Array.isArray(v) ? v.join(" → ") : typeof v === "number" && !Number.isInteger(v) ? v.toFixed(3) : typeof v === "object" ? JSON.stringify(v) : v;
+function refSummary(q, ref) {
+  const p = st.params[q];
+  if (q === "Q1") { const tools = ref.filter(x => TOOL_TYPES.has(IX.type[x])).length; return `${ref.length} assets downstream of ${p.asset}, ${tools} of them production tools.`; }
+  if (q === "Q2") return `${ref.length} risky feeds.`;
+  if (q === "Q3") return `${ref.length} links from ${p.source} below confidence ${p.conf}.`;
+  if (q === "Q4") { const path = refPath(p); return path.length ? `Shortest chain, ${path.length - 1} hops: ${path.join(" → ")} (ties possible).` : "No path."; }
+  if (q === "Q5") return `${ref.length} areas · ${ref.reduce((a, x) => a + +x.split("|")[1], 0)} datapoints · ${ref.reduce((a, x) => a + +x.split("|")[2], 0)} active alarms.`;
+  if (q === "Q6") return `${ref.length} tools draw ${p.filter === "power only" ? "power" : "anything (power or cooling)"} from exactly one switchgear.`;
+  return "";
+}
+function engineSummary(q, c, x, p) {
+  if (q === "Q1") return `${c.length} downstream · ${c.filter(id => TOOL_TYPES.has(IX.type[id])).length} tools`;
+  if (q === "Q4") { const path = enginePath(x, p); return path.length ? path.join(" → ") : "no path"; }
+  if (q === "Q6") return `${c.length} single-point-of-failure tools`;
+  return `${c.length} result${c.length === 1 ? "" : "s"}`;
+}
+
+async function runOne(q, e) {
+  if (!META.engines[e].online) return;
+  st.res[q] = st.res[q] || {}; st.res[q][e] = { busy: true }; rerenderCard(q, e);
+  const p = st.params[q], text = queryText(q, e);
+  try {
+    const x = await api.query(e, text, 5), c = canon(q, x, p), ref = REF[q](p);
+    const ok = same(c, ref);
+    st.res[q][e] = { result: x, canon: c, ok, d: diff(c, ref), summary: engineSummary(q, c, x, p) };
+  } catch (err) { st.res[q][e] = { error: err.message }; }
+  if (st.q === q) { rerenderCard(q, e); paint(); }
+}
+function rerenderCard(q, e) {
+  if (st.q !== q) return; const old = $("#eng_" + e); if (!old) return;
+  const tmp = document.createElement("div"); tmp.innerHTML = engineCard(q, e); const nu = tmp.firstElementChild; old.replaceWith(nu);
+  nu.querySelector("textarea").addEventListener("input", ev => { st.edited[q + e] = ev.target.value; });
+  nu.querySelector("button[data-run]").addEventListener("click", () => runOne(q, e));
+  nu.querySelector("button[data-reset]")?.addEventListener("click", () => { delete st.edited[q + e]; rerenderCard(q, e); });
+}
+async function runAll() {
+  const q = st.q; if (q === "console") return runConsole();
+  renderBench(); paint();
+  for (const e of ENGINES) await runOne(q, e);
+}
+
+/* ---------------- console ---------------- */
+let consoleRes = null;
+function renderConsole() {
+  const ex = CAT.console || [];
+  $("#bench").innerHTML = `
+    <div class="row" style="justify-content:space-between"><div style="display:grid;gap:4px"><span class="eyebrow">Console</span><div class="ask">Ask the graph anything</div></div>
+      <div class="row"><div class="field"><label for="cEx">Example</label><select id="cEx">${ex.map((x, i) => `<option value="${i}">${esc(x.title)}</option>`).join("")}</select></div>
+      <div class="field"><label for="cEng">Engine</label><select id="cEng">${ENGINES.map(e => `<option value="${e}">${esc(ENAME[e])}</option>`).join("")}</select></div></div></div>
+    <textarea id="cTxt" spellcheck="false" aria-label="Console query" style="min-height:140px" ${LIVE ? "" : "readonly"}></textarea>
+    <div class="note">${LIVE ? "SPARQL for the RDF engines (fab:, rdf:, rdfs: prefixes are added for you), Cypher for Neo4j. Runs once, against the live engines." : "Recorded edition: the examples ran exactly as shown. Free-form queries need the live demo."}</div>
+    <div class="row"><button class="btn primary" id="cRun">Run</button><span id="cStat"></span></div><div id="cOut"></div>`;
+  const setEx = i => { const x = ex[i]; if (!x) return; $("#cEng").value = x.engine; $("#cTxt").value = x.text; };
+  $("#cEx").addEventListener("change", ev => setEx(+ev.target.value)); setEx(0);
+  $("#cRun").addEventListener("click", runConsole);
+}
+async function runConsole() {
+  const e = $("#cEng").value, text = $("#cTxt").value; $("#cStat").innerHTML = `<span class="muted small">running…</span>`;
+  try { const x = await api.query(e, text, 1);
+    $("#cStat").innerHTML = `<span class="stat">${x.total} rows · ${x.ms != null ? x.ms.toFixed(2) + " ms" : ""}${x.server_ms != null ? " · server " + x.server_ms + " ms" : ""}${x.recorded ? " · recorded" : ""}</span>`;
+    $("#cOut").innerHTML = resultBody("console", { result: x });
+  } catch (err) { $("#cStat").innerHTML = ""; $("#cOut").innerHTML = `<div class="err">${esc(err.message)}</div>`; }
+}
+
+/* ---------------- scenario + chrome ---------------- */
+function renderClaim() {
+  const c = st.claim, pill = $("#claimPill");
+  pill.textContent = c ? (c.neo_mode === "n10s" ? "edge in Neo4j" : "claim node") : "off"; pill.className = "pill " + (c ? (c.neo_mode === "n10s" ? "bad" : "ok") : "na");
+  $("#claimState").innerHTML = !c ? "No claim injected. Q6 should report the same set in every engine." :
+    `<b>${esc(c.src)} → ${esc(c.dst)}</b>, from BIM at confidence 0.55. RDF 1.1 stores it as a <span class="mono">fab:Claim</span> node, RDF 1.2 as an unasserted reifier. ` +
+    (c.neo_mode === "n10s" ? `In Neo4j, n10s made it a real <span class="mono">FEEDS</span> edge, so the Q6 audit now loses ${esc(c.dst)}.` : `In Neo4j it's a <span class="mono">:Claim</span> node off the traversal graph, so every engine still agrees.`);
+}
+async function setClaim(action) {
+  const src = $("#claimSrc").value, dst = $("#claimDst").value, mode = $("#claimMode").value;
+  try { const r = await api.claim(action, src, dst, mode); st.claim = r.claim; } catch (err) { alertBanner(err.message); return; }
+  st.res = {}; renderClaim(); drawTopo(); setTab("Q6"); runAll();
+}
+function alertBanner(msg) { const b = $("#banner"); b.className = "banner"; b.textContent = msg; b.hidden = false; }
+function chrome() {
+  $("#chips").innerHTML = `<span class="mode ${LIVE ? "live" : "rec"}">${LIVE ? "Live engines" : "Recorded edition"}</span>` +
+    ENGINES.map(e => `<span class="chip"><span class="dot ${META.engines[e].online ? "on" : "off"}"></span>${esc(ENAME[e])}<span class="muted">${esc(META.counts[e] || "")}</span></span>`).join("");
+  $("#counts").textContent = `Scale ${META.scale}: ${D.nodes.length.toLocaleString()} nodes, ${D.edges.length.toLocaleString()} edges in the source data. The diagram shows building B01; answers cover every building.`;
+  $("#scaleSel").innerHTML = META.scales.map(s => `<option ${s === META.scale ? "selected" : ""}>${s}</option>`).join("");
+  $("#scalePanel").hidden = !LIVE;
+  if (!LIVE) { const b = $("#banner"); b.className = "banner"; b.hidden = false;
+    b.innerHTML = `<b>Recorded edition.</b> Every preset was run on the live engines (Oxigraph ${esc(EMBED.meta.oxigraph || "")}, ${esc(META.engines.neo4j.name)}) on ${esc(EMBED.recorded_at)}, and their exact answers and timings are stored here. The topology, scenarios and correctness checks run in your browser. Clone the repo and run <span class="mono">python demo/server.py</span> to edit queries live.`; }
+  $("#hlSeg").innerHTML = ["reference", ...ENGINES].map(k => `<button aria-pressed="${st.hl === k}" data-hl="${k}">${k === "reference" ? "Reference" : ENAME[k].split(" ·")[0]}</button>`).join("");
+  $("#hlSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { st.hl = b.dataset.hl; $("#hlSeg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); paint(); }));
+  const infra = infraIds(), tools = toolIds();
+  $("#tripSel").innerHTML = infra.map(i => `<option ${i === st.params.Q1.asset ? "selected" : ""}>${i}</option>`).join("");
+  const csrc = LIVE ? infra.filter(i => IX.type[i] === "PDU") : (EMBED.claims.map(c => c.src)), cdst = LIVE ? tools : EMBED.claims.map(c => c.dst);
+  $("#claimSrc").innerHTML = [...new Set(csrc)].map(i => `<option>${i}</option>`).join("");
+  $("#claimDst").innerHTML = [...new Set(cdst)].map(i => `<option ${i === "T-B01-107" ? "selected" : ""}>${i}</option>`).join("");
+  $("#foot").innerHTML = `<span>Source data: deterministic synthetic fab (seed 42). Every answer is compared with an independent JavaScript reference over that data. "Differs" means the engine disagrees with physical reality as the source data defines it.</span>
+    <span>Neo4j timings include the Bolt round trip; "server" is Neo4j's own measurement. Oxigraph runs in-process.</span>`;
+}
+
+async function boot() {
+  try { META = await api.meta(); D = await api.dataset(); }
+  catch (err) { alertBanner("Can't reach the demo server. Start it with: python demo/server.py"); return; }
+  CAT = META.catalogue; IX = index(D); st.claim = META.claim || null;
+  for (const q of CAT.questions) { st.params[q.id] = {}; for (const [k, s] of Object.entries(q.params)) st.params[q.id][k] = s.default; }
+  layout(); chrome(); renderClaim(); drawTopo();
+  $("#tabs").innerHTML = CAT.questions.map(q => `<button class="tab" role="tab" data-q="${q.id}"><span class="n">${q.id}</span>${esc(q.title)}</button>`).join("") +
+    `<button class="tab" role="tab" data-q="console"><span class="n">›_</span>Console</button>`;
+  $("#tabs").querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { setTab(t.dataset.q); if (t.dataset.q !== "console" && !st.res[t.dataset.q]) runAll(); }));
+  $("#runAll").addEventListener("click", runAll);
+  $("#tripBtn").addEventListener("click", () => pick($("#tripSel").value));
+  $("#claimAdd").addEventListener("click", () => setClaim("add"));
+  $("#claimDel").addEventListener("click", () => setClaim("remove"));
+  $("#scaleBtn").addEventListener("click", async () => { document.body.classList.add("busy");
+    try { META = await api.load(+$("#scaleSel").value); D = await api.dataset(); IX = index(D); st.res = {}; st.claim = null; chrome(); renderClaim(); drawTopo(); runAll(); }
+    catch (err) { alertBanner(err.message); } document.body.classList.remove("busy"); });
+  setTab("Q1"); runAll();
+}
+boot();
+})();
+</script>

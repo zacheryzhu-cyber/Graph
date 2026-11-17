@@ -14,7 +14,7 @@ asked the same six questions (Q6 = single-point-of-failure audit), with every an
 | 5b | `step5b_n10s_compat.py` + `n10s_parser_check/` | What **real** n10s 5.26 does with RDF 1.2 (parser + source verified) and the phantom-edge risk |
 | 6 | `step6_bottlenecks.py` | Path explosion, SCADA write rate, optimizer pitfalls, scale table |
 
-**Visual summary:** `lab_summary.html`. **Read:** `SUMMARY.md` (decision guide) → `LEARNING_NOTES.md` (why + measured results per stage) → `DECISIONS.md`.
+**Working demo:** `python demo/server.py` → http://127.0.0.1:8765 (see `demo/README.md`). **Visual summary:** `lab_summary.html`. **Read:** `SUMMARY.md` (decision guide) → `LEARNING_NOTES.md` (why + measured results per stage) → `DECISIONS.md`.
 
 ## Run
 ```bash

@@ -1,4 +1,4 @@
-.PHONY: all neo4j env data rdf star lpg interop bench clean
+.PHONY: all neo4j env data rdf star lpg interop n10s bench demo demo-build demo-test clean
 all: ; ./run_all.sh
 neo4j: ; ./neo4j_embedded/run.sh
 env: ; python step0_env_check.py
@@ -10,3 +10,6 @@ interop: ; python step5_interop.py
 n10s: ; ./n10s_parser_check/run.sh && python step5b_n10s_compat.py
 bench: ; python step6_bottlenecks.py
 clean: ; rm -rf out neo4j_data data/facility_s*.json
+demo: ; python demo/server.py
+demo-build: ; python demo/build_published.py
+demo-test: ; node demo/tests/ui_smoke.js

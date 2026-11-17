@@ -33,7 +33,7 @@ def load_lpg(drv, d, batch=5000):
     drv.execute_query("CREATE CONSTRAINT entity_id IF NOT EXISTS FOR (n:Entity) REQUIRE n.id IS UNIQUE")
     by_type = defaultdict(list)
     for n in d["nodes"]:
-        by_type[n["type"]].append({k: v for k, v in n.items() if k != "type"})
+        by_type[n["type"]].append(dict(n))   # keep `type` as a property too (handy for display)
     for t, rows in by_type.items():
         labels = ":".join(["Entity", t] + extra_labels(t))
         for i in range(0, len(rows), batch):
