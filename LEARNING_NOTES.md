@@ -52,3 +52,28 @@ All five answers match the Python ground truth (40 impacted tools, 23 risky feed
 - **Q1 is the strength of RDF:** "is a ProductionTool" is answered by `a/rdfs:subClassOf*`. The class hierarchy is queryable data, so adding `LaserAnnealTool rdfs:subClassOf fab:ProductionTool` needs no change to the query.
 - **Q4 is the weakness:** SPARQL property paths answer *whether* a path exists, but **cannot return the path**. I had to unroll depths 1..5 as UNION branches (`hops_union()`), which only works because I know the maximum depth.
 - **First bottleneck seen:** Q1's answer is constant (40 tools in building B01), yet its time grows **linearly with total graph size** (1.8 → 169 ms). The engine doesn't anchor the transitive path well when it's combined with the `subClassOf*` type check. Revisited in Stage 6.
+
+---
+## Stage 3 — RDF 1.2 (RDF-star / triple terms) in Oxigraph
+**Why:** RDF 1.2 keeps the direct triple `A fab:feeds B` and hangs the metadata on a **reifier**: `r rdf:reifies <<( A fab:feeds B )>>`.
+Traversal stays simple, and the metadata is still standard RDF. RDF 1.2 can also express things an LPG cannot:
+**several independent statements about the same edge** (BIM says 0.7, WinCC OA says 0.95) and **claims that are not asserted**
+(BIM *says* PDU-01 feeds tool X, but the link isn't in the operational graph).
+**Watch for:** triple count compared with n-ary, query readability, and whether the queries get faster.
+**What happened:**
+| SCALE | triples | reifier triples | load | Q1 impact | Q2 | Q3 | Q4 path | Q5 |
+|---|---|---|---|---|---|---|---|---|
+| 1  | 2,457   | 1,104  | 17 ms  | **0.40 ms** | 0.36 | 0.27 | 0.38 | 0.24 |
+| 10 | 23,751  | 10,760 | 126 ms | **0.28 ms** | 3.2  | 3.5  | 0.6  | 2.6  |
+| 50 | 118,641 | 53,592 | 852 ms | **0.29 ms** | 22   | 24   | 0.5  | 14   |
+
+- **Triple count:** about 5 % *fewer* than n-ary (9 per edge vs 10: direct triple + `rdf:reifies` + 7 props, vs type/from/to + 7). This is **not** the 50 % saving early RDF-star marketing implied. The win is shape, not size.
+- **Q1 impact became constant-time with respect to graph size** (0.3 ms at 125k triples vs 169 ms for n-ary). The direct `fab:feeds+` path anchors from the tripped switchgear, so this is a **580× difference at SCALE=50** for the same answer. The traversal query reads the way an engineer thinks: `fab:SWG-B01-A fab:feeds+ ?t`.
+- **Q2/Q3 (filter on edge metadata) are no faster:** the engine still joins reifier → triple term → properties. The annotation syntax `?s fab:feeds ?d {| fab:redundant false |}` is far more readable, though.
+- **Load is ~50 % slower** (852 vs 538 ms at SCALE=50): triple terms are indexed as nested terms.
+- **Capabilities no LPG edge has** (demo at SCALE=1):
+  - a **claimed-but-not-asserted** link (`PDU-B01-01 → T-B01-402`, BIM, conf 0.55) is queryable as a claim, yet correctly **not** traversed by impact analysis;
+  - one edge carries **two independent statements** (CMMS=0.83, WinCC OA=0.99), each with its own provenance.
+
+  That is the RDF 1.2 sweet spot: reconciling conflicting facility sources (BIM vs CMMS vs SCADA).
+- Turtle written to `out/fab_rdf12.ttl`. Look for `rdf:reifies <<( ... )>>`.
