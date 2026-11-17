@@ -1,0 +1,5 @@
+neo4j_embedded/target/
+neo4j_data/
+__pycache__/
+*.pyc
+out/

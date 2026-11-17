@@ -1,0 +1,10 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>lab</groupId><artifactId>neo4j-embedded-bolt</artifactId><version>1.0</version>
+  <properties><maven.compiler.release>21</maven.compiler.release><neo4j.version>5.26.33</neo4j.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
+  <dependencies>
+    <dependency><groupId>org.neo4j</groupId><artifactId>neo4j</artifactId><version>${neo4j.version}</version></dependency>
+    <dependency><groupId>org.neo4j</groupId><artifactId>neo4j-bolt</artifactId><version>${neo4j.version}</version></dependency>
+  </dependencies>
+</project>
