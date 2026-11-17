@@ -149,3 +149,9 @@ emulating neosemantics (n10s) conventions, and checks whether SHACL tooling hand
 **3. Optimizer bottleneck behind Stage 2's slow Q1 (SCALE=50):**
 - n-ary path alone: 0.7 ms. Path + `?t a/rdfs:subClassOf* fab:ProductionTool`: **187 ms**. Same query with the traversal forced first via a subquery: **2.7 ms**.
 - The SPARQL planner started from "all ProductionTools in all 50 buildings" and tested reachability for each. **Declarative isn't plan-proof**; check plans (Oxigraph `explain`, Cypher `EXPLAIN/PROFILE`).
+
+---
+## Stage 7 — wrap-up
+`./run_all.sh` runs everything end-to-end in **~19 s** (all scales, 54/54 ground-truth checks ✓). A re-run varied ±20 % on individual timings,
+so treat any sub-5 ms difference as noise. The big effects (580× for Q1 shape, exponential path counting, 200× batching) are robust.
+Decision guide: **SUMMARY.md**. Latest numbers: **RESULTS.md**.
