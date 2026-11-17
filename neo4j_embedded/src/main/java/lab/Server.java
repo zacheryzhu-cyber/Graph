@@ -11,7 +11,7 @@ import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
  *  Used because Docker has no daemon here and dist.neo4j.org is not reachable (see DECISIONS.md). */
 public class Server {
     public static void main(String[] args) throws Exception {
-        Path home = Path.of(args.length > 0 ? args[0] : "neo4j_data");
+        Path home = Path.of(args.length > 0 ? args[0] : "neo4j_data").toAbsolutePath().normalize();
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 7687;
         DatabaseManagementService dbms = new DatabaseManagementServiceBuilder(home)
                 .setConfig(BoltConnector.enabled, true)

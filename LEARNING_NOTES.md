@@ -77,3 +77,22 @@ Traversal stays simple, and the metadata is still standard RDF. RDF 1.2 can also
 
   That is the RDF 1.2 sweet spot: reconciling conflicting facility sources (BIM vs CMMS vs SCADA).
 - Turtle written to `out/fab_rdf12.ttl`. Look for `rdf:reifies <<( ... )>>`.
+
+---
+## Stage 4 — LPG (Neo4j 5.26 + Cypher)
+**Why:** In an LPG, relationships are first-class records **with properties**. The 138 feeds are 138 relationships, each with 7 properties, with no extra nodes or triples.
+Traversal is pointer-chasing (index-free adjacency), and Cypher returns **paths** natively. There are no global IRIs and no ontology, though:
+"is a ProductionTool" becomes **an extra label you must remember to set**, not something inferred.
+**Watch for:** query readability, path return (Q4), what replaces `rdfs:subClassOf*`, and Bolt round-trip overhead vs the in-process Oxigraph (a fairness caveat).
+**What happened** (client = Python wall-clock incl. Bolt round trip; server = Neo4j-reported):
+| SCALE | nodes / rels | load | Q1 impact | Q2 | Q3 | Q4 path | Q5 |
+|---|---|---|---|---|---|---|---|
+| 1  | 261 / 398       | 373 ms   | 10.0 (srv 4) | 8.7 (2)  | 8.4 (2)  | 7.2 (2) | 9.3 (3) |
+| 10 | 2,544 / 3,888   | 1,229 ms | 6.6 (2)      | 15 (6)   | 14 (3)   | 4.4 (2) | 8.7 (4) |
+| 50 | 12,748 / 19,446 | 2,136 ms | 4.4 (0)      | 22 (12)  | 51 (13)  | 4.6 (2) | 18 (11) |
+
+- **Storage:** 398 relationships vs 2,457–2,595 triples, the same information. Edge metadata costs **no extra structural elements**.
+- **Q1:** `(:Entity {id:$src})-[:FEEDS*]->(t:ProductionTool)`. The planner chose `VarLengthExpand(Pruning,BFS,All)` from a unique-index seek, so it stays constant with respect to graph size (like RDF 1.2, unlike n-ary RDF). **But `:ProductionTool` works only because the loader added that label.** Add a new tool type, forget the label, and impact analysis silently misses it. That is the LPG price for having no ontology.
+- **Q4 is the LPG home turf:** `shortestPath(...)` returns the **actual path**, no depth unrolling. Note it returned a *different* path of equal length (via UPS/PDU instead of chiller/PCW). Ties are real in redundant facility topologies, and `allShortestPaths` returns all of them.
+- **Q2/Q3:** relationship-property filters scan all FEEDS relationships. Neo4j 5 supports **relationship property indexes** (`CREATE INDEX FOR ()-[f:FEEDS]-() ON (f.source)`) if this became hot.
+- **Fairness caveat:** Oxigraph runs in-process, while Neo4j adds ~4–8 ms of Bolt + driver overhead per query. At this data size the **server-side** times are the honest comparison: both engines answer everything in **< 25 ms at SCALE=50**. Load is slower in Neo4j (transactional writes plus index maintenance over Bolt).
