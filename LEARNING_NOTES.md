@@ -33,3 +33,22 @@ That metadata is exactly where RDF, RDF 1.2 and LPG diverge.
 **What happened:** SCALE=1 → **261 nodes, 398 edges**, of which **138 `feeds` edges carry 7 properties each**
 (medium, installed, redundant, capacity_kW, load_kW, source, confidence). SCALE=10 → 2,544 / 3,888; SCALE=50 → 12,748 / 19,446.
 About **35 % of edges carry metadata**. That share is typical of facility graphs, where utility links have engineering attributes and structural links (`locatedIn`) don't.
+
+---
+## Stage 2 — plain RDF (RDF 1.1) in Oxigraph
+**Why:** RDF gives global identifiers (IRIs), a schema/ontology (`rdfs:subClassOf`), and standards (SPARQL, SHACL)
+that are the same across vendors. A triple, though, **has no place for properties**. To say "this feed was installed in 2012,
+is non-redundant, and comes from BIM with 0.7 confidence", RDF 1.1 has to turn the edge into a node (an n-ary relation / "Feed" object).
+**Watch for:** how many triples that costs, and how much more awkward the multi-hop query (Q1) and path query (Q4) become.
+**What happened:**
+| SCALE | triples | of which Feed-node triples | load | Q1 impact | Q2 | Q3 | Q4 path | Q5 |
+|---|---|---|---|---|---|---|---|---|
+| 1  | 2,595   | 1,380 (53 %)  | 13 ms  | 1.8 ms | 0.5 | 0.3 | 0.8 | 0.3 |
+| 10 | 25,096  | 13,450        | 124 ms | 33 ms  | 5.0 | 2.7 | 0.9 | 2.0 |
+| 50 | 125,340 | 66,990        | 538 ms | 169 ms | 22  | 15  | 1.0 | 13  |
+
+All five answers match the Python ground truth (40 impacted tools, 23 risky feeds, 48 low-confidence BIM links, path length 3).
+- **Cost of edge metadata in RDF 1.1:** 138 feeds × (type + from + to + 7 props) = 10 triples per edge, which is **53 % of the whole graph**. The direct `A feeds B` triple **no longer exists**, so every traversal must step through the Feed node: `(^fab:feedFrom/fab:feedTo)+`. That is readable for experts and unfamiliar to everyone else.
+- **Q1 is the strength of RDF:** "is a ProductionTool" is answered by `a/rdfs:subClassOf*`. The class hierarchy is queryable data, so adding `LaserAnnealTool rdfs:subClassOf fab:ProductionTool` needs no change to the query.
+- **Q4 is the weakness:** SPARQL property paths answer *whether* a path exists, but **cannot return the path**. I had to unroll depths 1..5 as UNION branches (`hops_union()`), which only works because I know the maximum depth.
+- **First bottleneck seen:** Q1's answer is constant (40 tools in building B01), yet its time grows **linearly with total graph size** (1.8 → 169 ms). The engine doesn't anchor the transitive path well when it's combined with the `subClassOf*` type check. Revisited in Stage 6.
