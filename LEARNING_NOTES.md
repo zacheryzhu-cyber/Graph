@@ -23,3 +23,13 @@ the 2021 Community Group draft (quoted triples) or the RDF 1.2 draft (triple ter
 - **Key semantic surprise:** the *old* RDF-star syntax `<< :a :b :c >> :since 2020` is **no longer a quoted triple used as a subject**. Under RDF 1.2 it becomes **2 triples**: a blank-node *reifier* `_:r rdf:reifies <<( :a :b :c )>>` plus `_:r :since 2020`. Triple terms may only appear in the **object** position. Data written for RDF-star 2021 can silently change shape when an RDF 1.2 parser loads it. **Watch for this in migrations.**
 - An *annotation* `:a :b :c {| :since 2020 |}` **asserts** the base triple (3 triples). A bare `<< >>` only **mentions** it (2 triples, base triple not asserted). Asserted vs mentioned matters for fab provenance ("is this link real, or just claimed by the BIM model?").
 - **Neo4j:** Docker has no daemon here and dist.neo4j.org returns 403, so I run Neo4j **5.26.33** (the final 5.x LTS) embedded via Maven with a Bolt port. **n10s:** not reachable (GitHub releases blocked, not on Maven Central). Its conventions are emulated in step 5.
+
+---
+## Stage 1 — one canonical dataset
+**Why:** Comparisons between graph models are usually unfair, because each demo uses data shaped for its own strengths.
+Here one model-neutral JSON (`nodes` + `edges` with properties) is generated once. Every model is *derived* from it.
+**Watch for:** how many edges carry **metadata** (install year, capacity, load, redundancy, source system, confidence).
+That metadata is exactly where RDF, RDF 1.2 and LPG diverge.
+**What happened:** SCALE=1 → **261 nodes, 398 edges**, of which **138 `feeds` edges carry 7 properties each**
+(medium, installed, redundant, capacity_kW, load_kW, source, confidence). SCALE=10 → 2,544 / 3,888; SCALE=50 → 12,748 / 19,446.
+About **35 % of edges carry metadata**. That share is typical of facility graphs, where utility links have engineering attributes and structural links (`locatedIn`) don't.

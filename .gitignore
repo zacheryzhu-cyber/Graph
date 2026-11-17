@@ -3,3 +3,6 @@ neo4j_data/
 __pycache__/
 *.pyc
 out/
+data/facility_s1[0-9]*.json
+data/facility_s[2-9]*.json
+neo4j.log

@@ -1,0 +1,5083 @@
+{
+ "scale": 1,
+ "nodes": [
+  {
+   "id": "SITE-FAB",
+   "type": "Site",
+   "name": "SITE-FAB"
+  },
+  {
+   "id": "BLD-B01",
+   "type": "Building",
+   "name": "BLD-B01"
+  },
+  {
+   "id": "SWG-B01-A",
+   "type": "Switchgear",
+   "name": "SWG-B01-A"
+  },
+  {
+   "id": "SWG-B01-B",
+   "type": "Switchgear",
+   "name": "SWG-B01-B"
+  },
+  {
+   "id": "UPS-B01-1",
+   "type": "UPS",
+   "name": "UPS-B01-1"
+  },
+  {
+   "id": "UPS-B01-2",
+   "type": "UPS",
+   "name": "UPS-B01-2"
+  },
+  {
+   "id": "UPS-B01-3",
+   "type": "UPS",
+   "name": "UPS-B01-3"
+  },
+  {
+   "id": "UPS-B01-4",
+   "type": "UPS",
+   "name": "UPS-B01-4"
+  },
+  {
+   "id": "PDU-B01-01",
+   "type": "PDU",
+   "name": "PDU-B01-01"
+  },
+  {
+   "id": "PDU-B01-02",
+   "type": "PDU",
+   "name": "PDU-B01-02"
+  },
+  {
+   "id": "PDU-B01-03",
+   "type": "PDU",
+   "name": "PDU-B01-03"
+  },
+  {
+   "id": "PDU-B01-04",
+   "type": "PDU",
+   "name": "PDU-B01-04"
+  },
+  {
+   "id": "PDU-B01-05",
+   "type": "PDU",
+   "name": "PDU-B01-05"
+  },
+  {
+   "id": "PDU-B01-06",
+   "type": "PDU",
+   "name": "PDU-B01-06"
+  },
+  {
+   "id": "PDU-B01-07",
+   "type": "PDU",
+   "name": "PDU-B01-07"
+  },
+  {
+   "id": "PDU-B01-08",
+   "type": "PDU",
+   "name": "PDU-B01-08"
+  },
+  {
+   "id": "CH-B01-01",
+   "type": "Chiller",
+   "name": "CH-B01-01"
+  },
+  {
+   "id": "CH-B01-02",
+   "type": "Chiller",
+   "name": "CH-B01-02"
+  },
+  {
+   "id": "CH-B01-03",
+   "type": "Chiller",
+   "name": "CH-B01-03"
+  },
+  {
+   "id": "PCW-B01-1",
+   "type": "CoolingLoop",
+   "name": "PCW-B01-1"
+  },
+  {
+   "id": "PCW-B01-2",
+   "type": "CoolingLoop",
+   "name": "PCW-B01-2"
+  },
+  {
+   "id": "PCW-B01-3",
+   "type": "CoolingLoop",
+   "name": "PCW-B01-3"
+  },
+  {
+   "id": "PCW-B01-4",
+   "type": "CoolingLoop",
+   "name": "PCW-B01-4"
+  },
+  {
+   "id": "CH-B01-01.SupplyTemp",
+   "type": "Datapoint",
+   "name": "CH-B01-01.SupplyTemp",
+   "tag": "System1:CH_B01_01.SupplyTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "CH-B01-01.ReturnTemp",
+   "type": "Datapoint",
+   "name": "CH-B01-01.ReturnTemp",
+   "tag": "System1:CH_B01_01.ReturnTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "CH-B01-01.Power",
+   "type": "Datapoint",
+   "name": "CH-B01-01.Power",
+   "tag": "System1:CH_B01_01.Power",
+   "unit": "kW"
+  },
+  {
+   "id": "CH-B01-02.SupplyTemp",
+   "type": "Datapoint",
+   "name": "CH-B01-02.SupplyTemp",
+   "tag": "System1:CH_B01_02.SupplyTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-CH-B01-02.SupplyTemp",
+   "type": "Alarm",
+   "name": "ALM-CH-B01-02.SupplyTemp",
+   "severity": "warning",
+   "active": false,
+   "raised": "2026-11-13T08:00:00Z"
+  },
+  {
+   "id": "CH-B01-02.ReturnTemp",
+   "type": "Datapoint",
+   "name": "CH-B01-02.ReturnTemp",
+   "tag": "System1:CH_B01_02.ReturnTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-CH-B01-02.ReturnTemp",
+   "type": "Alarm",
+   "name": "ALM-CH-B01-02.ReturnTemp",
+   "severity": "critical",
+   "active": false,
+   "raised": "2026-11-11T06:00:00Z"
+  },
+  {
+   "id": "CH-B01-02.Power",
+   "type": "Datapoint",
+   "name": "CH-B01-02.Power",
+   "tag": "System1:CH_B01_02.Power",
+   "unit": "kW"
+  },
+  {
+   "id": "CH-B01-03.SupplyTemp",
+   "type": "Datapoint",
+   "name": "CH-B01-03.SupplyTemp",
+   "tag": "System1:CH_B01_03.SupplyTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "CH-B01-03.ReturnTemp",
+   "type": "Datapoint",
+   "name": "CH-B01-03.ReturnTemp",
+   "tag": "System1:CH_B01_03.ReturnTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "CH-B01-03.Power",
+   "type": "Datapoint",
+   "name": "CH-B01-03.Power",
+   "tag": "System1:CH_B01_03.Power",
+   "unit": "kW"
+  },
+  {
+   "id": "AREA-B01-1",
+   "type": "Area",
+   "name": "AREA-B01-1",
+   "cleanroomClass": "ISO5"
+  },
+  {
+   "id": "T-B01-101",
+   "type": "CVDTool",
+   "name": "T-B01-101"
+  },
+  {
+   "id": "T-B01-101.State",
+   "type": "Datapoint",
+   "name": "T-B01-101.State",
+   "tag": "System1:T_B01_101.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-101.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-101.ChuckTemp",
+   "tag": "System1:T_B01_101.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-101.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-101.Vacuum",
+   "tag": "System1:T_B01_101.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-101.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-101.PowerDraw",
+   "tag": "System1:T_B01_101.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-102",
+   "type": "MetrologyTool",
+   "name": "T-B01-102"
+  },
+  {
+   "id": "T-B01-102.State",
+   "type": "Datapoint",
+   "name": "T-B01-102.State",
+   "tag": "System1:T_B01_102.State",
+   "unit": ""
+  },
+  {
+   "id": "ALM-T-B01-102.State",
+   "type": "Alarm",
+   "name": "ALM-T-B01-102.State",
+   "severity": "major",
+   "active": true,
+   "raised": "2026-11-08T08:00:00Z"
+  },
+  {
+   "id": "T-B01-102.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-102.ChuckTemp",
+   "tag": "System1:T_B01_102.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-102.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-102.Vacuum",
+   "tag": "System1:T_B01_102.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-102.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-102.PowerDraw",
+   "tag": "System1:T_B01_102.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-103",
+   "type": "MetrologyTool",
+   "name": "T-B01-103"
+  },
+  {
+   "id": "T-B01-103.State",
+   "type": "Datapoint",
+   "name": "T-B01-103.State",
+   "tag": "System1:T_B01_103.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-103.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-103.ChuckTemp",
+   "tag": "System1:T_B01_103.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-103.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-103.Vacuum",
+   "tag": "System1:T_B01_103.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-103.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-103.PowerDraw",
+   "tag": "System1:T_B01_103.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-104",
+   "type": "EUVScanner",
+   "name": "T-B01-104"
+  },
+  {
+   "id": "T-B01-104.State",
+   "type": "Datapoint",
+   "name": "T-B01-104.State",
+   "tag": "System1:T_B01_104.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-104.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-104.ChuckTemp",
+   "tag": "System1:T_B01_104.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-104.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-104.ChuckTemp",
+   "severity": "major",
+   "active": true,
+   "raised": "2026-11-15T09:00:00Z"
+  },
+  {
+   "id": "T-B01-104.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-104.Vacuum",
+   "tag": "System1:T_B01_104.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-104.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-104.PowerDraw",
+   "tag": "System1:T_B01_104.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-105",
+   "type": "MetrologyTool",
+   "name": "T-B01-105"
+  },
+  {
+   "id": "T-B01-105.State",
+   "type": "Datapoint",
+   "name": "T-B01-105.State",
+   "tag": "System1:T_B01_105.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-105.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-105.ChuckTemp",
+   "tag": "System1:T_B01_105.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-105.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-105.Vacuum",
+   "tag": "System1:T_B01_105.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-105.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-105.PowerDraw",
+   "tag": "System1:T_B01_105.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-106",
+   "type": "MetrologyTool",
+   "name": "T-B01-106"
+  },
+  {
+   "id": "T-B01-106.State",
+   "type": "Datapoint",
+   "name": "T-B01-106.State",
+   "tag": "System1:T_B01_106.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-106.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-106.ChuckTemp",
+   "tag": "System1:T_B01_106.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-106.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-106.Vacuum",
+   "tag": "System1:T_B01_106.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "ALM-T-B01-106.Vacuum",
+   "type": "Alarm",
+   "name": "ALM-T-B01-106.Vacuum",
+   "severity": "critical",
+   "active": true,
+   "raised": "2026-11-09T04:00:00Z"
+  },
+  {
+   "id": "T-B01-106.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-106.PowerDraw",
+   "tag": "System1:T_B01_106.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-107",
+   "type": "EUVScanner",
+   "name": "T-B01-107"
+  },
+  {
+   "id": "T-B01-107.State",
+   "type": "Datapoint",
+   "name": "T-B01-107.State",
+   "tag": "System1:T_B01_107.State",
+   "unit": ""
+  },
+  {
+   "id": "ALM-T-B01-107.State",
+   "type": "Alarm",
+   "name": "ALM-T-B01-107.State",
+   "severity": "critical",
+   "active": true,
+   "raised": "2026-11-10T19:00:00Z"
+  },
+  {
+   "id": "T-B01-107.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-107.ChuckTemp",
+   "tag": "System1:T_B01_107.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-107.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-107.Vacuum",
+   "tag": "System1:T_B01_107.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-107.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-107.PowerDraw",
+   "tag": "System1:T_B01_107.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-108",
+   "type": "CVDTool",
+   "name": "T-B01-108"
+  },
+  {
+   "id": "T-B01-108.State",
+   "type": "Datapoint",
+   "name": "T-B01-108.State",
+   "tag": "System1:T_B01_108.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-108.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-108.ChuckTemp",
+   "tag": "System1:T_B01_108.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-108.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-108.Vacuum",
+   "tag": "System1:T_B01_108.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-108.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-108.PowerDraw",
+   "tag": "System1:T_B01_108.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-109",
+   "type": "EtchTool",
+   "name": "T-B01-109"
+  },
+  {
+   "id": "T-B01-109.State",
+   "type": "Datapoint",
+   "name": "T-B01-109.State",
+   "tag": "System1:T_B01_109.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-109.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-109.ChuckTemp",
+   "tag": "System1:T_B01_109.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-109.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-109.Vacuum",
+   "tag": "System1:T_B01_109.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-109.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-109.PowerDraw",
+   "tag": "System1:T_B01_109.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-110",
+   "type": "CMPTool",
+   "name": "T-B01-110"
+  },
+  {
+   "id": "T-B01-110.State",
+   "type": "Datapoint",
+   "name": "T-B01-110.State",
+   "tag": "System1:T_B01_110.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-110.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-110.ChuckTemp",
+   "tag": "System1:T_B01_110.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-110.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-110.Vacuum",
+   "tag": "System1:T_B01_110.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-110.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-110.PowerDraw",
+   "tag": "System1:T_B01_110.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "AREA-B01-2",
+   "type": "Area",
+   "name": "AREA-B01-2",
+   "cleanroomClass": "ISO5"
+  },
+  {
+   "id": "T-B01-201",
+   "type": "MetrologyTool",
+   "name": "T-B01-201"
+  },
+  {
+   "id": "T-B01-201.State",
+   "type": "Datapoint",
+   "name": "T-B01-201.State",
+   "tag": "System1:T_B01_201.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-201.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-201.ChuckTemp",
+   "tag": "System1:T_B01_201.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-201.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-201.Vacuum",
+   "tag": "System1:T_B01_201.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "ALM-T-B01-201.Vacuum",
+   "type": "Alarm",
+   "name": "ALM-T-B01-201.Vacuum",
+   "severity": "major",
+   "active": true,
+   "raised": "2026-11-07T11:00:00Z"
+  },
+  {
+   "id": "T-B01-201.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-201.PowerDraw",
+   "tag": "System1:T_B01_201.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-202",
+   "type": "CVDTool",
+   "name": "T-B01-202"
+  },
+  {
+   "id": "T-B01-202.State",
+   "type": "Datapoint",
+   "name": "T-B01-202.State",
+   "tag": "System1:T_B01_202.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-202.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-202.ChuckTemp",
+   "tag": "System1:T_B01_202.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-202.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-202.Vacuum",
+   "tag": "System1:T_B01_202.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-202.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-202.PowerDraw",
+   "tag": "System1:T_B01_202.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-203",
+   "type": "EtchTool",
+   "name": "T-B01-203"
+  },
+  {
+   "id": "T-B01-203.State",
+   "type": "Datapoint",
+   "name": "T-B01-203.State",
+   "tag": "System1:T_B01_203.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-203.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-203.ChuckTemp",
+   "tag": "System1:T_B01_203.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-203.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-203.Vacuum",
+   "tag": "System1:T_B01_203.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-203.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-203.PowerDraw",
+   "tag": "System1:T_B01_203.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-204",
+   "type": "CMPTool",
+   "name": "T-B01-204"
+  },
+  {
+   "id": "T-B01-204.State",
+   "type": "Datapoint",
+   "name": "T-B01-204.State",
+   "tag": "System1:T_B01_204.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-204.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-204.ChuckTemp",
+   "tag": "System1:T_B01_204.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-204.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-204.Vacuum",
+   "tag": "System1:T_B01_204.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-204.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-204.PowerDraw",
+   "tag": "System1:T_B01_204.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-205",
+   "type": "CMPTool",
+   "name": "T-B01-205"
+  },
+  {
+   "id": "T-B01-205.State",
+   "type": "Datapoint",
+   "name": "T-B01-205.State",
+   "tag": "System1:T_B01_205.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-205.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-205.ChuckTemp",
+   "tag": "System1:T_B01_205.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-205.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-205.Vacuum",
+   "tag": "System1:T_B01_205.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-205.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-205.PowerDraw",
+   "tag": "System1:T_B01_205.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-206",
+   "type": "MetrologyTool",
+   "name": "T-B01-206"
+  },
+  {
+   "id": "T-B01-206.State",
+   "type": "Datapoint",
+   "name": "T-B01-206.State",
+   "tag": "System1:T_B01_206.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-206.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-206.ChuckTemp",
+   "tag": "System1:T_B01_206.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-206.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-206.Vacuum",
+   "tag": "System1:T_B01_206.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-206.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-206.PowerDraw",
+   "tag": "System1:T_B01_206.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-207",
+   "type": "EtchTool",
+   "name": "T-B01-207"
+  },
+  {
+   "id": "T-B01-207.State",
+   "type": "Datapoint",
+   "name": "T-B01-207.State",
+   "tag": "System1:T_B01_207.State",
+   "unit": ""
+  },
+  {
+   "id": "ALM-T-B01-207.State",
+   "type": "Alarm",
+   "name": "ALM-T-B01-207.State",
+   "severity": "warning",
+   "active": false,
+   "raised": "2026-11-07T00:00:00Z"
+  },
+  {
+   "id": "T-B01-207.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-207.ChuckTemp",
+   "tag": "System1:T_B01_207.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-207.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-207.Vacuum",
+   "tag": "System1:T_B01_207.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-207.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-207.PowerDraw",
+   "tag": "System1:T_B01_207.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-208",
+   "type": "EUVScanner",
+   "name": "T-B01-208"
+  },
+  {
+   "id": "T-B01-208.State",
+   "type": "Datapoint",
+   "name": "T-B01-208.State",
+   "tag": "System1:T_B01_208.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-208.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-208.ChuckTemp",
+   "tag": "System1:T_B01_208.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-208.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-208.Vacuum",
+   "tag": "System1:T_B01_208.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "ALM-T-B01-208.Vacuum",
+   "type": "Alarm",
+   "name": "ALM-T-B01-208.Vacuum",
+   "severity": "major",
+   "active": false,
+   "raised": "2026-11-04T18:00:00Z"
+  },
+  {
+   "id": "T-B01-208.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-208.PowerDraw",
+   "tag": "System1:T_B01_208.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-209",
+   "type": "CVDTool",
+   "name": "T-B01-209"
+  },
+  {
+   "id": "T-B01-209.State",
+   "type": "Datapoint",
+   "name": "T-B01-209.State",
+   "tag": "System1:T_B01_209.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-209.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-209.ChuckTemp",
+   "tag": "System1:T_B01_209.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-209.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-209.Vacuum",
+   "tag": "System1:T_B01_209.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-209.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-209.PowerDraw",
+   "tag": "System1:T_B01_209.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-210",
+   "type": "CMPTool",
+   "name": "T-B01-210"
+  },
+  {
+   "id": "T-B01-210.State",
+   "type": "Datapoint",
+   "name": "T-B01-210.State",
+   "tag": "System1:T_B01_210.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-210.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-210.ChuckTemp",
+   "tag": "System1:T_B01_210.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-210.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-210.Vacuum",
+   "tag": "System1:T_B01_210.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-210.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-210.PowerDraw",
+   "tag": "System1:T_B01_210.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "AREA-B01-3",
+   "type": "Area",
+   "name": "AREA-B01-3",
+   "cleanroomClass": "ISO5"
+  },
+  {
+   "id": "T-B01-301",
+   "type": "CMPTool",
+   "name": "T-B01-301"
+  },
+  {
+   "id": "T-B01-301.State",
+   "type": "Datapoint",
+   "name": "T-B01-301.State",
+   "tag": "System1:T_B01_301.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-301.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-301.ChuckTemp",
+   "tag": "System1:T_B01_301.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-301.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-301.ChuckTemp",
+   "severity": "critical",
+   "active": false,
+   "raised": "2026-11-06T06:00:00Z"
+  },
+  {
+   "id": "T-B01-301.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-301.Vacuum",
+   "tag": "System1:T_B01_301.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-301.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-301.PowerDraw",
+   "tag": "System1:T_B01_301.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-302",
+   "type": "MetrologyTool",
+   "name": "T-B01-302"
+  },
+  {
+   "id": "T-B01-302.State",
+   "type": "Datapoint",
+   "name": "T-B01-302.State",
+   "tag": "System1:T_B01_302.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-302.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-302.ChuckTemp",
+   "tag": "System1:T_B01_302.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-302.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-302.ChuckTemp",
+   "severity": "major",
+   "active": true,
+   "raised": "2026-11-03T12:00:00Z"
+  },
+  {
+   "id": "T-B01-302.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-302.Vacuum",
+   "tag": "System1:T_B01_302.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-302.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-302.PowerDraw",
+   "tag": "System1:T_B01_302.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-303",
+   "type": "EUVScanner",
+   "name": "T-B01-303"
+  },
+  {
+   "id": "T-B01-303.State",
+   "type": "Datapoint",
+   "name": "T-B01-303.State",
+   "tag": "System1:T_B01_303.State",
+   "unit": ""
+  },
+  {
+   "id": "ALM-T-B01-303.State",
+   "type": "Alarm",
+   "name": "ALM-T-B01-303.State",
+   "severity": "warning",
+   "active": false,
+   "raised": "2026-11-09T21:00:00Z"
+  },
+  {
+   "id": "T-B01-303.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-303.ChuckTemp",
+   "tag": "System1:T_B01_303.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-303.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-303.ChuckTemp",
+   "severity": "warning",
+   "active": true,
+   "raised": "2026-11-03T05:00:00Z"
+  },
+  {
+   "id": "T-B01-303.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-303.Vacuum",
+   "tag": "System1:T_B01_303.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "ALM-T-B01-303.Vacuum",
+   "type": "Alarm",
+   "name": "ALM-T-B01-303.Vacuum",
+   "severity": "major",
+   "active": false,
+   "raised": "2026-11-16T09:00:00Z"
+  },
+  {
+   "id": "T-B01-303.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-303.PowerDraw",
+   "tag": "System1:T_B01_303.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "ALM-T-B01-303.PowerDraw",
+   "type": "Alarm",
+   "name": "ALM-T-B01-303.PowerDraw",
+   "severity": "major",
+   "active": false,
+   "raised": "2026-11-15T02:00:00Z"
+  },
+  {
+   "id": "T-B01-304",
+   "type": "EtchTool",
+   "name": "T-B01-304"
+  },
+  {
+   "id": "T-B01-304.State",
+   "type": "Datapoint",
+   "name": "T-B01-304.State",
+   "tag": "System1:T_B01_304.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-304.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-304.ChuckTemp",
+   "tag": "System1:T_B01_304.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-304.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-304.Vacuum",
+   "tag": "System1:T_B01_304.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-304.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-304.PowerDraw",
+   "tag": "System1:T_B01_304.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-305",
+   "type": "CMPTool",
+   "name": "T-B01-305"
+  },
+  {
+   "id": "T-B01-305.State",
+   "type": "Datapoint",
+   "name": "T-B01-305.State",
+   "tag": "System1:T_B01_305.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-305.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-305.ChuckTemp",
+   "tag": "System1:T_B01_305.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-305.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-305.Vacuum",
+   "tag": "System1:T_B01_305.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-305.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-305.PowerDraw",
+   "tag": "System1:T_B01_305.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-306",
+   "type": "EUVScanner",
+   "name": "T-B01-306"
+  },
+  {
+   "id": "T-B01-306.State",
+   "type": "Datapoint",
+   "name": "T-B01-306.State",
+   "tag": "System1:T_B01_306.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-306.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-306.ChuckTemp",
+   "tag": "System1:T_B01_306.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-306.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-306.Vacuum",
+   "tag": "System1:T_B01_306.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-306.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-306.PowerDraw",
+   "tag": "System1:T_B01_306.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-307",
+   "type": "CMPTool",
+   "name": "T-B01-307"
+  },
+  {
+   "id": "T-B01-307.State",
+   "type": "Datapoint",
+   "name": "T-B01-307.State",
+   "tag": "System1:T_B01_307.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-307.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-307.ChuckTemp",
+   "tag": "System1:T_B01_307.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-307.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-307.ChuckTemp",
+   "severity": "critical",
+   "active": false,
+   "raised": "2026-11-08T22:00:00Z"
+  },
+  {
+   "id": "T-B01-307.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-307.Vacuum",
+   "tag": "System1:T_B01_307.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-307.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-307.PowerDraw",
+   "tag": "System1:T_B01_307.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-308",
+   "type": "MetrologyTool",
+   "name": "T-B01-308"
+  },
+  {
+   "id": "T-B01-308.State",
+   "type": "Datapoint",
+   "name": "T-B01-308.State",
+   "tag": "System1:T_B01_308.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-308.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-308.ChuckTemp",
+   "tag": "System1:T_B01_308.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-308.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-308.Vacuum",
+   "tag": "System1:T_B01_308.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "ALM-T-B01-308.Vacuum",
+   "type": "Alarm",
+   "name": "ALM-T-B01-308.Vacuum",
+   "severity": "major",
+   "active": true,
+   "raised": "2026-11-09T00:00:00Z"
+  },
+  {
+   "id": "T-B01-308.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-308.PowerDraw",
+   "tag": "System1:T_B01_308.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-309",
+   "type": "CVDTool",
+   "name": "T-B01-309"
+  },
+  {
+   "id": "T-B01-309.State",
+   "type": "Datapoint",
+   "name": "T-B01-309.State",
+   "tag": "System1:T_B01_309.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-309.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-309.ChuckTemp",
+   "tag": "System1:T_B01_309.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-309.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-309.Vacuum",
+   "tag": "System1:T_B01_309.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-309.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-309.PowerDraw",
+   "tag": "System1:T_B01_309.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-310",
+   "type": "EtchTool",
+   "name": "T-B01-310"
+  },
+  {
+   "id": "T-B01-310.State",
+   "type": "Datapoint",
+   "name": "T-B01-310.State",
+   "tag": "System1:T_B01_310.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-310.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-310.ChuckTemp",
+   "tag": "System1:T_B01_310.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-310.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-310.Vacuum",
+   "tag": "System1:T_B01_310.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-310.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-310.PowerDraw",
+   "tag": "System1:T_B01_310.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "AREA-B01-4",
+   "type": "Area",
+   "name": "AREA-B01-4",
+   "cleanroomClass": "ISO5"
+  },
+  {
+   "id": "T-B01-401",
+   "type": "MetrologyTool",
+   "name": "T-B01-401"
+  },
+  {
+   "id": "T-B01-401.State",
+   "type": "Datapoint",
+   "name": "T-B01-401.State",
+   "tag": "System1:T_B01_401.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-401.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-401.ChuckTemp",
+   "tag": "System1:T_B01_401.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-401.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-401.ChuckTemp",
+   "severity": "major",
+   "active": true,
+   "raised": "2026-11-05T07:00:00Z"
+  },
+  {
+   "id": "T-B01-401.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-401.Vacuum",
+   "tag": "System1:T_B01_401.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-401.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-401.PowerDraw",
+   "tag": "System1:T_B01_401.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-402",
+   "type": "EtchTool",
+   "name": "T-B01-402"
+  },
+  {
+   "id": "T-B01-402.State",
+   "type": "Datapoint",
+   "name": "T-B01-402.State",
+   "tag": "System1:T_B01_402.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-402.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-402.ChuckTemp",
+   "tag": "System1:T_B01_402.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-402.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-402.Vacuum",
+   "tag": "System1:T_B01_402.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-402.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-402.PowerDraw",
+   "tag": "System1:T_B01_402.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "ALM-T-B01-402.PowerDraw",
+   "type": "Alarm",
+   "name": "ALM-T-B01-402.PowerDraw",
+   "severity": "major",
+   "active": false,
+   "raised": "2026-11-10T20:00:00Z"
+  },
+  {
+   "id": "T-B01-403",
+   "type": "CMPTool",
+   "name": "T-B01-403"
+  },
+  {
+   "id": "T-B01-403.State",
+   "type": "Datapoint",
+   "name": "T-B01-403.State",
+   "tag": "System1:T_B01_403.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-403.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-403.ChuckTemp",
+   "tag": "System1:T_B01_403.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-403.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-403.Vacuum",
+   "tag": "System1:T_B01_403.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-403.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-403.PowerDraw",
+   "tag": "System1:T_B01_403.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-404",
+   "type": "EtchTool",
+   "name": "T-B01-404"
+  },
+  {
+   "id": "T-B01-404.State",
+   "type": "Datapoint",
+   "name": "T-B01-404.State",
+   "tag": "System1:T_B01_404.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-404.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-404.ChuckTemp",
+   "tag": "System1:T_B01_404.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-404.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-404.Vacuum",
+   "tag": "System1:T_B01_404.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-404.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-404.PowerDraw",
+   "tag": "System1:T_B01_404.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-405",
+   "type": "CVDTool",
+   "name": "T-B01-405"
+  },
+  {
+   "id": "T-B01-405.State",
+   "type": "Datapoint",
+   "name": "T-B01-405.State",
+   "tag": "System1:T_B01_405.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-405.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-405.ChuckTemp",
+   "tag": "System1:T_B01_405.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-405.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-405.ChuckTemp",
+   "severity": "critical",
+   "active": true,
+   "raised": "2026-11-08T20:00:00Z"
+  },
+  {
+   "id": "T-B01-405.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-405.Vacuum",
+   "tag": "System1:T_B01_405.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "ALM-T-B01-405.Vacuum",
+   "type": "Alarm",
+   "name": "ALM-T-B01-405.Vacuum",
+   "severity": "major",
+   "active": false,
+   "raised": "2026-11-10T20:00:00Z"
+  },
+  {
+   "id": "T-B01-405.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-405.PowerDraw",
+   "tag": "System1:T_B01_405.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-406",
+   "type": "EtchTool",
+   "name": "T-B01-406"
+  },
+  {
+   "id": "T-B01-406.State",
+   "type": "Datapoint",
+   "name": "T-B01-406.State",
+   "tag": "System1:T_B01_406.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-406.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-406.ChuckTemp",
+   "tag": "System1:T_B01_406.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-406.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-406.Vacuum",
+   "tag": "System1:T_B01_406.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-406.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-406.PowerDraw",
+   "tag": "System1:T_B01_406.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-407",
+   "type": "EtchTool",
+   "name": "T-B01-407"
+  },
+  {
+   "id": "T-B01-407.State",
+   "type": "Datapoint",
+   "name": "T-B01-407.State",
+   "tag": "System1:T_B01_407.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-407.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-407.ChuckTemp",
+   "tag": "System1:T_B01_407.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-407.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-407.ChuckTemp",
+   "severity": "critical",
+   "active": true,
+   "raised": "2026-11-07T07:00:00Z"
+  },
+  {
+   "id": "T-B01-407.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-407.Vacuum",
+   "tag": "System1:T_B01_407.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-407.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-407.PowerDraw",
+   "tag": "System1:T_B01_407.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-408",
+   "type": "MetrologyTool",
+   "name": "T-B01-408"
+  },
+  {
+   "id": "T-B01-408.State",
+   "type": "Datapoint",
+   "name": "T-B01-408.State",
+   "tag": "System1:T_B01_408.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-408.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-408.ChuckTemp",
+   "tag": "System1:T_B01_408.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "ALM-T-B01-408.ChuckTemp",
+   "type": "Alarm",
+   "name": "ALM-T-B01-408.ChuckTemp",
+   "severity": "critical",
+   "active": true,
+   "raised": "2026-11-04T23:00:00Z"
+  },
+  {
+   "id": "T-B01-408.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-408.Vacuum",
+   "tag": "System1:T_B01_408.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "ALM-T-B01-408.Vacuum",
+   "type": "Alarm",
+   "name": "ALM-T-B01-408.Vacuum",
+   "severity": "major",
+   "active": false,
+   "raised": "2026-11-04T14:00:00Z"
+  },
+  {
+   "id": "T-B01-408.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-408.PowerDraw",
+   "tag": "System1:T_B01_408.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-409",
+   "type": "MetrologyTool",
+   "name": "T-B01-409"
+  },
+  {
+   "id": "T-B01-409.State",
+   "type": "Datapoint",
+   "name": "T-B01-409.State",
+   "tag": "System1:T_B01_409.State",
+   "unit": ""
+  },
+  {
+   "id": "ALM-T-B01-409.State",
+   "type": "Alarm",
+   "name": "ALM-T-B01-409.State",
+   "severity": "major",
+   "active": false,
+   "raised": "2026-11-11T12:00:00Z"
+  },
+  {
+   "id": "T-B01-409.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-409.ChuckTemp",
+   "tag": "System1:T_B01_409.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-409.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-409.Vacuum",
+   "tag": "System1:T_B01_409.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-409.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-409.PowerDraw",
+   "tag": "System1:T_B01_409.PowerDraw",
+   "unit": "kW"
+  },
+  {
+   "id": "T-B01-410",
+   "type": "MetrologyTool",
+   "name": "T-B01-410"
+  },
+  {
+   "id": "T-B01-410.State",
+   "type": "Datapoint",
+   "name": "T-B01-410.State",
+   "tag": "System1:T_B01_410.State",
+   "unit": ""
+  },
+  {
+   "id": "T-B01-410.ChuckTemp",
+   "type": "Datapoint",
+   "name": "T-B01-410.ChuckTemp",
+   "tag": "System1:T_B01_410.ChuckTemp",
+   "unit": "degC"
+  },
+  {
+   "id": "T-B01-410.Vacuum",
+   "type": "Datapoint",
+   "name": "T-B01-410.Vacuum",
+   "tag": "System1:T_B01_410.Vacuum",
+   "unit": "mbar"
+  },
+  {
+   "id": "T-B01-410.PowerDraw",
+   "type": "Datapoint",
+   "name": "T-B01-410.PowerDraw",
+   "tag": "System1:T_B01_410.PowerDraw",
+   "unit": "kW"
+  }
+ ],
+ "edges": [
+  {
+   "id": "e0",
+   "src": "BLD-B01",
+   "dst": "SITE-FAB",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e1",
+   "src": "SWG-B01-A",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e2",
+   "src": "SWG-B01-B",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e3",
+   "src": "UPS-B01-1",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e4",
+   "src": "UPS-B01-2",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e5",
+   "src": "UPS-B01-3",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e6",
+   "src": "UPS-B01-4",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e7",
+   "src": "PDU-B01-01",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e8",
+   "src": "PDU-B01-02",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e9",
+   "src": "PDU-B01-03",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e10",
+   "src": "PDU-B01-04",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e11",
+   "src": "PDU-B01-05",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e12",
+   "src": "PDU-B01-06",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e13",
+   "src": "PDU-B01-07",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e14",
+   "src": "PDU-B01-08",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e15",
+   "src": "CH-B01-01",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e16",
+   "src": "CH-B01-02",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e17",
+   "src": "CH-B01-03",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e18",
+   "src": "PCW-B01-1",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e19",
+   "src": "PCW-B01-2",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e20",
+   "src": "PCW-B01-3",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e21",
+   "src": "PCW-B01-4",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e22",
+   "src": "SWG-B01-A",
+   "dst": "UPS-B01-1",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2011,
+   "redundant": true,
+   "capacity_kw": 2000,
+   "load_kw": 957.5,
+   "source": "BIM",
+   "confidence": 0.59
+  },
+  {
+   "id": "e23",
+   "src": "SWG-B01-A",
+   "dst": "UPS-B01-2",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 2000,
+   "load_kw": 1759.8,
+   "source": "BIM",
+   "confidence": 0.57
+  },
+  {
+   "id": "e24",
+   "src": "SWG-B01-B",
+   "dst": "UPS-B01-3",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2009,
+   "redundant": true,
+   "capacity_kw": 2000,
+   "load_kw": 884.2,
+   "source": "CMMS",
+   "confidence": 0.85
+  },
+  {
+   "id": "e25",
+   "src": "SWG-B01-B",
+   "dst": "UPS-B01-4",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2025,
+   "redundant": true,
+   "capacity_kw": 2000,
+   "load_kw": 1444.8,
+   "source": "WinCCOA",
+   "confidence": 0.91
+  },
+  {
+   "id": "e26",
+   "src": "UPS-B01-1",
+   "dst": "PDU-B01-01",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2022,
+   "redundant": false,
+   "capacity_kw": 400,
+   "load_kw": 330.5,
+   "source": "WinCCOA",
+   "confidence": 0.8
+  },
+  {
+   "id": "e27",
+   "src": "UPS-B01-1",
+   "dst": "PDU-B01-02",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2021,
+   "redundant": true,
+   "capacity_kw": 400,
+   "load_kw": 160.4,
+   "source": "WinCCOA",
+   "confidence": 0.99
+  },
+  {
+   "id": "e28",
+   "src": "UPS-B01-2",
+   "dst": "PDU-B01-03",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2011,
+   "redundant": true,
+   "capacity_kw": 400,
+   "load_kw": 145.1,
+   "source": "CMMS",
+   "confidence": 0.92
+  },
+  {
+   "id": "e29",
+   "src": "UPS-B01-2",
+   "dst": "PDU-B01-04",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2016,
+   "redundant": false,
+   "capacity_kw": 400,
+   "load_kw": 309.7,
+   "source": "BIM",
+   "confidence": 0.66
+  },
+  {
+   "id": "e30",
+   "src": "UPS-B01-3",
+   "dst": "PDU-B01-05",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 400,
+   "load_kw": 335.6,
+   "source": "CMMS",
+   "confidence": 0.87
+  },
+  {
+   "id": "e31",
+   "src": "UPS-B01-3",
+   "dst": "PDU-B01-06",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2014,
+   "redundant": false,
+   "capacity_kw": 400,
+   "load_kw": 131.9,
+   "source": "CMMS",
+   "confidence": 0.8
+  },
+  {
+   "id": "e32",
+   "src": "UPS-B01-4",
+   "dst": "PDU-B01-07",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 400,
+   "load_kw": 345.3,
+   "source": "CMMS",
+   "confidence": 0.83
+  },
+  {
+   "id": "e33",
+   "src": "UPS-B01-4",
+   "dst": "PDU-B01-08",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2019,
+   "redundant": true,
+   "capacity_kw": 400,
+   "load_kw": 212.4,
+   "source": "CMMS",
+   "confidence": 0.88
+  },
+  {
+   "id": "e34",
+   "src": "SWG-B01-A",
+   "dst": "CH-B01-01",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 800,
+   "load_kw": 329.0,
+   "source": "BIM",
+   "confidence": 0.7
+  },
+  {
+   "id": "e35",
+   "src": "CH-B01-01",
+   "dst": "CH-B01-01.SupplyTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e36",
+   "src": "CH-B01-01",
+   "dst": "CH-B01-01.ReturnTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e37",
+   "src": "CH-B01-01",
+   "dst": "CH-B01-01.Power",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e38",
+   "src": "SWG-B01-B",
+   "dst": "CH-B01-02",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2025,
+   "redundant": true,
+   "capacity_kw": 800,
+   "load_kw": 408.6,
+   "source": "BIM",
+   "confidence": 0.7
+  },
+  {
+   "id": "e39",
+   "src": "CH-B01-02",
+   "dst": "CH-B01-02.SupplyTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e40",
+   "src": "ALM-CH-B01-02.SupplyTemp",
+   "dst": "CH-B01-02.SupplyTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e41",
+   "src": "CH-B01-02",
+   "dst": "CH-B01-02.ReturnTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e42",
+   "src": "ALM-CH-B01-02.ReturnTemp",
+   "dst": "CH-B01-02.ReturnTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e43",
+   "src": "CH-B01-02",
+   "dst": "CH-B01-02.Power",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e44",
+   "src": "SWG-B01-A",
+   "dst": "CH-B01-03",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2022,
+   "redundant": true,
+   "capacity_kw": 800,
+   "load_kw": 312.6,
+   "source": "CMMS",
+   "confidence": 0.9
+  },
+  {
+   "id": "e45",
+   "src": "CH-B01-03",
+   "dst": "CH-B01-03.SupplyTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e46",
+   "src": "CH-B01-03",
+   "dst": "CH-B01-03.ReturnTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e47",
+   "src": "CH-B01-03",
+   "dst": "CH-B01-03.Power",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e48",
+   "src": "CH-B01-01",
+   "dst": "PCW-B01-1",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2020,
+   "redundant": true,
+   "capacity_kw": 1500,
+   "load_kw": 1422.4,
+   "source": "BIM",
+   "confidence": 0.58
+  },
+  {
+   "id": "e49",
+   "src": "CH-B01-02",
+   "dst": "PCW-B01-1",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2011,
+   "redundant": true,
+   "capacity_kw": 1500,
+   "load_kw": 606.0,
+   "source": "WinCCOA",
+   "confidence": 0.94
+  },
+  {
+   "id": "e50",
+   "src": "CH-B01-02",
+   "dst": "PCW-B01-2",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2010,
+   "redundant": true,
+   "capacity_kw": 1500,
+   "load_kw": 1031.0,
+   "source": "BIM",
+   "confidence": 0.64
+  },
+  {
+   "id": "e51",
+   "src": "CH-B01-03",
+   "dst": "PCW-B01-2",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2008,
+   "redundant": false,
+   "capacity_kw": 1500,
+   "load_kw": 561.7,
+   "source": "BIM",
+   "confidence": 0.73
+  },
+  {
+   "id": "e52",
+   "src": "CH-B01-03",
+   "dst": "PCW-B01-3",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2018,
+   "redundant": true,
+   "capacity_kw": 1500,
+   "load_kw": 873.9,
+   "source": "CMMS",
+   "confidence": 0.84
+  },
+  {
+   "id": "e53",
+   "src": "CH-B01-01",
+   "dst": "PCW-B01-4",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2016,
+   "redundant": false,
+   "capacity_kw": 1500,
+   "load_kw": 1192.9,
+   "source": "BIM",
+   "confidence": 0.65
+  },
+  {
+   "id": "e54",
+   "src": "CH-B01-02",
+   "dst": "PCW-B01-4",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2017,
+   "redundant": false,
+   "capacity_kw": 1500,
+   "load_kw": 945.0,
+   "source": "BIM",
+   "confidence": 0.59
+  },
+  {
+   "id": "e55",
+   "src": "AREA-B01-1",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e56",
+   "src": "T-B01-101",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e57",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-101",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2018,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 55.9,
+   "source": "BIM",
+   "confidence": 0.62
+  },
+  {
+   "id": "e58",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-101",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2010,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 123.2,
+   "source": "WinCCOA",
+   "confidence": 0.81
+  },
+  {
+   "id": "e59",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-101",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2012,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 121.8,
+   "source": "BIM",
+   "confidence": 0.66
+  },
+  {
+   "id": "e60",
+   "src": "T-B01-101",
+   "dst": "T-B01-101.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e61",
+   "src": "T-B01-101",
+   "dst": "T-B01-101.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e62",
+   "src": "T-B01-101",
+   "dst": "T-B01-101.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e63",
+   "src": "T-B01-101",
+   "dst": "T-B01-101.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e64",
+   "src": "T-B01-102",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e65",
+   "src": "PDU-B01-04",
+   "dst": "T-B01-102",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2020,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 108.4,
+   "source": "CMMS",
+   "confidence": 0.84
+  },
+  {
+   "id": "e66",
+   "src": "PDU-B01-06",
+   "dst": "T-B01-102",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2022,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 66.9,
+   "source": "BIM",
+   "confidence": 0.62
+  },
+  {
+   "id": "e67",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-102",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 67.7,
+   "source": "WinCCOA",
+   "confidence": 0.81
+  },
+  {
+   "id": "e68",
+   "src": "T-B01-102",
+   "dst": "T-B01-102.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e69",
+   "src": "ALM-T-B01-102.State",
+   "dst": "T-B01-102.State",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e70",
+   "src": "T-B01-102",
+   "dst": "T-B01-102.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e71",
+   "src": "T-B01-102",
+   "dst": "T-B01-102.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e72",
+   "src": "T-B01-102",
+   "dst": "T-B01-102.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e73",
+   "src": "T-B01-103",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e74",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-103",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2021,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 54.5,
+   "source": "CMMS",
+   "confidence": 0.84
+  },
+  {
+   "id": "e75",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-103",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2021,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 116.1,
+   "source": "CMMS",
+   "confidence": 0.88
+  },
+  {
+   "id": "e76",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-103",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2018,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 74.2,
+   "source": "CMMS",
+   "confidence": 0.79
+  },
+  {
+   "id": "e77",
+   "src": "T-B01-103",
+   "dst": "T-B01-103.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e78",
+   "src": "T-B01-103",
+   "dst": "T-B01-103.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e79",
+   "src": "T-B01-103",
+   "dst": "T-B01-103.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e80",
+   "src": "T-B01-103",
+   "dst": "T-B01-103.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e81",
+   "src": "T-B01-104",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e82",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-104",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2025,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 139.5,
+   "source": "WinCCOA",
+   "confidence": 0.99
+  },
+  {
+   "id": "e83",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-104",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2023,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 172.4,
+   "source": "CMMS",
+   "confidence": 0.93
+  },
+  {
+   "id": "e84",
+   "src": "T-B01-104",
+   "dst": "T-B01-104.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e85",
+   "src": "T-B01-104",
+   "dst": "T-B01-104.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e86",
+   "src": "ALM-T-B01-104.ChuckTemp",
+   "dst": "T-B01-104.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e87",
+   "src": "T-B01-104",
+   "dst": "T-B01-104.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e88",
+   "src": "T-B01-104",
+   "dst": "T-B01-104.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e89",
+   "src": "T-B01-105",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e90",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-105",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2017,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 50.7,
+   "source": "WinCCOA",
+   "confidence": 0.95
+  },
+  {
+   "id": "e91",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-105",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2018,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 102.0,
+   "source": "WinCCOA",
+   "confidence": 0.9
+  },
+  {
+   "id": "e92",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-105",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 68.9,
+   "source": "BIM",
+   "confidence": 0.56
+  },
+  {
+   "id": "e93",
+   "src": "T-B01-105",
+   "dst": "T-B01-105.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e94",
+   "src": "T-B01-105",
+   "dst": "T-B01-105.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e95",
+   "src": "T-B01-105",
+   "dst": "T-B01-105.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e96",
+   "src": "T-B01-105",
+   "dst": "T-B01-105.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e97",
+   "src": "T-B01-106",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e98",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-106",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2021,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 100.1,
+   "source": "WinCCOA",
+   "confidence": 0.86
+  },
+  {
+   "id": "e99",
+   "src": "PDU-B01-05",
+   "dst": "T-B01-106",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2014,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 75.6,
+   "source": "CMMS",
+   "confidence": 0.8
+  },
+  {
+   "id": "e100",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-106",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2018,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 181.6,
+   "source": "CMMS",
+   "confidence": 0.75
+  },
+  {
+   "id": "e101",
+   "src": "T-B01-106",
+   "dst": "T-B01-106.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e102",
+   "src": "T-B01-106",
+   "dst": "T-B01-106.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e103",
+   "src": "T-B01-106",
+   "dst": "T-B01-106.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e104",
+   "src": "ALM-T-B01-106.Vacuum",
+   "dst": "T-B01-106.Vacuum",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e105",
+   "src": "T-B01-106",
+   "dst": "T-B01-106.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e106",
+   "src": "T-B01-107",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e107",
+   "src": "PDU-B01-06",
+   "dst": "T-B01-107",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2013,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 98.0,
+   "source": "CMMS",
+   "confidence": 0.81
+  },
+  {
+   "id": "e108",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-107",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 77.5,
+   "source": "BIM",
+   "confidence": 0.57
+  },
+  {
+   "id": "e109",
+   "src": "T-B01-107",
+   "dst": "T-B01-107.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e110",
+   "src": "ALM-T-B01-107.State",
+   "dst": "T-B01-107.State",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e111",
+   "src": "T-B01-107",
+   "dst": "T-B01-107.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e112",
+   "src": "T-B01-107",
+   "dst": "T-B01-107.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e113",
+   "src": "T-B01-107",
+   "dst": "T-B01-107.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e114",
+   "src": "T-B01-108",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e115",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-108",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 125.9,
+   "source": "WinCCOA",
+   "confidence": 0.81
+  },
+  {
+   "id": "e116",
+   "src": "PDU-B01-03",
+   "dst": "T-B01-108",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2012,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 70.5,
+   "source": "CMMS",
+   "confidence": 0.9
+  },
+  {
+   "id": "e117",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-108",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2012,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 168.5,
+   "source": "WinCCOA",
+   "confidence": 0.92
+  },
+  {
+   "id": "e118",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-108",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2021,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 100.1,
+   "source": "WinCCOA",
+   "confidence": 0.98
+  },
+  {
+   "id": "e119",
+   "src": "T-B01-108",
+   "dst": "T-B01-108.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e120",
+   "src": "T-B01-108",
+   "dst": "T-B01-108.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e121",
+   "src": "T-B01-108",
+   "dst": "T-B01-108.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e122",
+   "src": "T-B01-108",
+   "dst": "T-B01-108.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e123",
+   "src": "T-B01-109",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e124",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-109",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2021,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 118.1,
+   "source": "BIM",
+   "confidence": 0.74
+  },
+  {
+   "id": "e125",
+   "src": "PDU-B01-03",
+   "dst": "T-B01-109",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2013,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 124.1,
+   "source": "WinCCOA",
+   "confidence": 0.98
+  },
+  {
+   "id": "e126",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-109",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2018,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 113.5,
+   "source": "BIM",
+   "confidence": 0.68
+  },
+  {
+   "id": "e127",
+   "src": "T-B01-109",
+   "dst": "T-B01-109.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e128",
+   "src": "T-B01-109",
+   "dst": "T-B01-109.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e129",
+   "src": "T-B01-109",
+   "dst": "T-B01-109.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e130",
+   "src": "T-B01-109",
+   "dst": "T-B01-109.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e131",
+   "src": "T-B01-110",
+   "dst": "AREA-B01-1",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e132",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-110",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2014,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 89.9,
+   "source": "WinCCOA",
+   "confidence": 0.86
+  },
+  {
+   "id": "e133",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-110",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2014,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 96.2,
+   "source": "WinCCOA",
+   "confidence": 0.81
+  },
+  {
+   "id": "e134",
+   "src": "T-B01-110",
+   "dst": "T-B01-110.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e135",
+   "src": "T-B01-110",
+   "dst": "T-B01-110.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e136",
+   "src": "T-B01-110",
+   "dst": "T-B01-110.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e137",
+   "src": "T-B01-110",
+   "dst": "T-B01-110.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e138",
+   "src": "AREA-B01-2",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e139",
+   "src": "T-B01-201",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e140",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-201",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2016,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 138.8,
+   "source": "WinCCOA",
+   "confidence": 0.85
+  },
+  {
+   "id": "e141",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-201",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2018,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 188.0,
+   "source": "CMMS",
+   "confidence": 0.77
+  },
+  {
+   "id": "e142",
+   "src": "T-B01-201",
+   "dst": "T-B01-201.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e143",
+   "src": "T-B01-201",
+   "dst": "T-B01-201.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e144",
+   "src": "T-B01-201",
+   "dst": "T-B01-201.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e145",
+   "src": "ALM-T-B01-201.Vacuum",
+   "dst": "T-B01-201.Vacuum",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e146",
+   "src": "T-B01-201",
+   "dst": "T-B01-201.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e147",
+   "src": "T-B01-202",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e148",
+   "src": "PDU-B01-06",
+   "dst": "T-B01-202",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2017,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 110.0,
+   "source": "WinCCOA",
+   "confidence": 0.87
+  },
+  {
+   "id": "e149",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-202",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2017,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 63.7,
+   "source": "BIM",
+   "confidence": 0.68
+  },
+  {
+   "id": "e150",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-202",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2017,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 168.4,
+   "source": "BIM",
+   "confidence": 0.61
+  },
+  {
+   "id": "e151",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-202",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2021,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 138.9,
+   "source": "WinCCOA",
+   "confidence": 0.86
+  },
+  {
+   "id": "e152",
+   "src": "T-B01-202",
+   "dst": "T-B01-202.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e153",
+   "src": "T-B01-202",
+   "dst": "T-B01-202.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e154",
+   "src": "T-B01-202",
+   "dst": "T-B01-202.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e155",
+   "src": "T-B01-202",
+   "dst": "T-B01-202.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e156",
+   "src": "T-B01-203",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e157",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-203",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2018,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 137.8,
+   "source": "BIM",
+   "confidence": 0.6
+  },
+  {
+   "id": "e158",
+   "src": "PDU-B01-03",
+   "dst": "T-B01-203",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2015,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 59.4,
+   "source": "CMMS",
+   "confidence": 0.76
+  },
+  {
+   "id": "e159",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-203",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2014,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 109.9,
+   "source": "CMMS",
+   "confidence": 0.83
+  },
+  {
+   "id": "e160",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-203",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2008,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 171.9,
+   "source": "WinCCOA",
+   "confidence": 0.98
+  },
+  {
+   "id": "e161",
+   "src": "T-B01-203",
+   "dst": "T-B01-203.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e162",
+   "src": "T-B01-203",
+   "dst": "T-B01-203.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e163",
+   "src": "T-B01-203",
+   "dst": "T-B01-203.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e164",
+   "src": "T-B01-203",
+   "dst": "T-B01-203.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e165",
+   "src": "T-B01-204",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e166",
+   "src": "PDU-B01-04",
+   "dst": "T-B01-204",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2022,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 90.3,
+   "source": "WinCCOA",
+   "confidence": 0.91
+  },
+  {
+   "id": "e167",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-204",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2024,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 177.9,
+   "source": "BIM",
+   "confidence": 0.64
+  },
+  {
+   "id": "e168",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-204",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2023,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 157.7,
+   "source": "WinCCOA",
+   "confidence": 0.97
+  },
+  {
+   "id": "e169",
+   "src": "T-B01-204",
+   "dst": "T-B01-204.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e170",
+   "src": "T-B01-204",
+   "dst": "T-B01-204.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e171",
+   "src": "T-B01-204",
+   "dst": "T-B01-204.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e172",
+   "src": "T-B01-204",
+   "dst": "T-B01-204.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e173",
+   "src": "T-B01-205",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e174",
+   "src": "PDU-B01-05",
+   "dst": "T-B01-205",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2016,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 132.1,
+   "source": "WinCCOA",
+   "confidence": 0.82
+  },
+  {
+   "id": "e175",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-205",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2012,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 68.3,
+   "source": "CMMS",
+   "confidence": 0.83
+  },
+  {
+   "id": "e176",
+   "src": "T-B01-205",
+   "dst": "T-B01-205.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e177",
+   "src": "T-B01-205",
+   "dst": "T-B01-205.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e178",
+   "src": "T-B01-205",
+   "dst": "T-B01-205.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e179",
+   "src": "T-B01-205",
+   "dst": "T-B01-205.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e180",
+   "src": "T-B01-206",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e181",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-206",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2020,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 136.9,
+   "source": "BIM",
+   "confidence": 0.61
+  },
+  {
+   "id": "e182",
+   "src": "PDU-B01-07",
+   "dst": "T-B01-206",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2021,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 116.6,
+   "source": "CMMS",
+   "confidence": 0.91
+  },
+  {
+   "id": "e183",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-206",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2016,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 63.8,
+   "source": "WinCCOA",
+   "confidence": 0.87
+  },
+  {
+   "id": "e184",
+   "src": "T-B01-206",
+   "dst": "T-B01-206.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e185",
+   "src": "T-B01-206",
+   "dst": "T-B01-206.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e186",
+   "src": "T-B01-206",
+   "dst": "T-B01-206.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e187",
+   "src": "T-B01-206",
+   "dst": "T-B01-206.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e188",
+   "src": "T-B01-207",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e189",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-207",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2008,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 86.8,
+   "source": "BIM",
+   "confidence": 0.72
+  },
+  {
+   "id": "e190",
+   "src": "PDU-B01-04",
+   "dst": "T-B01-207",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2009,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 76.9,
+   "source": "WinCCOA",
+   "confidence": 0.89
+  },
+  {
+   "id": "e191",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-207",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2016,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 121.1,
+   "source": "CMMS",
+   "confidence": 0.9
+  },
+  {
+   "id": "e192",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-207",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2019,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 68.9,
+   "source": "WinCCOA",
+   "confidence": 0.99
+  },
+  {
+   "id": "e193",
+   "src": "T-B01-207",
+   "dst": "T-B01-207.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e194",
+   "src": "ALM-T-B01-207.State",
+   "dst": "T-B01-207.State",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e195",
+   "src": "T-B01-207",
+   "dst": "T-B01-207.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e196",
+   "src": "T-B01-207",
+   "dst": "T-B01-207.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e197",
+   "src": "T-B01-207",
+   "dst": "T-B01-207.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e198",
+   "src": "T-B01-208",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e199",
+   "src": "PDU-B01-04",
+   "dst": "T-B01-208",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2016,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 61.4,
+   "source": "BIM",
+   "confidence": 0.67
+  },
+  {
+   "id": "e200",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-208",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 61.0,
+   "source": "BIM",
+   "confidence": 0.61
+  },
+  {
+   "id": "e201",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-208",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2020,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 153.0,
+   "source": "BIM",
+   "confidence": 0.57
+  },
+  {
+   "id": "e202",
+   "src": "T-B01-208",
+   "dst": "T-B01-208.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e203",
+   "src": "T-B01-208",
+   "dst": "T-B01-208.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e204",
+   "src": "T-B01-208",
+   "dst": "T-B01-208.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e205",
+   "src": "ALM-T-B01-208.Vacuum",
+   "dst": "T-B01-208.Vacuum",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e206",
+   "src": "T-B01-208",
+   "dst": "T-B01-208.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e207",
+   "src": "T-B01-209",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e208",
+   "src": "PDU-B01-07",
+   "dst": "T-B01-209",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 78.3,
+   "source": "CMMS",
+   "confidence": 0.92
+  },
+  {
+   "id": "e209",
+   "src": "PDU-B01-06",
+   "dst": "T-B01-209",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 80.3,
+   "source": "CMMS",
+   "confidence": 0.93
+  },
+  {
+   "id": "e210",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-209",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2024,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 95.1,
+   "source": "WinCCOA",
+   "confidence": 0.96
+  },
+  {
+   "id": "e211",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-209",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2023,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 167.3,
+   "source": "BIM",
+   "confidence": 0.67
+  },
+  {
+   "id": "e212",
+   "src": "T-B01-209",
+   "dst": "T-B01-209.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e213",
+   "src": "T-B01-209",
+   "dst": "T-B01-209.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e214",
+   "src": "T-B01-209",
+   "dst": "T-B01-209.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e215",
+   "src": "T-B01-209",
+   "dst": "T-B01-209.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e216",
+   "src": "T-B01-210",
+   "dst": "AREA-B01-2",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e217",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-210",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2020,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 93.2,
+   "source": "BIM",
+   "confidence": 0.62
+  },
+  {
+   "id": "e218",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-210",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2018,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 137.5,
+   "source": "CMMS",
+   "confidence": 0.93
+  },
+  {
+   "id": "e219",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-210",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2008,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 84.8,
+   "source": "BIM",
+   "confidence": 0.6
+  },
+  {
+   "id": "e220",
+   "src": "T-B01-210",
+   "dst": "T-B01-210.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e221",
+   "src": "T-B01-210",
+   "dst": "T-B01-210.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e222",
+   "src": "T-B01-210",
+   "dst": "T-B01-210.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e223",
+   "src": "T-B01-210",
+   "dst": "T-B01-210.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e224",
+   "src": "AREA-B01-3",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e225",
+   "src": "T-B01-301",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e226",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-301",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2017,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 112.4,
+   "source": "WinCCOA",
+   "confidence": 0.86
+  },
+  {
+   "id": "e227",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-301",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2019,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 157.0,
+   "source": "BIM",
+   "confidence": 0.62
+  },
+  {
+   "id": "e228",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-301",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2022,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 92.7,
+   "source": "BIM",
+   "confidence": 0.57
+  },
+  {
+   "id": "e229",
+   "src": "T-B01-301",
+   "dst": "T-B01-301.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e230",
+   "src": "T-B01-301",
+   "dst": "T-B01-301.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e231",
+   "src": "ALM-T-B01-301.ChuckTemp",
+   "dst": "T-B01-301.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e232",
+   "src": "T-B01-301",
+   "dst": "T-B01-301.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e233",
+   "src": "T-B01-301",
+   "dst": "T-B01-301.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e234",
+   "src": "T-B01-302",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e235",
+   "src": "PDU-B01-05",
+   "dst": "T-B01-302",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2017,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 62.5,
+   "source": "WinCCOA",
+   "confidence": 0.8
+  },
+  {
+   "id": "e236",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-302",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2012,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 140.0,
+   "source": "BIM",
+   "confidence": 0.66
+  },
+  {
+   "id": "e237",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-302",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2008,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 121.0,
+   "source": "WinCCOA",
+   "confidence": 0.89
+  },
+  {
+   "id": "e238",
+   "src": "T-B01-302",
+   "dst": "T-B01-302.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e239",
+   "src": "T-B01-302",
+   "dst": "T-B01-302.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e240",
+   "src": "ALM-T-B01-302.ChuckTemp",
+   "dst": "T-B01-302.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e241",
+   "src": "T-B01-302",
+   "dst": "T-B01-302.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e242",
+   "src": "T-B01-302",
+   "dst": "T-B01-302.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e243",
+   "src": "T-B01-303",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e244",
+   "src": "PDU-B01-03",
+   "dst": "T-B01-303",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2017,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 69.2,
+   "source": "BIM",
+   "confidence": 0.66
+  },
+  {
+   "id": "e245",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-303",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2022,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 98.7,
+   "source": "CMMS",
+   "confidence": 0.87
+  },
+  {
+   "id": "e246",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-303",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2017,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 67.8,
+   "source": "CMMS",
+   "confidence": 0.94
+  },
+  {
+   "id": "e247",
+   "src": "T-B01-303",
+   "dst": "T-B01-303.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e248",
+   "src": "ALM-T-B01-303.State",
+   "dst": "T-B01-303.State",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e249",
+   "src": "T-B01-303",
+   "dst": "T-B01-303.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e250",
+   "src": "ALM-T-B01-303.ChuckTemp",
+   "dst": "T-B01-303.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e251",
+   "src": "T-B01-303",
+   "dst": "T-B01-303.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e252",
+   "src": "ALM-T-B01-303.Vacuum",
+   "dst": "T-B01-303.Vacuum",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e253",
+   "src": "T-B01-303",
+   "dst": "T-B01-303.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e254",
+   "src": "ALM-T-B01-303.PowerDraw",
+   "dst": "T-B01-303.PowerDraw",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e255",
+   "src": "T-B01-304",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e256",
+   "src": "PDU-B01-04",
+   "dst": "T-B01-304",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 108.1,
+   "source": "CMMS",
+   "confidence": 0.93
+  },
+  {
+   "id": "e257",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-304",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2013,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 137.4,
+   "source": "WinCCOA",
+   "confidence": 0.96
+  },
+  {
+   "id": "e258",
+   "src": "T-B01-304",
+   "dst": "T-B01-304.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e259",
+   "src": "T-B01-304",
+   "dst": "T-B01-304.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e260",
+   "src": "T-B01-304",
+   "dst": "T-B01-304.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e261",
+   "src": "T-B01-304",
+   "dst": "T-B01-304.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e262",
+   "src": "T-B01-305",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e263",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-305",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 131.7,
+   "source": "CMMS",
+   "confidence": 0.9
+  },
+  {
+   "id": "e264",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-305",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2008,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 147.4,
+   "source": "WinCCOA",
+   "confidence": 0.85
+  },
+  {
+   "id": "e265",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-305",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2013,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 144.7,
+   "source": "WinCCOA",
+   "confidence": 0.98
+  },
+  {
+   "id": "e266",
+   "src": "T-B01-305",
+   "dst": "T-B01-305.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e267",
+   "src": "T-B01-305",
+   "dst": "T-B01-305.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e268",
+   "src": "T-B01-305",
+   "dst": "T-B01-305.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e269",
+   "src": "T-B01-305",
+   "dst": "T-B01-305.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e270",
+   "src": "T-B01-306",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e271",
+   "src": "PDU-B01-06",
+   "dst": "T-B01-306",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2018,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 55.2,
+   "source": "CMMS",
+   "confidence": 0.78
+  },
+  {
+   "id": "e272",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-306",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2020,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 131.5,
+   "source": "BIM",
+   "confidence": 0.64
+  },
+  {
+   "id": "e273",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-306",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2016,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 186.1,
+   "source": "CMMS",
+   "confidence": 0.83
+  },
+  {
+   "id": "e274",
+   "src": "T-B01-306",
+   "dst": "T-B01-306.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e275",
+   "src": "T-B01-306",
+   "dst": "T-B01-306.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e276",
+   "src": "T-B01-306",
+   "dst": "T-B01-306.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e277",
+   "src": "T-B01-306",
+   "dst": "T-B01-306.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e278",
+   "src": "T-B01-307",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e279",
+   "src": "PDU-B01-04",
+   "dst": "T-B01-307",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2019,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 93.6,
+   "source": "BIM",
+   "confidence": 0.64
+  },
+  {
+   "id": "e280",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-307",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2025,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 97.4,
+   "source": "CMMS",
+   "confidence": 0.93
+  },
+  {
+   "id": "e281",
+   "src": "T-B01-307",
+   "dst": "T-B01-307.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e282",
+   "src": "T-B01-307",
+   "dst": "T-B01-307.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e283",
+   "src": "ALM-T-B01-307.ChuckTemp",
+   "dst": "T-B01-307.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e284",
+   "src": "T-B01-307",
+   "dst": "T-B01-307.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e285",
+   "src": "T-B01-307",
+   "dst": "T-B01-307.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e286",
+   "src": "T-B01-308",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e287",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-308",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 56.5,
+   "source": "WinCCOA",
+   "confidence": 0.97
+  },
+  {
+   "id": "e288",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-308",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2016,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 122.7,
+   "source": "BIM",
+   "confidence": 0.64
+  },
+  {
+   "id": "e289",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-308",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2025,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 84.8,
+   "source": "CMMS",
+   "confidence": 0.87
+  },
+  {
+   "id": "e290",
+   "src": "T-B01-308",
+   "dst": "T-B01-308.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e291",
+   "src": "T-B01-308",
+   "dst": "T-B01-308.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e292",
+   "src": "T-B01-308",
+   "dst": "T-B01-308.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e293",
+   "src": "ALM-T-B01-308.Vacuum",
+   "dst": "T-B01-308.Vacuum",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e294",
+   "src": "T-B01-308",
+   "dst": "T-B01-308.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e295",
+   "src": "T-B01-309",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e296",
+   "src": "PDU-B01-08",
+   "dst": "T-B01-309",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2022,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 78.6,
+   "source": "WinCCOA",
+   "confidence": 0.91
+  },
+  {
+   "id": "e297",
+   "src": "PDU-B01-07",
+   "dst": "T-B01-309",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2020,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 76.4,
+   "source": "BIM",
+   "confidence": 0.59
+  },
+  {
+   "id": "e298",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-309",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2021,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 156.8,
+   "source": "WinCCOA",
+   "confidence": 0.94
+  },
+  {
+   "id": "e299",
+   "src": "T-B01-309",
+   "dst": "T-B01-309.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e300",
+   "src": "T-B01-309",
+   "dst": "T-B01-309.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e301",
+   "src": "T-B01-309",
+   "dst": "T-B01-309.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e302",
+   "src": "T-B01-309",
+   "dst": "T-B01-309.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e303",
+   "src": "T-B01-310",
+   "dst": "AREA-B01-3",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e304",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-310",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2024,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 77.4,
+   "source": "WinCCOA",
+   "confidence": 0.82
+  },
+  {
+   "id": "e305",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-310",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2008,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 113.3,
+   "source": "CMMS",
+   "confidence": 0.88
+  },
+  {
+   "id": "e306",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-310",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2010,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 186.0,
+   "source": "WinCCOA",
+   "confidence": 0.87
+  },
+  {
+   "id": "e307",
+   "src": "T-B01-310",
+   "dst": "T-B01-310.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e308",
+   "src": "T-B01-310",
+   "dst": "T-B01-310.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e309",
+   "src": "T-B01-310",
+   "dst": "T-B01-310.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e310",
+   "src": "T-B01-310",
+   "dst": "T-B01-310.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e311",
+   "src": "AREA-B01-4",
+   "dst": "BLD-B01",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e312",
+   "src": "T-B01-401",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e313",
+   "src": "PDU-B01-06",
+   "dst": "T-B01-401",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2023,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 48.5,
+   "source": "BIM",
+   "confidence": 0.56
+  },
+  {
+   "id": "e314",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-401",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2021,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 158.8,
+   "source": "WinCCOA",
+   "confidence": 0.94
+  },
+  {
+   "id": "e315",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-401",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2022,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 98.9,
+   "source": "WinCCOA",
+   "confidence": 0.81
+  },
+  {
+   "id": "e316",
+   "src": "T-B01-401",
+   "dst": "T-B01-401.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e317",
+   "src": "T-B01-401",
+   "dst": "T-B01-401.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e318",
+   "src": "ALM-T-B01-401.ChuckTemp",
+   "dst": "T-B01-401.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e319",
+   "src": "T-B01-401",
+   "dst": "T-B01-401.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e320",
+   "src": "T-B01-401",
+   "dst": "T-B01-401.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e321",
+   "src": "T-B01-402",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e322",
+   "src": "PDU-B01-03",
+   "dst": "T-B01-402",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2020,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 68.5,
+   "source": "WinCCOA",
+   "confidence": 0.98
+  },
+  {
+   "id": "e323",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-402",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2016,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 146.7,
+   "source": "CMMS",
+   "confidence": 0.93
+  },
+  {
+   "id": "e324",
+   "src": "T-B01-402",
+   "dst": "T-B01-402.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e325",
+   "src": "T-B01-402",
+   "dst": "T-B01-402.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e326",
+   "src": "T-B01-402",
+   "dst": "T-B01-402.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e327",
+   "src": "T-B01-402",
+   "dst": "T-B01-402.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e328",
+   "src": "ALM-T-B01-402.PowerDraw",
+   "dst": "T-B01-402.PowerDraw",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e329",
+   "src": "T-B01-403",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e330",
+   "src": "PDU-B01-05",
+   "dst": "T-B01-403",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2014,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 128.2,
+   "source": "CMMS",
+   "confidence": 0.77
+  },
+  {
+   "id": "e331",
+   "src": "PDU-B01-04",
+   "dst": "T-B01-403",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2019,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 141.8,
+   "source": "CMMS",
+   "confidence": 0.81
+  },
+  {
+   "id": "e332",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-403",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2009,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 156.9,
+   "source": "BIM",
+   "confidence": 0.72
+  },
+  {
+   "id": "e333",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-403",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2015,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 105.8,
+   "source": "CMMS",
+   "confidence": 0.88
+  },
+  {
+   "id": "e334",
+   "src": "T-B01-403",
+   "dst": "T-B01-403.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e335",
+   "src": "T-B01-403",
+   "dst": "T-B01-403.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e336",
+   "src": "T-B01-403",
+   "dst": "T-B01-403.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e337",
+   "src": "T-B01-403",
+   "dst": "T-B01-403.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e338",
+   "src": "T-B01-404",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e339",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-404",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2009,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 88.0,
+   "source": "BIM",
+   "confidence": 0.67
+  },
+  {
+   "id": "e340",
+   "src": "PDU-B01-06",
+   "dst": "T-B01-404",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2012,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 73.8,
+   "source": "BIM",
+   "confidence": 0.7
+  },
+  {
+   "id": "e341",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-404",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2025,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 107.6,
+   "source": "WinCCOA",
+   "confidence": 0.9
+  },
+  {
+   "id": "e342",
+   "src": "T-B01-404",
+   "dst": "T-B01-404.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e343",
+   "src": "T-B01-404",
+   "dst": "T-B01-404.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e344",
+   "src": "T-B01-404",
+   "dst": "T-B01-404.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e345",
+   "src": "T-B01-404",
+   "dst": "T-B01-404.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e346",
+   "src": "T-B01-405",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e347",
+   "src": "PDU-B01-06",
+   "dst": "T-B01-405",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2022,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 58.7,
+   "source": "WinCCOA",
+   "confidence": 0.99
+  },
+  {
+   "id": "e348",
+   "src": "PDU-B01-07",
+   "dst": "T-B01-405",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2020,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 123.4,
+   "source": "BIM",
+   "confidence": 0.62
+  },
+  {
+   "id": "e349",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-405",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 147.5,
+   "source": "BIM",
+   "confidence": 0.68
+  },
+  {
+   "id": "e350",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-405",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2020,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 182.2,
+   "source": "BIM",
+   "confidence": 0.57
+  },
+  {
+   "id": "e351",
+   "src": "T-B01-405",
+   "dst": "T-B01-405.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e352",
+   "src": "T-B01-405",
+   "dst": "T-B01-405.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e353",
+   "src": "ALM-T-B01-405.ChuckTemp",
+   "dst": "T-B01-405.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e354",
+   "src": "T-B01-405",
+   "dst": "T-B01-405.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e355",
+   "src": "ALM-T-B01-405.Vacuum",
+   "dst": "T-B01-405.Vacuum",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e356",
+   "src": "T-B01-405",
+   "dst": "T-B01-405.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e357",
+   "src": "T-B01-406",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e358",
+   "src": "PDU-B01-01",
+   "dst": "T-B01-406",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2023,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 67.9,
+   "source": "CMMS",
+   "confidence": 0.86
+  },
+  {
+   "id": "e359",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-406",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2025,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 156.5,
+   "source": "BIM",
+   "confidence": 0.58
+  },
+  {
+   "id": "e360",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-406",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 140.0,
+   "source": "CMMS",
+   "confidence": 0.94
+  },
+  {
+   "id": "e361",
+   "src": "T-B01-406",
+   "dst": "T-B01-406.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e362",
+   "src": "T-B01-406",
+   "dst": "T-B01-406.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e363",
+   "src": "T-B01-406",
+   "dst": "T-B01-406.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e364",
+   "src": "T-B01-406",
+   "dst": "T-B01-406.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e365",
+   "src": "T-B01-407",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e366",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-407",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2019,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 140.3,
+   "source": "BIM",
+   "confidence": 0.62
+  },
+  {
+   "id": "e367",
+   "src": "PCW-B01-3",
+   "dst": "T-B01-407",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2022,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 87.6,
+   "source": "WinCCOA",
+   "confidence": 0.93
+  },
+  {
+   "id": "e368",
+   "src": "PCW-B01-1",
+   "dst": "T-B01-407",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2009,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 91.7,
+   "source": "WinCCOA",
+   "confidence": 0.83
+  },
+  {
+   "id": "e369",
+   "src": "T-B01-407",
+   "dst": "T-B01-407.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e370",
+   "src": "T-B01-407",
+   "dst": "T-B01-407.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e371",
+   "src": "ALM-T-B01-407.ChuckTemp",
+   "dst": "T-B01-407.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e372",
+   "src": "T-B01-407",
+   "dst": "T-B01-407.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e373",
+   "src": "T-B01-407",
+   "dst": "T-B01-407.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e374",
+   "src": "T-B01-408",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e375",
+   "src": "PDU-B01-05",
+   "dst": "T-B01-408",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2012,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 122.9,
+   "source": "WinCCOA",
+   "confidence": 0.82
+  },
+  {
+   "id": "e376",
+   "src": "PCW-B01-2",
+   "dst": "T-B01-408",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2019,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 90.9,
+   "source": "WinCCOA",
+   "confidence": 0.86
+  },
+  {
+   "id": "e377",
+   "src": "T-B01-408",
+   "dst": "T-B01-408.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e378",
+   "src": "T-B01-408",
+   "dst": "T-B01-408.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e379",
+   "src": "ALM-T-B01-408.ChuckTemp",
+   "dst": "T-B01-408.ChuckTemp",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e380",
+   "src": "T-B01-408",
+   "dst": "T-B01-408.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e381",
+   "src": "ALM-T-B01-408.Vacuum",
+   "dst": "T-B01-408.Vacuum",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e382",
+   "src": "T-B01-408",
+   "dst": "T-B01-408.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e383",
+   "src": "T-B01-409",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e384",
+   "src": "PDU-B01-05",
+   "dst": "T-B01-409",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2008,
+   "redundant": true,
+   "capacity_kw": 150,
+   "load_kw": 91.7,
+   "source": "CMMS",
+   "confidence": 0.83
+  },
+  {
+   "id": "e385",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-409",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2022,
+   "redundant": true,
+   "capacity_kw": 200,
+   "load_kw": 70.5,
+   "source": "BIM",
+   "confidence": 0.67
+  },
+  {
+   "id": "e386",
+   "src": "T-B01-409",
+   "dst": "T-B01-409.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e387",
+   "src": "ALM-T-B01-409.State",
+   "dst": "T-B01-409.State",
+   "type": "raisedOn"
+  },
+  {
+   "id": "e388",
+   "src": "T-B01-409",
+   "dst": "T-B01-409.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e389",
+   "src": "T-B01-409",
+   "dst": "T-B01-409.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e390",
+   "src": "T-B01-409",
+   "dst": "T-B01-409.PowerDraw",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e391",
+   "src": "T-B01-410",
+   "dst": "AREA-B01-4",
+   "type": "locatedIn"
+  },
+  {
+   "id": "e392",
+   "src": "PDU-B01-02",
+   "dst": "T-B01-410",
+   "type": "feeds",
+   "medium": "power",
+   "installed": 2011,
+   "redundant": false,
+   "capacity_kw": 150,
+   "load_kw": 108.5,
+   "source": "BIM",
+   "confidence": 0.7
+  },
+  {
+   "id": "e393",
+   "src": "PCW-B01-4",
+   "dst": "T-B01-410",
+   "type": "feeds",
+   "medium": "pcw",
+   "installed": 2015,
+   "redundant": false,
+   "capacity_kw": 200,
+   "load_kw": 167.6,
+   "source": "CMMS",
+   "confidence": 0.83
+  },
+  {
+   "id": "e394",
+   "src": "T-B01-410",
+   "dst": "T-B01-410.State",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e395",
+   "src": "T-B01-410",
+   "dst": "T-B01-410.ChuckTemp",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e396",
+   "src": "T-B01-410",
+   "dst": "T-B01-410.Vacuum",
+   "type": "hasDatapoint"
+  },
+  {
+   "id": "e397",
+   "src": "T-B01-410",
+   "dst": "T-B01-410.PowerDraw",
+   "type": "hasDatapoint"
+  }
+ ]
+}
