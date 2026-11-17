@@ -96,3 +96,22 @@ Traversal is pointer-chasing (index-free adjacency), and Cypher returns **paths*
 - **Q4 is the LPG home turf:** `shortestPath(...)` returns the **actual path**, no depth unrolling. Note it returned a *different* path of equal length (via UPS/PDU instead of chiller/PCW). Ties are real in redundant facility topologies, and `allShortestPaths` returns all of them.
 - **Q2/Q3:** relationship-property filters scan all FEEDS relationships. Neo4j 5 supports **relationship property indexes** (`CREATE INDEX FOR ()-[f:FEEDS]-() ON (f.source)`) if this became hot.
 - **Fairness caveat:** Oxigraph runs in-process, while Neo4j adds ~4–8 ms of Bolt + driver overhead per query. At this data size the **server-side** times are the honest comparison: both engines answer everything in **< 25 ms at SCALE=50**. Load is slower in Neo4j (transactional writes plus index maintenance over Bolt).
+
+---
+## Stage 5 — making them work together (RDF ⇄ LPG, plus SHACL)
+**Why:** Real fab and data-centre architectures rarely pick one model. The typical pattern is **RDF/ontology as the semantic layer**
+(shared vocabulary, IRIs, SHACL governance, integration of BIM, CMMS and SCADA) and **LPG as the operational/analytics projection**
+(traversals, path finding, GDS algorithms). This stage measures what survives the trip **RDF 1.2 → LPG → RDF 1.2**,
+emulating neosemantics (n10s) conventions, and checks whether SHACL tooling handles RDF 1.2 yet.
+**Watch for:** information loss at the boundary (multiple reifiers, unasserted claims, class hierarchy), and tool-support gaps.
+**What happened:**
+- **Clean round trip RDF 1.2 → LPG → RDF 1.2 is lossless:** 2,457 triples → 275 nodes / 414 rels → 2,457 triples, 0 lost, 0 gained.
+  It works because every reifier has exactly one *asserted* triple, which maps 1:1 onto a relationship with properties.
+  (The extra 14 nodes / 16 rels are the ontology classes and their `rdfs__subClassOf` links, which n10s also imports as nodes.)
+- **With RDF 1.2-only provenance, 6 triples are lost**: 1 *unasserted* BIM claim (no edge exists to hang it on) and 1 *second statement* about an existing edge
+  (an LPG relationship has a single property map, so one source silently overwrote the other). The fix in LPG is modelling, not mapping:
+  separate `:Claim` nodes, or parallel relationships, which brings back the n-ary pattern you left RDF to avoid.
+- **SHACL:** pyshacl, with `rdfs` inference so `sh:targetClass fab:ProductionTool` reaches EUVScanner, EtchTool, etc., found **exactly the 2 injected defects**
+  (tool without power feed; load 2,500 kW > capacity) in 342 ms. **Tool gap:** rdflib 7.6 **cannot parse RDF 1.2** (`<<( )>>` fails), so SHACL had to run on the
+  RDF 1.1 n-ary copy. Oxigraph handles RDF 1.2, but the Python validation ecosystem doesn't yet. Check this before committing to RDF 1.2 in a project.
+- Neo4j's own answer to governance is constraints (uniqueness, existence, property type in 5.x Enterprise), which is much weaker than SHACL shapes over class hierarchies.
