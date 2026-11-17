@@ -1,7 +1,7 @@
 # RDF vs RDF 1.2 (RDF-star) vs LPG — hands-on lab, fab facility use case
 
 One dataset (fab utility chain → production tools → WinCC OA-style datapoints → alarms), modelled three ways,
-asked the same five questions, with every answer checked against a Python ground truth.
+asked the same six questions (Q6 = single-point-of-failure audit), with every answer checked against a Python ground truth.
 
 | Stage | Script | What it shows |
 |---|---|---|
@@ -11,6 +11,7 @@ asked the same five questions, with every answer checked against a Python ground
 | 3 | `step3_rdf_star.py` | RDF 1.2 triple terms + reifiers, SPARQL 1.2 annotation syntax, provenance |
 | 4 | `step4_lpg_neo4j.py` | Neo4j 5.26 LPG, Cypher |
 | 5 | `step5_interop.py` | RDF 1.2 → LPG → RDF 1.2 round trip (n10s conventions), SHACL |
+| 5b | `step5b_n10s_compat.py` + `n10s_parser_check/` | What **real** n10s 5.26 does with RDF 1.2 (parser + source verified) and the phantom-edge risk |
 | 6 | `step6_bottlenecks.py` | Path explosion, SCADA write rate, optimizer pitfalls, scale table |
 
 **Read:** `SUMMARY.md` (decision guide) → `LEARNING_NOTES.md` (why + measured results per stage) → `DECISIONS.md`.

@@ -13,6 +13,9 @@ Q = {
           RETURN s.id AS s, d.id AS d, f.confidence AS c ORDER BY s, d""",
  "Q4": """MATCH p = shortestPath((:Entity {id: $src})-[:FEEDS*]->(:Entity {id: $dst}))
           RETURN [n IN nodes(p) | n.id] AS path""",
+ # Q6: quantified path pattern (Neo4j 5.9+) with a predicate on EVERY edge of the path — no model change needed
+ "Q6": """MATCH (sw:Switchgear) (()-[f:FEEDS WHERE f.medium = 'power']->())+ (t:ProductionTool)
+          WITH t, count(DISTINCT sw) AS n WHERE n = 1 RETURN t.id AS t ORDER BY t""",
  "Q5": """MATCH (a:Area)<-[:LOCATED_IN]-(:Asset)-[:HAS_DATAPOINT]->(dp)
           OPTIONAL MATCH (al:Alarm {active: true})-[:RAISED_ON]->(dp)
           RETURN a.id AS a, count(DISTINCT dp) AS n, count(DISTINCT al) AS c ORDER BY a""",
@@ -28,8 +31,9 @@ def run_queries(drv, gt):
             recs, summary, _ = drv.execute_query(Q[name], params)
             f.server_ms = summary.result_available_after + summary.result_consumed_after
             return [r.values() for r in recs]
-        res, ms = timed(f)
-        m[f"{name}_ms"] = ms; m[f"{name}_server_ms"] = f.server_ms
+        from common import LAST_P95
+        res, ms = timed(f, key=name)
+        m[f"{name}_ms"] = ms; m[f"{name}_p95"] = LAST_P95[name]; m[f"{name}_server_ms"] = f.server_ms
         return res
 
     r = q("Q1"); ok &= check(f"Q1 impact: {len(r)} tools", [x[0] for x in r], gt["Q1"])
@@ -37,6 +41,7 @@ def run_queries(drv, gt):
     r = q("Q3"); ok &= check(f"Q3 provenance: {len(r)} BIM links", [tuple(x) for x in r], gt["Q3"])
     r = q("Q4"); ok &= check(f"Q4 path (len {len(r[0][0]) - 1}): {' → '.join(r[0][0])}", len(r[0][0]) - 1, gt["Q4_len"])
     r = q("Q5"); ok &= check(f"Q5 aggregate: {len(r)} areas", [tuple(x) for x in r], gt["Q5"])
+    r = q("Q6"); ok &= check(f"Q6 single-switchgear tools: {len(r)} (naive, ignoring medium: {gt['Q6_naive_count']})", [x[0] for x in r], gt["Q6"])
     m["all_correct"] = ok
     return m
 

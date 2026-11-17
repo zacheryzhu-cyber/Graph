@@ -6,3 +6,4 @@ out/
 data/facility_s1[0-9]*.json
 data/facility_s[2-9]*.json
 neo4j.log
+n10s_parser_check/target/

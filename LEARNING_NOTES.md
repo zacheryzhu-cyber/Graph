@@ -155,3 +155,62 @@ emulating neosemantics (n10s) conventions, and checks whether SHACL tooling hand
 `./run_all.sh` runs everything end-to-end in **~19 s** (all scales, 54/54 ground-truth checks ✓). A re-run varied ±20 % on individual timings,
 so treat any sub-5 ms difference as noise. The big effects (580× for Q1 shape, exponential path counting, 200× batching) are robust.
 Decision guide: **SUMMARY.md**. Latest numbers: **RESULTS.md**.
+
+---
+# Refinement pass (+30 min)
+
+## R1 — real neosemantics behaviour, checked against its code and its parser
+**Why:** My Stage 5 emulation mapped RDF 1.2 reifiers onto relationship properties. That was *more capable than the real tool*. I checked what n10s 5.26 actually does.
+
+**What happened:**
+- n10s 5.26.0 bundles **rdf4j 4.3.12**. Parsing with that exact jar (`./n10s_parser_check/run.sh`):
+  - RDF-star 2021 `<< :UPS-1 :feeds :PDU-1 >> :installed 2012` → parsed, mapped to **relationship property** ✓
+  - RDF 1.2 `:r1 rdf:reifies <<( … )>>` → **PARSE FAILED** (`Expected an RDF value here, found '('`)
+  - RDF 1.2 `:a :feeds :b ~ :r1 {| … |}` → **PARSE FAILED** (`Expected '.', found '~'`)
+- n10s source, `RDFToLPGStatementProcessor.java:406–449`:
+  - a triple in **subject** position → relationship + properties;
+  - a triple in **object** position → `// ignore RDF* statements with triples as object`. That is precisely the RDF 1.2 form.
+  - For `<< s p o >> :q v` it calls `addStatement()`, i.e. it **creates the edge even though a quoted triple is not asserted**.
+- **Consequence, demonstrated end-to-end** (`step5b_n10s_compat.py`):
+  1. I injected one *unasserted* BIM claim ("PDU-B01-01 also powers T-B01-107"). In reality, T-B01-107 is fed only from SWG-B.
+  2. Down-converting RDF 1.2 → Turtle-star 2021 and importing with n10s semantics turned it into a real `feeds` edge `{sourceSystem: BIM, confidence: 0.55, medium: power}`.
+  3. The single-point-of-failure audit then reported **29 instead of 30** SPOF tools. **The phantom redundancy hid exactly the tool at risk.**
+  The down-conversion also drops all 139 reifier identities and merges multi-source statements onto one quoted triple.
+- **Practical rule:** with n10s today, (1) export RDF 1.2 as Turtle-star 2021, (2) **filter to asserted triples only** before import, (3) keep claims in RDF, or model them as `:Claim` nodes in Neo4j. Re-check this when an n10s release moves to rdf4j 5.x (rdf4j documents RDF 1.2 support in 5.x).
+
+## R2 — Q6: a path filtered on an edge property (single-point-of-failure audit)
+**Why:** "Which tools get power from only one switchgear?" needs a transitive path where **every edge** has `medium = power`.
+
+**What happened:**
+- **Ignoring the edge property gives a dangerously wrong answer:** 0 SPOF tools instead of 30 at SCALE=1 (cooling paths via chillers look like power redundancy).
+- **Cypher (Neo4j 5.9+ quantified path pattern)** expresses it directly: `(sw:Switchgear) (()-[f:FEEDS WHERE f.medium='power']->())+ (t:ProductionTool)`.
+- **SPARQL property paths cannot filter on edge metadata inside a path**, in RDF 1.1 *or* RDF 1.2. Both had to **materialise** a sub-property `fab:feedsPower` first (SPARQL UPDATE, 114 ms at SCALE=200), which then has to be maintained.
+  The RDF best practice is to model typed predicates (`fab:feedsPower rdfs:subPropertyOf fab:feeds`) from day one, so put edge properties you'll traverse on *into the predicate*.
+- Speed at SCALE=200: Neo4j **26 ms server** vs RDF 1.2 **140 ms** / n-ary 98 ms (after materialisation).
+
+## R3 — tighter numbers and SCALE=200 (p50/p95, 15 runs after warm-up; full table in RESULTS.md)
+| SCALE=200 (51k nodes, 78k rels; 475–502k triples) | RDF 1.1 n-ary | RDF 1.2 | Neo4j (client / server) |
+|---|---|---|---|
+| load | 2.6 s | 3.8 s | 6.1 s |
+| Q1 impact (as written) | **802 ms** | 0.3 ms | 3.7 / 1 ms |
+| Q1b traversal-first rewrite | 7.3 ms | 0.3 ms | — |
+| Q2 edge-property filter | 105 ms | 100 ms | 103 / 57 ms |
+| Q3 provenance filter | 88 ms | 76 ms | 202 / 29 ms |
+| Q4 path | 1.4 ms (unrolled) | 0.5 ms (unrolled) | 2.9 / 2 ms (native) |
+| Q5 aggregate | 65 ms | 69 ms | 46 / 24 ms |
+| Q6 SPOF audit | 98 ms + 114 ms prep | 140 ms + 118 ms prep | 135 / 26 ms |
+- p95 sits within ~10–20 % of p50 for almost everything, so the effects below are robust, not noise.
+- **Neo4j client vs server gap** on Q3 (202 vs 29 ms): returning ~15k rows over Bolt dominates. In an app, aggregate server-side and return less.
+- **Relationship-property index** on `FEEDS.source`: the plan switched from `DirectedRelationshipTypeScan` to `DirectedRelationshipIndexSeek`, and server time went 35 → 20 ms. The gain is modest because a third of all feeds match; indexes pay off on selective predicates.
+- **Writes, fairer now:**
+
+  | Engine / mode | Values/s |
+  |---|---|
+  | Oxigraph in-memory, batched | 215–340k |
+  | Oxigraph **on-disk, batched** | ~91k |
+  | Oxigraph on-disk, one update per value | ~13–20k |
+  | Neo4j batched | 41–76k |
+  | Neo4j one tx per value | ~230–360 |
+
+  Neo4j's per-value cost includes the Bolt round trip and the transaction commit, so it isn't a pure engine comparison, but it's what an app that writes naively experiences.
+  The historian verdict stands.

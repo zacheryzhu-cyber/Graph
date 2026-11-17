@@ -14,6 +14,11 @@ Q = {
  # explicit form: the reifier points at a triple term
  "Q3": """SELECT ?s ?d ?conf WHERE { ?r rdf:reifies <<( ?s fab:feeds ?d )>> ; fab:sourceSystem "BIM" ; fab:confidence ?conf .
             FILTER(?conf < 0.8) } ORDER BY ?s ?d""",
+ "Q1b": f"""SELECT ?t WHERE {{ {{ SELECT DISTINCT ?t WHERE {{ fab:{TRIP_SOURCE} fab:feeds+ ?t }} }}
+            ?t a ?c . ?c rdfs:subClassOf* fab:ProductionTool }} ORDER BY ?t""",
+ "Q6_prep": """INSERT { ?s fab:feedsPower ?d } WHERE { ?s fab:feeds ?d {| fab:medium "power" |} }""",
+ "Q6": """SELECT ?t WHERE { ?sw a fab:Switchgear . ?sw fab:feedsPower+ ?t . ?t a/rdfs:subClassOf* fab:ProductionTool }
+            GROUP BY ?t HAVING (COUNT(DISTINCT ?sw) = 1) ORDER BY ?t""",
  "Q5": """SELECT ?area (COUNT(DISTINCT ?dp) AS ?n) (COUNT(DISTINCT ?al) AS ?a) WHERE {
             ?area a fab:Area . ?tool fab:locatedIn ?area ; fab:hasDatapoint ?dp .
             OPTIONAL { ?al fab:raisedOn ?dp ; fab:active true } } GROUP BY ?area ORDER BY ?area""",

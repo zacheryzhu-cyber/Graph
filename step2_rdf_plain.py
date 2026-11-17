@@ -13,6 +13,14 @@ Q = {
             fab:installed ?y ; fab:loadKW ?l ; fab:capacityKW ?c . FILTER(?y < 2018 && ?l / ?c > 0.7) } ORDER BY ?s ?d""",
  "Q3": """SELECT ?s ?d ?conf WHERE { ?f fab:feedFrom ?s ; fab:feedTo ?d ; fab:sourceSystem "BIM" ; fab:confidence ?conf .
             FILTER(?conf < 0.8) } ORDER BY ?s ?d""",
+ # Q1 rewritten: force the anchored traversal first, type-check afterwards (Stage 6 finding)
+ "Q1b": f"""SELECT ?t WHERE {{ {{ SELECT DISTINCT ?t WHERE {{ fab:{TRIP_SOURCE} ({HOP})+ ?t }} }}
+            ?t a ?c . ?c rdfs:subClassOf* fab:ProductionTool }} ORDER BY ?t""",
+ # Q6 needs a path over edges filtered by an EDGE property (medium=power). Property paths can't filter inside the path,
+ # so RDF must first materialise a medium-specific predicate (a modelling change) — timed separately as Q6_prep.
+ "Q6_prep": """INSERT { ?s fab:feedsPower ?d } WHERE { ?f fab:feedFrom ?s ; fab:feedTo ?d ; fab:medium "power" }""",
+ "Q6": """SELECT ?t WHERE { ?sw a fab:Switchgear . ?sw fab:feedsPower+ ?t . ?t a/rdfs:subClassOf* fab:ProductionTool }
+            GROUP BY ?t HAVING (COUNT(DISTINCT ?sw) = 1) ORDER BY ?t""",
  "Q5": """SELECT ?area (COUNT(DISTINCT ?dp) AS ?n) (COUNT(DISTINCT ?al) AS ?a) WHERE {
             ?area a fab:Area . ?tool fab:locatedIn ?area ; fab:hasDatapoint ?dp .
             OPTIONAL { ?al fab:raisedOn ?dp ; fab:active true } } GROUP BY ?area ORDER BY ?area""",
@@ -20,13 +28,19 @@ Q = {
 
 
 def run(store, gt, hop=HOP, queries=Q, label="rdf_plain"):
+    from common import LAST_P95
     m, ok = {}, True
-    r, m["Q1_ms"] = timed(lambda: rows(store, queries["Q1"])); ok &= check(f"Q1 impact: {len(r)} tools", [x[0] for x in r], gt["Q1"])
-    r, m["Q2_ms"] = timed(lambda: rows(store, queries["Q2"])); ok &= check(f"Q2 edge-property filter: {len(r)} feeds", [tuple(x) for x in r], gt["Q2"])
-    r, m["Q3_ms"] = timed(lambda: rows(store, queries["Q3"])); ok &= check(f"Q3 provenance: {len(r)} BIM links", [(a, b, float(c)) for a, b, c in r], gt["Q3"])
-    q4 = hops_union(hop, TRIP_SOURCE, gt["Q4_target"])
-    r, m["Q4_ms"] = timed(lambda: rows(store, q4)); ok &= check(f"Q4 path (len {r[0][0]}): SWG-B01-A → {' → '.join(x for x in r[0][1:] if x)} → {gt['Q4_target']}", int(r[0][0]), gt["Q4_len"])
-    r, m["Q5_ms"] = timed(lambda: rows(store, queries["Q5"])); ok &= check(f"Q5 aggregate: {len(r)} areas", [(a, int(n), int(c)) for a, n, c in r], gt["Q5"])
+    def t(name, q):
+        r, m[f"{name}_ms"] = timed(lambda: rows(store, q), key=name); m[f"{name}_p95"] = LAST_P95[name]; return r
+    r = t("Q1", queries["Q1"]); ok &= check(f"Q1 impact: {len(r)} tools", [x[0] for x in r], gt["Q1"])
+    r = t("Q1b", queries["Q1b"]); ok &= check(f"Q1b impact, traversal-first rewrite: {len(r)} tools", [x[0] for x in r], gt["Q1"])
+    r = t("Q2", queries["Q2"]); ok &= check(f"Q2 edge-property filter: {len(r)} feeds", [tuple(x) for x in r], gt["Q2"])
+    r = t("Q3", queries["Q3"]); ok &= check(f"Q3 provenance: {len(r)} BIM links", [(a, b, float(c)) for a, b, c in r], gt["Q3"])
+    r = t("Q4", hops_union(hop, TRIP_SOURCE, gt["Q4_target"])); ok &= check(f"Q4 path (len {r[0][0]}): {TRIP_SOURCE} → {' → '.join(x for x in r[0][1:] if x)} → {gt['Q4_target']}", int(r[0][0]), gt["Q4_len"])
+    r = t("Q5", queries["Q5"]); ok &= check(f"Q5 aggregate: {len(r)} areas", [(a, int(n), int(c)) for a, n, c in r], gt["Q5"])
+    t0 = time.perf_counter(); store.update(PREFIXES + queries["Q6_prep"]); m["Q6_prep_ms"] = (time.perf_counter() - t0) * 1000
+    r = t("Q6", queries["Q6"]); ok &= check(f"Q6 single-switchgear tools: {len(r)} (naive, ignoring medium: {gt['Q6_naive_count']})", [x[0] for x in r], gt["Q6"])
+    store.update(PREFIXES + "DELETE WHERE { ?s fab:feedsPower ?d }")   # leave the store as loaded
     m["all_correct"] = ok
     return m
 

@@ -7,5 +7,6 @@ rdf: ; python step2_rdf_plain.py
 star: ; python step3_rdf_star.py
 lpg: ; python step4_lpg_neo4j.py
 interop: ; python step5_interop.py
+n10s: ; ./n10s_parser_check/run.sh && python step5b_n10s_compat.py
 bench: ; python step6_bottlenecks.py
 clean: ; rm -rf out neo4j_data data/facility_s*.json

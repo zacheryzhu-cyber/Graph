@@ -50,15 +50,44 @@ def ground_truth(d: dict) -> dict:
     for e in d["edges"]:
         if e["type"] == "raisedOn" and e["src"] in active and dp_owner.get(e["dst"]) in area_of:
             q5[area_of[dp_owner[e["dst"]]]][1] += 1
-    return {"Q1": q1, "Q2": q2, "Q3": q3, "Q4_target": q4_target, "Q4_len": dist[q4_target],
+    # Q6: single point of failure — tools whose POWER (medium=power edges only) comes from exactly one switchgear
+    radj = defaultdict(list)
+    for e in feeds:
+        if e["medium"] == "power": radj[e["dst"]].append(e["src"])
+    q6 = []
+    for t in (n for n, ty in types.items() if ty in TOOL_TYPES):
+        seen, st = set(), [t]
+        while st:
+            for u in radj[st.pop()]:
+                if u not in seen: seen.add(u); st.append(u)
+        if sum(types[u] == "Switchgear" for u in seen) == 1: q6.append(t)
+    q6_naive = []   # same question WITHOUT the medium filter (cooling paths via chillers count as 'power') → wrong answer
+    radj_all = defaultdict(list)
+    for e in feeds: radj_all[e["dst"]].append(e["src"])
+    for t in (n for n, ty in types.items() if ty in TOOL_TYPES):
+        seen, st = set(), [t]
+        while st:
+            for u in radj_all[st.pop()]:
+                if u not in seen: seen.add(u); st.append(u)
+        if sum(types[u] == "Switchgear" for u in seen) == 1: q6_naive.append(t)
+    return {"Q6": sorted(q6), "Q6_naive_count": len(q6_naive), "Q1": q1, "Q2": q2, "Q3": q3, "Q4_target": q4_target, "Q4_len": dist[q4_target],
             "Q5": sorted((a, c[0], c[1]) for a, c in q5.items())}
 
 
-def timed(fn, repeat: int = 5):
-    """Run fn `repeat` times, return (result, median_ms)."""
-    ts, res = [], None
+REPEAT = int(os.environ.get("REPEAT", 15))
+LAST_P95 = {}
+
+
+def timed(fn, repeat: int | None = None, key: str | None = None):
+    """1 untimed warm-up (plan cache, JIT, page cache), then `repeat` timed runs.
+    Returns (result, p50_ms); p95 is stored in LAST_P95[key] for the metrics file."""
+    repeat = repeat or REPEAT
+    res = fn()
+    ts = []
     for _ in range(repeat):
         t = time.perf_counter(); res = fn(); ts.append((time.perf_counter() - t) * 1000)
+    ts.sort()
+    if key: LAST_P95[key] = ts[min(len(ts) - 1, int(round(0.95 * (len(ts) - 1))))]
     return res, statistics.median(ts)
 
 
