@@ -96,10 +96,7 @@ def diff(a: ox.Store, b: ox.Store):
     return A - B, B - A
 
 
-def shacl():
-    """SHACL on the RDF side. rdflib 7.6 cannot parse RDF 1.2 (<<( )>>), so pyshacl validates the RDF 1.1 n-ary graph."""
-    import rdflib, pyshacl
-    shapes = """@prefix sh: <http://www.w3.org/ns/shacl#> . @prefix fab: <http://example.org/fab#> .
+SHAPES = """@prefix sh: <http://www.w3.org/ns/shacl#> . @prefix fab: <http://example.org/fab#> .
     fab:ToolShape a sh:NodeShape ; sh:targetClass fab:ProductionTool ;   # applies to EUVScanner etc. via rdfs:subClassOf
       sh:property [ sh:path [ sh:inversePath fab:feedTo ] ; sh:qualifiedMinCount 1 ;
                     sh:qualifiedValueShape [ sh:property [ sh:path fab:medium ; sh:hasValue "power" ] ] ;
@@ -111,6 +108,12 @@ def shacl():
       sh:property [ sh:path fab:loadKW ; sh:lessThanOrEquals fab:capacityKW ; sh:message "Feed overloaded: load > capacity" ] ;
       sh:property [ sh:path fab:confidence ; sh:minInclusive 0 ; sh:maxInclusive 1 ] ;
       sh:property [ sh:path fab:sourceSystem ; sh:in ("WinCCOA" "CMMS" "BIM") ; sh:minCount 1 ] ."""
+
+
+def shacl():
+    """SHACL on the RDF side. rdflib 7.6 cannot parse RDF 1.2 (<<( )>>), so pyshacl validates the RDF 1.1 n-ary graph."""
+    import rdflib, pyshacl
+    shapes = SHAPES
     st = store_from(build(load(1), "nary"))
     # inject two defects: tool T-B01-101 loses its power feed(s); one feed is overloaded
     for q in list(st.quads_for_pattern(None, N("feedTo"), N("T-B01-101"))):

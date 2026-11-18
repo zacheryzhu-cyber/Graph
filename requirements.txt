@@ -1,0 +1,8 @@
+# versions tested in this lab (Nov 2026)
+pyoxigraph==0.5.13
+rdflib==7.6.0
+pyshacl==0.40.2
+neo4j==6.4.1
+asyncua==2.1.0
+# optional: Oxigraph SPARQL server CLI (SETUP.md A2)
+# oxigraph==0.5.13

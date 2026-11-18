@@ -9,3 +9,4 @@ neo4j.log
 n10s_parser_check/target/
 demo/dist/
 demo_server.log
+oxi_db/

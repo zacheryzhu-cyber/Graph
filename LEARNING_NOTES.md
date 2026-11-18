@@ -228,3 +228,13 @@ BIM claim, then watch three engines answer side by side, each checked against an
   The demo uses the traversal-first sub-select and says so in the query note.
 - **Published copy:** running the downloaded Oxigraph JS/WASM build was blocked by the session's permission policy, so the published page is a *recorded edition*.
   Every preset × parameter × claim state (8,088 runs) is embedded, keyed by a hash of the exact query text. The topology, scenarios and correctness checks still run in the browser.
+
+## Stage 9 — live SCADA values + step-by-step setup (SETUP.md)
+**Before:** expectation that the graph should only see state changes, never samples, and that the tag name is enough to join both worlds.
+
+**After (measured, `step7_scada_bridge.py`, SCALE=1, 8 s):**
+- OPC UA simulator with 169 WinCC OA-style tags → asyncua subscription (100 ms) → SQLite historian: ~1,080 samples/s, source→historian latency p50 50 ms / p95 100 ms (bounded by the publishing interval).
+- Rule (chiller supply water > 10 °C) fired once → **1 graph write** for ~8,650 samples. Tag → datapoint → asset → downstream tools: 25 tools, identical in SPARQL (RDF 1.2) and Cypher, ✓ against ground truth. Affected tools' latest PowerDraw came from the historian, joined by tag.
+- Context lookup + alarm write: ≈ 0.6 s right after Neo4j start (query planning), 16 ms on a second run. Precompute asset→downstream sets when topology changes.
+- Oxigraph server checked for SETUP.md: `POST /store` without `?default` silently loads into a **new named graph**, so default-graph queries return 0 rows. Use `/store?default`.
+- `pyshacl -s out/fab_shapes.ttl -i rdfs out/fab_rdf11.ttl` → Conforms: True on clean data (the gate for use case A).

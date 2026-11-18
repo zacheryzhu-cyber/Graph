@@ -13,12 +13,16 @@ asked the same six questions (Q6 = single-point-of-failure audit), with every an
 | 5 | `step5_interop.py` | RDF 1.2 → LPG → RDF 1.2 round trip (n10s conventions), SHACL |
 | 5b | `step5b_n10s_compat.py` + `n10s_parser_check/` | What **real** n10s 5.26 does with RDF 1.2 (parser + source verified) and the phantom-edge risk |
 | 6 | `step6_bottlenecks.py` | Path explosion, SCADA write rate, optimizer pitfalls, scale table |
+| 7 | `step7_scada_bridge.py` | Live SCADA values: OPC UA subscribe → historian; alarm → graph context by tag name |
+| — | `export_rdf.py` | Writes Turtle (RDF 1.1, RDF 1.2) + SHACL shapes for loading into any RDF store |
+
+**Set it up for real, step by step (all three models + SCADA): [`SETUP.md`](SETUP.md).**
 
 **Working demo:** `python demo/server.py` → http://127.0.0.1:8765 (see `demo/README.md`). **Visual summary:** `lab_summary.html`. **Read:** `SUMMARY.md` (decision guide) → `LEARNING_NOTES.md` (why + measured results per stage) → `DECISIONS.md`.
 
 ## Run
 ```bash
-pip install pyoxigraph rdflib pyshacl neo4j
+pip install -r requirements.txt
 ./neo4j_embedded/run.sh &        # Neo4j 5.26 embedded, Bolt :7687, needs Java 17/21 + Maven (or use any Neo4j 5 server: NEO4J_URI=...)
 ./run_all.sh                     # or: make all / python stepN_*.py individually (SCALE=10 python step3_rdf_star.py)
 ```

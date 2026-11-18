@@ -2,7 +2,7 @@
 # Runs the whole lab. Starts embedded Neo4j if nothing listens on :7687.
 set -euo pipefail
 cd "$(dirname "$0")"
-pip install -q pyoxigraph rdflib pyshacl neo4j >/dev/null 2>&1 || true
+pip install -q -r requirements.txt >/dev/null 2>&1 || true
 rm -f out/metrics.json
 if ! (exec 3<>/dev/tcp/127.0.0.1/7687) 2>/dev/null; then
   echo ">> starting Neo4j 5.26 embedded (log: neo4j.log)"
@@ -21,3 +21,5 @@ echo; python step5_interop.py
 echo; ./n10s_parser_check/run.sh || echo "(n10s parser check skipped: needs Java + Maven)"
 echo; python step5b_n10s_compat.py
 echo; python step6_bottlenecks.py | tee out/step6_output.txt
+echo; python step7_scada_bridge.py
+python export_rdf.py
