@@ -29,6 +29,7 @@ In a fab, that means: **model and govern in RDF (1.2), operate and analyse in LP
 | Load 125k-triple / 19k-rel graph | 0.5 s | 0.9 s | 2.1 s (Bolt, transactional) |
 | Count all 1M redundant paths (k=20) | can't express | can't express | 1.7 s, exponential |
 | Live value writes | 215–340k/s in-mem · ~91k/s on-disk batched · 13–20k/s per update | — | 41–76k/s batched · **230–360/s per-tx** |
+| See the graph out of the box | ⚠ Oxigraph UI shows result **tables**; graph views need GraphDB Workbench / Stardog Explorer | same | ✓ Neo4j Browser draws query results (:7474, not in the lab's embedded launcher) |
 | Import into Neo4j via n10s 5.26 | via 2021 Turtle-star | ✗ **parse error**; must down-convert | — |
 
 ## 3. When to use which (fab / DC framing)
