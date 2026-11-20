@@ -72,10 +72,11 @@ def main():
             print(f"  valves {preset}, claim {key}: {len(seen)} queries recorded ({time.time() - t0:.0f} s)")
     eng.set_claim("remove"); eng.set_valves("normal")
     valve_ms["normal"] = None
+    explore = {f"{e}|{i}": eng.explore(e, i) for e in ("rdf11", "rdf12", "neo4j") for i in dom["unit"] + dom["consumer"]}   # "Inside each database", normal state
 
     meta = eng.meta(); meta["mode"] = "recorded"; meta["oxigraph"] = md.version("pyoxigraph"); meta["claim"] = None
     meta["valves"] = "normal"; meta["valve_ms"] = None
-    embed = {"meta": meta, "dataset": eng.dataset, "rec": rec, "claims": claims, "valve_ms": valve_ms,
+    embed = {"meta": meta, "dataset": eng.dataset, "rec": rec, "claims": claims, "valve_ms": valve_ms, "explore": explore,
              "recorded_at": datetime.date.today().isoformat()}
     page = (ROOT / "web" / "app.html").read_text(encoding="utf-8")
     blob = json.dumps(embed, separators=(",", ":"), default=str).replace("</", "<\\/")

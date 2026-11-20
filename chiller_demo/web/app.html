@@ -156,6 +156,36 @@ details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
 .score .v { font-weight: 600; }
 .score .v.ok { color: var(--ok); } .score .v.bad { color: var(--crit); }
 .foot { font-size: 0.78rem; color: var(--muted); display: grid; gap: 4px; }
+/* inside-the-database drawings */
+.exgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 1000px) { .exgrid { grid-template-columns: minmax(0, 1fr); } }
+.expanel { border-top: 3px solid var(--c); padding: 10px; display: grid; gap: 6px; align-content: start; }
+.expanel.rdf11 { --c: var(--rdf11); } .expanel.rdf12 { --c: var(--rdf12); } .expanel.neo4j { --c: var(--lpg); }
+.expanel .name { font: 600 0.72rem/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--c); }
+.excount { font: 600 1.15rem/1.2 var(--f-display); font-variant-numeric: tabular-nums; }
+.exsvg svg { display: block; width: 100%; height: auto; background: var(--panel2); border-radius: 6px; }
+.exsvg text { font: 500 13px var(--f-body); fill: var(--ink); pointer-events: none; }
+.exsvg text.id { font: 600 13px var(--f-mono); }
+.exsvg text.el { font: 500 11px var(--f-mono); fill: var(--muted); }
+.exsvg .xe { stroke: var(--muted); stroke-width: 1.2; fill: none; opacity: .75; }
+.exsvg .xe.derived { stroke-dasharray: 4 3; stroke: var(--warn); opacity: .9; }
+.exsvg .xe.flow { stroke: var(--ink); stroke-width: 1.8; opacity: .9; }
+.exsvg .xe.quote { stroke: var(--rdf12); stroke-dasharray: 1 4; stroke-width: 1.4; opacity: .7; }
+.exsvg .xn { cursor: pointer; }
+.exsvg .thing { fill: var(--panel); stroke: var(--ink); stroke-width: 1.5; }
+.exsvg .focus { fill: var(--accent); stroke: var(--accent); }
+.exsvg .pipe { fill: var(--rdf11); stroke: var(--rdf11); }
+.exsvg .reifier { fill: var(--rdf12); stroke: var(--rdf12); }
+.exsvg .statement { fill: var(--panel); stroke: var(--rdf12); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.exsvg .literal { fill: var(--panel); stroke: var(--line); }
+.exsvg .class { fill: var(--panel); stroke: var(--rdf11); stroke-dasharray: 2 2; }
+.exsvg .claim { fill: var(--crit); stroke: var(--crit); }
+.exsvg .card { fill: var(--panel); stroke: var(--lpg); stroke-width: 1.6; }
+.exsvg .card.focus { fill: var(--panel); stroke: var(--accent); stroke-width: 2.6; }
+.exsvg .chip { fill: var(--panel); stroke: var(--lpg); stroke-width: 1; }
+.exsvg .dp { fill: var(--panel); stroke: var(--muted); stroke-width: 1.2; }
+.exlegend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.78rem; color: var(--muted); }
+.exlegend b { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -2px; margin-right: 5px; }
 </style>
 
 <div class="wrap">
@@ -235,6 +265,25 @@ details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
     </aside>
   </div>
 
+  <section class="panel" id="exPanel">
+    <div class="ph"><div><span class="eyebrow">Drawn from what each database actually holds</span><h2>Inside each database</h2></div>
+      <div class="row"><div class="field"><label for="exSel">Show everything stored about</label><select id="exSel"></select></div></div></div>
+    <div class="pb">
+      <p class="small muted">The same thing, stored three ways. Every circle, box and arrow below is one real piece of data from that database, right now. Click a plant unit in any drawing to move there; hover for details.</p>
+      <div class="exgrid" id="exGrid"></div>
+      <div class="exlegend">
+        <span><b style="background:var(--accent)"></b>the selected thing</span>
+        <span><b style="background:var(--panel);border:1.5px solid var(--ink)"></b>another plant item</span>
+        <span><b style="background:var(--rdf11)"></b>RDF 1.1: the pipe as its own node</span>
+        <span><b style="background:var(--rdf12)"></b>RDF 1.2: a note about the pipe</span>
+        <span><b style="background:var(--panel);border:1.5px dashed var(--rdf12);border-radius:3px"></b>the pipe statement it describes</span>
+        <span><b style="background:var(--panel);border:1px solid var(--line);border-radius:3px"></b>a stored value</span>
+        <span><b style="background:var(--panel);border:1.5px solid var(--lpg);border-radius:3px"></b>Neo4j: values stored inside the box or on the arrow</span>
+        <span><b style="background:var(--warn);height:3px;border-radius:0;vertical-align:3px"></b>precomputed shortcut (RDF only)</span>
+      </div>
+    </div>
+  </section>
+
   <section class="panel">
     <div class="ph"><div class="tabs" role="tablist" id="tabs"></div>
       <button class="btn primary" id="runAll">Run on all three</button></div>
@@ -264,7 +313,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 let META, CAT, D, IX;
-const st = { q: "Q1", params: {}, edited: {}, res: {}, hl: "neo4j", claim: null, step: 0, valves: "normal", valveMs: null, score: {} };
+const st = { q: "Q1", params: {}, edited: {}, res: {}, hl: "neo4j", claim: null, step: 0, valves: "normal", valveMs: null, score: {}, ex: { focus: "P-B1" } };
 
 /* ---------------- backend: live server or recorded edition ---------------- */
 const claimKey = () => st.claim ? `${st.claim.neo_mode}:${st.claim.src}>${st.claim.dst}` : "none";
@@ -276,6 +325,7 @@ const api = LIVE ? {
   query(engine, text, repeat = 5) { return this.post("/api/query", { engine, text, repeat }); },
   claim(action, src, dst, neo_mode) { return this.post("/api/claim", { action, src, dst, neo_mode }); },
   valves(preset) { return this.post("/api/valves", { preset }); },
+  explore(engine, id) { return this.post("/api/explore", { engine, id }); },
 } : {
   async meta() { return EMBED.meta; },
   async dataset() { return EMBED.dataset; },
@@ -286,6 +336,7 @@ const api = LIVE ? {
   },
   async claim(action, src, dst, neo_mode) { return { claim: action === "add" ? { src, dst, neo_mode } : null }; },
   async valves(preset) { return { valves: preset, valve_ms: EMBED.valve_ms[preset] }; },
+  async explore(engine, id) { const r = EMBED.explore[engine + "|" + id]; if (!r) throw new Error("Not recorded."); return r; },
 };
 function cyrb53(str) {   /* identical to build_published.py: recordings are keyed by the exact query text */
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -407,6 +458,7 @@ function tip(ev, id) {
   T.style.left = Math.min(ev.clientX + 14, innerWidth - 340) + "px"; T.style.top = Math.min(ev.clientY + 14, innerHeight - 220) + "px";
 }
 function pick(id) {
+  showInside(id);
   if (IX.isConsumer(id)) { st.params.Q5.consumer = id; setTab("Q5"); }
   else { st.params.Q1.unit = st.params.Q2.unit = id; $("#unitSel").value = id; if (IX.type[id] === "Chiller") st.params.Q3.chiller = id; setTab("Q2"); }
   runAll();
@@ -596,6 +648,128 @@ async function runConsole() {
   } catch (err) { $("#cStat").innerHTML = ""; $("#cOut").innerHTML = `<div class="err">${esc(err.message)}</div>`; }
 }
 
+/* ---------------- inside each database: drawings of the real stored data ---------------- */
+const RDFNS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#", RDFSNS = "http://www.w3.org/2000/01/rdf-schema#";
+const shortP = p => p.startsWith(RDFNS) ? "rdf:" + p.slice(RDFNS.length) : p.startsWith(RDFSNS) ? "rdfs:" + p.slice(RDFSNS.length) : p;
+const trunc = (t, n) => { t = String(t); return t.length > n ? t.slice(0, n - 1) + "…" : t; };
+function rdfModel(engine, res) {
+  const nodes = new Map(), edges = [], quotes = [], add = (id, kind, label, extra = {}) => { if (!nodes.has(id)) nodes.set(id, { id, kind, label, ...extra }); return id; };
+  const classes = new Set(res.triples.filter(t => shortP(t[1]) === "rdf:type").map(t => t[2]));
+  const kindOf = id => id === res.focus ? "focus" : id.startsWith("pipe/") ? (engine === "rdf11" ? "pipe" : "reifier") : id.startsWith("claim") ? "claim"
+    : classes.has(id) && !IX.node[id] ? "class" : IX.type[id] === "Datapoint" ? "dp" : "thing";
+  const labelOf = id => id.startsWith("pipe/") ? (engine === "rdf11" ? "pipe " : "note on pipe ") + id.slice(5) : id;
+  res.triples.forEach(([sj, p, o, k], i) => {
+    add(sj, kindOf(sj), labelOf(sj)); const pl = shortP(p);
+    let dst;
+    if (k === "literal") dst = add("lit:" + i, "literal", trunc(o, 22), { full: String(o) });
+    else if (k === "triple") { const m = String(o).match(/^<<\( (\S+) (\S+) (\S+) \)>>$/); dst = add("tt:" + o, "statement", m ? `${m[1]} ${m[2]} ${m[3]}` : o);
+      if (m) [m[1], m[3]].forEach(x => { add(x, kindOf(x), labelOf(x)); quotes.push({ s: dst, d: x }); }); }
+    else dst = add(o, kindOf(o), labelOf(o));
+    edges.push({ s: sj, d: dst, label: pl, cls: pl === "openFlow" ? "derived" : pl === "flowsTo" ? "flow" : "" });
+  });
+  return { nodes: [...nodes.values()], edges, quotes, count: `${res.triples.length} triples`, unitCount: res.triples.length };
+}
+function lpgModel(res) {
+  if (!res.node) return { nodes: [], edges: [], count: "not found" };
+  const nodes = new Map(), edges = [], clean = p => Object.fromEntries(Object.entries(p || {}).filter(([k]) => !["id", "src", "dst"].includes(k) || k === "id" && false));
+  const mainLabel = ls => (ls || []).filter(l => !["Entity", "Asset", "PlantEquipment", "Consumer", "ProductionTool"].includes(l))[0] || (ls || [])[0] || "";
+  nodes.set(res.focus, { id: res.focus, kind: "card focus", label: res.focus, sub: ":" + mainLabel(res.node.labels), props: res.node.props, labels: res.node.labels });
+  let nprops = Object.keys(res.node.props || {}).length;
+  res.rels.forEach(r => {
+    if (!nodes.has(r.n)) { nodes.set(r.n, { id: r.n, kind: "card", label: r.n.startsWith("claim:") ? "Claim" : r.n, sub: ":" + mainLabel(r.nl), props: r.np, labels: r.nl }); nprops += Object.keys(r.np || {}).length; }
+    const rp = clean(r.rp); nprops += Object.keys(r.rp || {}).length;
+    edges.push({ s: r.s, d: r.d, label: r.t, props: rp, cls: r.t === "FLOWS_TO" ? "flow" : "" });
+  });
+  return { nodes: [...nodes.values()], edges, count: `${nodes.size} nodes · ${edges.length} relationships · ${nprops} properties` };
+}
+function nodeSize(v) {
+  return v.kind === "literal" ? [Math.max(40, v.label.length * 7.2 + 12), 20] : v.kind === "statement" ? [v.label.length * 7.9 + 16, 24] : v.kind === "class" ? [v.label.length * 7.4 + 16, 20]
+    : v.kind.startsWith("card") ? [Math.max(v.label.length * 8, v.sub.length * 6.8) + 22, 40] : [0, 0];
+}
+function layoutGraph(m) {
+  /* radial tree: the selected item in the middle, what is attached to it on the first ring, their values further out */
+  const N = m.nodes, byId = new Map(N.map(v => [v.id, v])), adj = new Map(N.map(v => [v.id, []]));
+  [...m.edges, ...(m.quotes || [])].forEach(e => { if (adj.has(e.s) && adj.has(e.d)) { adj.get(e.s).push(e.d); adj.get(e.d).push(e.s); } });
+  const root = N.find(v => v.kind.includes("focus")) || N[0], kids = new Map(), depth = new Map([[root.id, 0]]), q = [root.id];
+  const leafy = id => ["literal", "class"].includes(byId.get(id).kind);
+  while (q.length) { const u = q.shift(); const ns = [...new Set(adj.get(u))].filter(x => !depth.has(x)).sort((a, b) => leafy(a) - leafy(b));
+    ns.forEach(x => { depth.set(x, depth.get(u) + 1); (kids.get(u) || kids.set(u, []).get(u)).push(x); q.push(x); }); }
+  N.forEach(v => { if (!depth.has(v.id)) { depth.set(v.id, 1); (kids.get(root.id) || kids.set(root.id, []).get(root.id)).push(v.id); } });
+  const weight = id => Math.max(depth.get(id) === 1 ? 2 : 1, (kids.get(id) || []).reduce((a, k) => a + weight(k), 0));
+  const lpg = N.some(v => v.kind.startsWith("card")), radius = lpg ? [0, 240, 400, 520, 620] : [0, 150, 250, 335, 410];
+  const place = (id, a0, a1) => { const v = byId.get(id), d = depth.get(id), mid = (a0 + a1) / 2;
+    if (d) { v.x = Math.cos(mid) * radius[Math.min(d, 4)]; v.y = Math.sin(mid) * radius[Math.min(d, 4)] * (lpg ? 1 : 0.85); }
+    const ks = kids.get(id) || [], tot = ks.reduce((a, k) => a + weight(k), 0); let a = a0;
+    ks.forEach(k => { const span = (a1 - a0) * weight(k) / tot; place(k, a, a + span); a += span; }); };
+  root.x = 0; root.y = 0; place(root.id, -Math.PI / 2, 1.5 * Math.PI);
+}
+function drawGraph(host, m, engine) {
+  host.innerHTML = "";
+  if (!m.nodes.length) { host.innerHTML = `<div class="small muted">Nothing stored.</div>`; return; }
+  layoutGraph(m);
+  const size = nodeSize;
+  const R = v => v.kind === "focus" ? 16 : v.kind === "dp" ? 9 : ["pipe", "reifier", "claim"].includes(v.kind) ? 12 : 12;
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  m.nodes.forEach(v => { const [w, h] = size(v), r = R(v); const hw = Math.max(w / 2, r + 40), hh = Math.max(h / 2, r) + 16; x0 = Math.min(x0, v.x - hw); x1 = Math.max(x1, v.x + hw); y0 = Math.min(y0, v.y - hh); y1 = Math.max(y1, v.y + hh); });
+  const pad = 10, svg = document.createElementNS(SVGNS, "svg");
+  svg.setAttribute("viewBox", `${x0 - pad} ${y0 - pad} ${x1 - x0 + 2 * pad} ${y1 - y0 + 2 * pad}`);
+  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", `${ENAME[engine]}: what is stored about ${st.ex.focus}`);
+  const el = (t, a, p = svg) => { const x = document.createElementNS(SVGNS, t); for (const k in a) x.setAttribute(k, a[k]); p.appendChild(x); return x; };
+  const mk = el("marker", { id: "ar-" + engine, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" }, el("defs", {}));
+  el("path", { d: "M0,0 L10,5 L0,10 z", fill: "var(--muted)" }, mk);
+  const byId = new Map(m.nodes.map(v => [v.id, v]));
+  const clip = (v, tx, ty) => { const [w, h] = size(v); const dx = tx - v.x, dy = ty - v.y, d = Math.hypot(dx, dy) || 1;
+    if (w) { const t = Math.min((w / 2 + 2) / Math.abs(dx || 1e-9), (h / 2 + 2) / Math.abs(dy || 1e-9)); return [v.x + dx * Math.min(t, 1), v.y + dy * Math.min(t, 1)]; }
+    const r = R(v) + 2; return [v.x + dx / d * r, v.y + dy / d * r]; };
+  (m.quotes || []).forEach(e => { const a = byId.get(e.s), b = byId.get(e.d); if (!a || !b) return;
+    const [ax, ay] = clip(a, b.x, b.y), [bx, by] = clip(b, a.x, a.y); el("line", { x1: ax, y1: ay, x2: bx, y2: by, class: "xe quote" }); });
+  m.edges.forEach(e => { const a = byId.get(e.s), b = byId.get(e.d); if (!a || !b) return;
+    const [ax, ay] = clip(a, b.x, b.y), [bx, by] = clip(b, a.x, a.y);
+    const ln = el("line", { x1: ax, y1: ay, x2: bx, y2: by, class: "xe " + e.cls, "marker-end": `url(#ar-${engine})` });
+    const mx = (ax + bx) / 2, my = (ay + by) / 2;
+    const kd = b.kind, structural = !["literal", "class"].includes(kd);
+    if (structural) { const t = el("text", { x: mx, y: my - 3, "text-anchor": "middle", class: "el" }); t.textContent = e.label === "openFlow" ? "openFlow (shortcut)" : e.label; }
+    if (e.props && Object.keys(e.props).length) { const txt = Object.entries(e.props).filter(([k]) => k !== "id").map(([k, v]) => `${k}: ${v}`);
+      const lines = [txt.slice(0, 2).join(" · "), txt.slice(2, 4).join(" · ")].filter(Boolean); const w = Math.max(...lines.map(l => l.length)) * 6.7 + 12;
+      el("rect", { x: mx - w / 2, y: my + 3, width: w, height: lines.length * 14 + 5, rx: 3, class: "chip" });
+      lines.forEach((l, i) => { const tt = el("text", { x: mx, y: my + 15 + i * 14, "text-anchor": "middle", class: "el" }); tt.textContent = l; }); }
+    ln.addEventListener("mousemove", ev => exTip(ev, `<b>${esc(e.label)}</b>${e.label === "openFlow" ? "<br>A precomputed shortcut: 'water can flow here right now'. Rebuilt whenever a valve moves." : ""}${e.props ? "<br>" + Object.entries(e.props).map(([k, v]) => `${esc(k)}: ${esc(v)}`).join("<br>") : ""}`));
+    ln.addEventListener("mouseleave", () => $("#tip").hidden = true); ln.style.pointerEvents = "stroke"; ln.style.strokeWidth = ln.style.strokeWidth;
+  });
+  m.nodes.forEach(v => {
+    const g = el("g", { class: "xn", tabindex: IX.node[v.id] ? "0" : "-1" }), [w, h] = size(v);
+    if (w) { el("rect", { x: v.x - w / 2, y: v.y - h / 2, width: w, height: h, rx: v.kind.startsWith("card") ? 6 : 4, class: v.kind }, g);
+      if (v.kind.startsWith("card")) { const a = el("text", { x: v.x, y: v.y - 3, "text-anchor": "middle", class: "id" }, g); a.textContent = v.label; const b = el("text", { x: v.x, y: v.y + 13, "text-anchor": "middle", class: "el" }, g); b.textContent = v.sub; }
+      else { const a = el("text", { x: v.x, y: v.y + 4.5, "text-anchor": "middle", class: v.kind === "statement" ? "id" : "" }, g); a.textContent = v.label; } }
+    else { el("circle", { cx: v.x, cy: v.y, r: R(v), class: v.kind === "focus" ? "thing focus" : v.kind === "dp" ? "dp" : v.kind }, g);
+      const a = el("text", { x: v.x, y: v.y + R(v) + 15, "text-anchor": "middle", class: "id" }, g); a.textContent = v.label; }
+    const about = { focus: "The thing you selected.", thing: "Another plant item. Click to show it.", dp: "A SCADA datapoint (tag).", class: "A type (class). In RDF, types are data too.",
+      pipe: "RDF 1.1: the pipe is a node of its own; its facts hang off it.", reifier: "RDF 1.2: a note about the pipe statement; its facts hang off the note.",
+      statement: "RDF 1.2: the pipe statement itself, quoted so the note can point at it.", literal: "A stored value.", claim: "An unconfirmed BIM claim, stored apart from the network." }[v.kind] || "Neo4j: a node. Its values are stored inside it.";
+    g.addEventListener("mousemove", ev => exTip(ev, `<b class="mono">${esc(v.full || v.label)}</b><br><span class="muted">${esc(about)}</span>${v.props ? "<br>" + Object.entries(v.props).map(([k, x]) => `${esc(k)}: ${esc(x)}`).join("<br>") : ""}`));
+    g.addEventListener("mouseleave", () => $("#tip").hidden = true);
+    if (IX.node[v.id] && IX.type[v.id] !== "Datapoint" && v.id !== st.ex.focus) g.addEventListener("click", () => showInside(v.id));
+  });
+  host.appendChild(svg);
+}
+function exTip(ev, html) { const T = $("#tip"); T.innerHTML = html; T.hidden = false; T.style.left = Math.min(ev.clientX + 14, innerWidth - 340) + "px"; T.style.top = Math.min(ev.clientY + 14, innerHeight - 200) + "px"; }
+const EXPLAIN = {
+  rdf11: m => `Every fact is a separate arrow. Each pipe becomes its own node (purple), with its medium, source and confidence hanging off it as values.`,
+  rdf12: m => `The pipe is one direct arrow (bold). A separate note (teal) points at that arrow (dashed box) and carries the pipe's facts.`,
+  neo4j: m => `The pipe is one arrow. Its facts are written on the arrow, and each item's facts are stored inside its box.`,
+};
+async function showInside(id) {
+  st.ex.focus = id; $("#exSel").value = id;
+  $("#exGrid").innerHTML = ENGINES.map(e => `<div class="panel expanel ${e}"><div class="name">${esc(ENAME[e])}</div><div class="excount" id="exc_${e}">…</div><div class="small muted" id="exe_${e}"></div><div class="exsvg" id="exs_${e}"></div></div>`).join("");
+  for (const e of ENGINES) {
+    if (!META.engines[e].online) { $("#exc_" + e).textContent = "offline"; $("#exe_" + e).textContent = LIVE ? "Start Neo4j and reload the page to see its side." : ""; continue; }
+    try { const r = await api.explore(e, id), m = e === "neo4j" ? lpgModel(r) : rdfModel(e, r);
+      $("#exc_" + e).textContent = m.count; $("#exe_" + e).textContent = EXPLAIN[e](m) + (!LIVE && (st.valves !== "normal" || st.claim) ? " (Shown in normal operation, without the claim.)" : "");
+      drawGraph($("#exs_" + e), m, e);
+    } catch (err) { $("#exc_" + e).textContent = "error"; $("#exe_" + e).textContent = err.message; }
+  }
+}
+
 /* ---------------- valves, claim, chrome ---------------- */
 function renderValves() {
   const vm = st.valveMs, ps = pos();
@@ -607,7 +781,7 @@ function renderValves() {
 }
 async function setValves(preset, quiet) {
   try { const r = await api.valves(preset); st.valves = r.valves; st.valveMs = r.valve_ms; } catch (err) { alertBanner(err.message); return; }
-  $("#valveSel").value = st.valves; st.res = {}; renderValves(); renderScore(); drawTopo();
+  $("#valveSel").value = st.valves; st.res = {}; renderValves(); renderScore(); drawTopo(); showInside(st.ex.focus);
   if (!quiet) runAll();
 }
 function renderClaim() {
@@ -620,7 +794,7 @@ function renderClaim() {
 async function setClaim(action, quiet) {
   const src = $("#claimSrc").value, dst = $("#claimDst").value, mode = $("#claimMode").value;
   try { const r = await api.claim(action, src, dst, mode); st.claim = r.claim; } catch (err) { alertBanner(err.message); return; }
-  st.res = {}; renderClaim(); drawTopo();
+  st.res = {}; renderClaim(); drawTopo(); showInside(st.ex.focus);
   if (!quiet) { setTab("Q4"); runAll(); }
 }
 function alertBanner(msg) { const b = $("#banner"); b.className = "banner"; b.textContent = msg; b.hidden = false; }
@@ -665,6 +839,9 @@ async function boot() {
   $("#loseBtn").addEventListener("click", () => { const u = $("#unitSel").value; st.params.Q1.unit = st.params.Q2.unit = u; setTab("Q2"); runAll(); });
   $("#claimAdd").addEventListener("click", () => setClaim("add"));
   $("#claimDel").addEventListener("click", () => setClaim("remove"));
+  $("#exSel").innerHTML = [...IX.units, ...IX.consumers].map(i => `<option value="${i}" ${i === st.ex.focus ? "selected" : ""}>${i} · ${esc(IX.node[i].name)}</option>`).join("");
+  $("#exSel").addEventListener("change", ev => showInside(ev.target.value));
+  showInside(st.ex.focus);
   setTab("Q1"); runAll();
 }
 boot();
