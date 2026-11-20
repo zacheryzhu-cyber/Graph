@@ -13,5 +13,5 @@ for mode, name in [("nary", "fab_rdf11.ttl"), ("rdf12", "fab_rdf12.ttl")]:
     st.dump(str(p), ox.RdfFormat.TURTLE, from_graph=ox.DefaultGraph(), prefixes={"fab": FAB, "rdf": RDF, "rdfs": RDFS})
     print(f"wrote {p.relative_to(OUT.parent)}: {len(st)} triples")
 from step5_interop import SHAPES
-(OUT / "fab_shapes.ttl").write_text(SHAPES + "\n")
+(OUT / "fab_shapes.ttl").write_text(SHAPES + "\n", encoding="utf-8")
 print("wrote out/fab_shapes.ttl (SHACL shapes from step5)")

@@ -76,13 +76,13 @@ def main():
     meta = eng.meta(); meta["mode"] = "recorded"; meta["oxigraph"] = md.version("pyoxigraph"); meta["claim"] = None
     embed = {"meta": meta, "dataset": eng.dataset, "rec": rec, "claims": claims,
              "recorded_at": datetime.date.today().isoformat()}
-    page = (ROOT / "web" / "app.html").read_text()
+    page = (ROOT / "web" / "app.html").read_text(encoding="utf-8")
     blob = json.dumps(embed, separators=(",", ":"), default=str).replace("</", "<\\/")
     marker = '<script>\n(() => {\n"use strict";'
     assert marker in page
     out = page.replace(marker, f"<script>window.__EMBED={blob};</script>\n" + marker, 1)
     dist = ROOT / "dist"; dist.mkdir(exist_ok=True)
-    path = dist / "fab_graph_workbench.html"; path.write_text(out)
+    path = dist / "fab_graph_workbench.html"; path.write_text(out, encoding="utf-8")
     print(f"wrote {path.relative_to(ROOT.parent)}: {len(out) / 1e6:.2f} MB, {len(rec)} recordings, {n} query runs")
 
 

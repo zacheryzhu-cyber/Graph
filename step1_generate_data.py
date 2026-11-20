@@ -67,7 +67,7 @@ def generate(scale: int, seed: int = 42) -> dict:
 
 if __name__ == "__main__":
     d = generate(SCALE)
-    OUT.parent.mkdir(exist_ok=True); OUT.write_text(json.dumps(d, indent=1))
+    OUT.parent.mkdir(exist_ok=True); OUT.write_text(json.dumps(d, indent=1), encoding="utf-8")
     from collections import Counter
     print(f"wrote {OUT.name}: {len(d['nodes'])} nodes, {len(d['edges'])} edges")
     print(" node types:", dict(Counter(n["type"] for n in d["nodes"])))
