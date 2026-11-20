@@ -32,6 +32,11 @@ python step0_env_check.py                               # ✓ prints versions, a
 python step1_generate_data.py                           # ✓ data/facility_s1.json (SCALE=10 for 10 buildings)
 ```
 
+**Windows (PowerShell) notes:**
+- Use `py` rather than `python` / `pip`: `py -m pip install -r requirements.txt`, `py demo\server.py`. A bare `python` may open the Microsoft Store placeholder; turn that off under Settings → Apps → Advanced app settings → App execution aliases.
+- If a script fails with `UnicodeEncodeError` / `UnicodeDecodeError`, run `$env:PYTHONUTF8=1` once in that window. The code reads and writes files as UTF-8, but console output with ✓ / → can still trip older code pages.
+- `./neo4j_embedded/run.sh` is bash. Use Docker Desktop, Neo4j Desktop or the PowerShell commands in C1.
+
 The dataset is one fab building:
 - switchgear → UPS → PDU → tools, and chillers → cooling loops → tools;
 - every `feeds` link carries medium, capacity, load, source system and confidence;
@@ -127,6 +132,7 @@ Legacy RDF-star `<< s p o >>` changes meaning in RDF 1.2 (it becomes a reifier).
 |---|---|---|
 | Embedded launcher (no Docker) | `./neo4j_embedded/run.sh` (or `make neo4j`). First run downloads jars from Maven Central. Bolt on 127.0.0.1:7687, no auth, data in `neo4j_data/`. | ✓ tested |
 | Docker | `docker run -p7474:7474 -p7687:7687 -e NEO4J_AUTH=none neo4j:5.26-community` | ⚠ not run here (no Docker daemon) |
+| Embedded launcher on Windows PowerShell | `cd neo4j_embedded; mvn -q -B package dependency:copy-dependencies "-DoutputDirectory=target/lib"; java -Xmx2g -cp "target/classes;target/lib/*" lab.Server ..\neo4j_data 7687` | ⚠ not run here |
 | Neo4j Desktop / server tarball | install 5.26 LTS, then `export NEO4J_URI=bolt://host:7687` | ⚠ not run here |
 
 The lab code connects without auth. For a server with a password, change `auth=None` in `neo_common.py:driver()`.

@@ -21,7 +21,7 @@ def load(sc: int | None = None) -> dict:
     if not p.exists():
         subprocess.run([sys.executable, str(ROOT / "step1_generate_data.py")], env={**os.environ, "SCALE": str(sc)},
                        check=True, capture_output=True)
-    return json.loads(p.read_text())
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 def ground_truth(d: dict) -> dict:
@@ -99,6 +99,6 @@ def check(name: str, got, want) -> bool:
 
 def save_metrics(model: str, metrics: dict):
     p = OUT / "metrics.json"
-    allm = json.loads(p.read_text()) if p.exists() else {}
+    allm = json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
     allm.setdefault(model, {})[str(scale())] = metrics
-    p.write_text(json.dumps(allm, indent=1))
+    p.write_text(json.dumps(allm, indent=1), encoding="utf-8")

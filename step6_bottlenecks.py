@@ -113,7 +113,7 @@ def rel_index(drv, sc=50):
 
 
 def table():
-    m = json.loads((OUT / "metrics.json").read_text())
+    m = json.loads((OUT / "metrics.json").read_text(encoding="utf-8"))
     qs = ["Q1", "Q1b", "Q2", "Q3", "Q4", "Q5", "Q6"]
     lines = ["| model | SCALE | size | load ms | " + " | ".join(qs) + " | Q6 prep | correct |",
              "|---|---|---|---|" + "---|" * len(qs) + "---|---|"]
@@ -129,13 +129,13 @@ def table():
     md = ("Cells: p50/p95 ms over 15 runs after 1 warm-up. Neo4j cells are client-side incl. Bolt; srv = server-reported.\n"
           "Q1b = traversal-first rewrite of Q1 (RDF only). Q6 prep = one-off materialisation of fab:feedsPower that RDF needs for Q6.\n\n"
           + "\n".join(lines))
-    (OUT / "comparison.md").write_text(md + "\n")
+    (OUT / "comparison.md").write_text(md + "\n", encoding="utf-8")
     print("\n[3] Consolidated scale table\n" + md)
 
 
 if __name__ == "__main__":
     drv = driver()
     r = {"explosion": path_explosion(drv), "writes": scada_writes(drv), "rel_index": rel_index(drv, 200)}
-    (OUT / "bottlenecks.json").write_text(json.dumps(r, indent=1))
+    (OUT / "bottlenecks.json").write_text(json.dumps(r, indent=1), encoding="utf-8")
     table()
     drv.close()

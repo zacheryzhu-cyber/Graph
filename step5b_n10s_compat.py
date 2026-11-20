@@ -97,7 +97,7 @@ if __name__ == "__main__":
     print(f"    RDF 1.2 view — is the edge asserted? {bool(st.query(f'ASK {{ <{FAB}PDU-B01-01> <{FAB}feeds> <{FAB}{victim}> }}'))}")
 
     ttl, losses = downconvert(st)
-    path = OUT / "fab_for_n10s.ttls"; path.write_text(ttl)
+    path = OUT / "fab_for_n10s.ttls"; path.write_text(ttl, encoding="utf-8")
     print(f"\n[2] Down-converted RDF 1.2 → RDF-star 2021 Turtle-star: {path.relative_to(OUT.parent)} ({len(ttl.splitlines())} lines)")
     for k, v in losses.items(): print(f"    {v:>4}  {k}")
     if shutil.which("java") and (OUT.parent / "n10s_parser_check/target/lib").exists():

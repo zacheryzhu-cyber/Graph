@@ -134,7 +134,7 @@ class H(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path in ("/", "/index.html"):
-            page = (ROOT / "web" / "app.html").read_text()   # a body fragment (same file feeds the published build)
+            page = (ROOT / "web" / "app.html").read_text(encoding="utf-8")   # a body fragment (same file feeds the published build)
             html = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
                     '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"></head><body>' + page + "</body></html>")
             return self._send(200, html.encode(), "text/html; charset=utf-8")
