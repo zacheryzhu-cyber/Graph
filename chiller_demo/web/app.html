@@ -1,13 +1,13 @@
-<title>UPW Graph Lab</title>
+<title>Chiller Plant Graph Lab</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: header → what-is-this → guided story → plant diagram + side rail → question workbench (three engines). */
+/* Layout: header → rules of the comparison → guided story → plant diagram + side rail (valves, trip, claim) → question workbench → scorecard. */
 :root {
   --bg: #eef1f4; --panel: #ffffff; --panel2: #f6f8fa; --ink: #15202b; --muted: #5a6776; --line: #d3dae2;
   --accent: #0b6fa4; --rdf11: #7a5af5; --rdf12: #0b7a8a; --lpg: #d9711c; --ref: #3b4a5a;
   --ok: #1f8a4c; --warn: #b7791f; --crit: #c2373b; --hit: #f2c94c; --code: #f1f4f7;
-  --m-cw: #2f9e6e; --m-chw: #1aa0c8; --m-pcw: #8a63d2; --m-makeup: #8a7a5c; --m-ro: #4f8fbf; --m-upw: #1f5fd1; --m-reclaim: #8c96a1;
+  --m-cw: #2f9e6e; --m-chw: #1f6fd1; --m-pcw: #8a63d2; --m-air: #8c96a1;
   --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -16,12 +16,12 @@
   --bg: #0d1318; --panel: #141c23; --panel2: #18222b; --ink: #e3e9ef; --muted: #91a0ae; --line: #283440;
   --accent: #4fb3e8; --rdf11: #a08bff; --rdf12: #3cc3d3; --lpg: #f2994a; --ref: #b8c4cf;
   --ok: #4cc27f; --warn: #e2b04a; --crit: #ff6b6f; --hit: #e9c04a; --code: #1a242d;
-  --m-cw: #4cc28f; --m-chw: #3cc3e8; --m-pcw: #b195ff; --m-makeup: #bba67c; --m-ro: #7db6e4; --m-upw: #6a9cff; --m-reclaim: #7d8995; color-scheme: dark; } }
+  --m-cw: #4cc28f; --m-chw: #6a9cff; --m-pcw: #b195ff; --m-air: #8d99a5; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #0d1318; --panel: #141c23; --panel2: #18222b; --ink: #e3e9ef; --muted: #91a0ae; --line: #283440;
   --accent: #4fb3e8; --rdf11: #a08bff; --rdf12: #3cc3d3; --lpg: #f2994a; --ref: #b8c4cf;
   --ok: #4cc27f; --warn: #e2b04a; --crit: #ff6b6f; --hit: #e9c04a; --code: #1a242d;
-  --m-cw: #4cc28f; --m-chw: #3cc3e8; --m-pcw: #b195ff; --m-makeup: #bba67c; --m-ro: #7db6e4; --m-upw: #6a9cff; --m-reclaim: #7d8995; color-scheme: dark; }
+  --m-cw: #4cc28f; --m-chw: #6a9cff; --m-pcw: #b195ff; --m-air: #8d99a5; color-scheme: dark; }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--f-body); margin: 0; }
 .wrap { max-width: 1340px; margin: 0 auto; padding-block: 16px 48px;
@@ -29,7 +29,6 @@ body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--f-body); m
 h1, h2, h3 { font-family: var(--f-display); margin: 0; line-height: 1.2; text-wrap: balance; }
 h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
 h2 { font-size: 1.05rem; font-weight: 600; }
-h3 { font-size: 0.92rem; font-weight: 600; }
 p { margin: 0; }
 code, .mono { font-family: var(--f-mono); }
 button, select, textarea { font: inherit; color: inherit; }
@@ -51,14 +50,17 @@ button:focus-visible, select:focus-visible, textarea:focus-visible, .node:focus-
 .mode.live { color: var(--ok); } .mode.rec { color: var(--warn); }
 .banner { border: 1px solid var(--warn); border-left-width: 4px; background: var(--panel); border-radius: 6px; padding: 9px 12px; font-size: 0.86rem; }
 
-/* intro */
 .intro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 900px) { .intro { grid-template-columns: minmax(0, 1fr); } }
 .intro > div { display: grid; gap: 4px; align-content: start; }
-.intro .k { font: 600 0.72rem/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.k { font: 600 0.72rem/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; }
 .k.rdf11 { color: var(--rdf11); } .k.rdf12 { color: var(--rdf12); } .k.neo4j { color: var(--lpg); }
+.rules { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 900px) { .rules { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+@media (max-width: 520px) { .rules { grid-template-columns: minmax(0, 1fr); } }
+.rules > div { background: var(--panel2); border-radius: 6px; padding: 8px 10px; font-size: 0.82rem; display: grid; gap: 2px; align-content: start; }
+.rules b { font-weight: 600; }
 
-/* story */
 .steps { display: flex; flex-wrap: wrap; gap: 6px; }
 .step { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 0.82rem; display: inline-flex; gap: 6px; align-items: baseline; }
 .step .n { font: 600 0.72rem var(--f-mono); color: var(--muted); }
@@ -70,33 +72,31 @@ button:focus-visible, select:focus-visible, textarea:focus-visible, .node:focus-
 .scard > div { display: grid; gap: 4px; align-content: start; padding: 10px 12px; background: var(--panel2); border-radius: 6px; font-size: 0.86rem; }
 .scard > div.teach { border-left: 3px solid var(--accent); }
 
-/* main grid */
-.g1 { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+.g1 { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 14px; align-items: start; }
 @media (max-width: 1060px) { .g1 { grid-template-columns: minmax(0, 1fr); } }
 .topo { overflow-x: auto; }
 .topo svg { display: block; width: 100%; min-width: 820px; height: auto; }
-.row-h { font: 600 10px var(--f-mono); letter-spacing: 0.08em; fill: var(--muted); text-transform: uppercase; }
+.col-h { font: 600 9.5px var(--f-mono); letter-spacing: 0.06em; fill: var(--muted); text-transform: uppercase; }
 .band { fill: var(--panel2); }
-.edge { fill: none; stroke-width: 1.4; opacity: 0.5; }
-.edge.cw { stroke: var(--m-cw); } .edge.chw { stroke: var(--m-chw); } .edge.pcw { stroke: var(--m-pcw); opacity: .32; }
-.edge.makeup { stroke: var(--m-makeup); } .edge.ro { stroke: var(--m-ro); } .edge.upw { stroke: var(--m-upw); }
-.edge.reclaim { stroke: var(--m-reclaim); stroke-dasharray: 4 3; opacity: .55; }
+.edge { fill: none; stroke-width: 1.5; opacity: 0.55; }
+.edge.cw { stroke: var(--m-cw); } .edge.chw { stroke: var(--m-chw); } .edge.pcw { stroke: var(--m-pcw); } .edge.air { stroke: var(--m-air); stroke-dasharray: 2 3; }
+.edge.blocked { opacity: .15; }
 .edge.on { opacity: 1; stroke-width: 3; }
 .edge.flag { opacity: 1; stroke-width: 3; stroke: var(--crit); }
 .edge.claim { stroke: var(--crit); stroke-dasharray: 6 4; opacity: 1; stroke-width: 2.4; }
 .node { cursor: pointer; }
-.node rect { fill: var(--panel); stroke: var(--line); stroke-width: 1.3; transition: fill .15s; }
-.node.cooling rect { stroke: var(--m-chw); } .node.water rect { stroke: var(--m-upw); } .node.tool rect { stroke: var(--muted); stroke-width: 1.6; }
+.node rect { fill: var(--panel); stroke: var(--m-chw); stroke-width: 1.3; transition: fill .15s; }
+.node.consumer rect { stroke: var(--muted); stroke-width: 1.6; }
+.node.closed rect { stroke: var(--muted); stroke-dasharray: 4 3; fill: var(--panel2); }
 .node text { font: 600 11px var(--f-mono); fill: var(--ink); pointer-events: none; }
 .node text.k { font: 500 9px var(--f-body); fill: var(--muted); }
 .node.hit rect { fill: var(--hit); stroke: var(--hit); } .node.hit text, .node.hit text.k { fill: #15202b; }
 .node.src rect { fill: var(--ink); stroke: var(--ink); } .node.src text, .node.src text.k { fill: var(--panel); }
 .node.lost rect { fill: var(--crit); stroke: var(--crit); } .node.lost text, .node.lost text.k { fill: #fff; }
-.node.path rect { fill: var(--accent); stroke: var(--accent); } .node.path text, .node.path text.k { fill: #fff; }
 .node.sus rect { fill: var(--warn); stroke: var(--warn); } .node.sus text, .node.sus text.k { fill: #15202b; }
 .node.flag rect { stroke: var(--crit); stroke-width: 2.6; }
 .alarm { fill: var(--crit); stroke: var(--panel); stroke-width: 1.5; }
-.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; box-shadow: 0 6px 20px rgb(0 0 0 / .18); max-width: 320px; }
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; box-shadow: 0 6px 20px rgb(0 0 0 / .18); max-width: 330px; }
 .tip .al { color: var(--crit); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.78rem; color: var(--muted); }
 .legend i { display: inline-block; width: 14px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; border: 1px solid var(--line); }
@@ -115,7 +115,8 @@ select { background: var(--panel); border: 1px solid var(--line); border-radius:
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; flex-wrap: wrap; }
 .seg button { border: 0; background: transparent; padding: 6px 10px; cursor: pointer; font-size: 0.8rem; }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
-.state { font-size: 0.84rem; padding: 8px 10px; border-radius: 6px; background: var(--panel2); }
+.state { font-size: 0.84rem; padding: 8px 10px; border-radius: 6px; background: var(--panel2); display: grid; gap: 4px; }
+.cost { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 8px; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
 details.gl summary { cursor: pointer; font-weight: 600; font-size: 0.86rem; }
 dl { margin: 0; display: grid; gap: 6px; font-size: 0.8rem; }
 dt { font-weight: 600; } dd { margin: 0; color: var(--muted); }
@@ -133,41 +134,56 @@ dt { font-weight: 600; } dd { margin: 0; color: var(--muted); }
 .eng.rdf11 { --c: var(--rdf11); } .eng.rdf12 { --c: var(--rdf12); } .eng.neo4j { --c: var(--lpg); }
 .eng .name { font: 600 0.72rem/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--c); }
 .eng .sub { font-size: 0.76rem; color: var(--muted); }
+.method { font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; background: var(--panel2); }
+.method b { font-weight: 600; }
 textarea { width: 100%; min-height: 150px; resize: vertical; background: var(--code); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: 0.74rem/1.5 var(--f-mono); tab-size: 2; }
 .note { font-size: 0.8rem; color: var(--muted); }
 .stat { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
 .pill { display: inline-block; font: 600 0.68rem/1 var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 7px; border-radius: 4px; border: 1px solid currentColor; }
 .pill.ok { color: var(--ok); } .pill.bad { color: var(--crit); } .pill.na { color: var(--muted); }
 .res { overflow: auto; max-height: 240px; border: 1px solid var(--line); border-radius: 6px; }
-table { border-collapse: collapse; width: 100%; font-size: 0.76rem; font-variant-numeric: tabular-nums; }
-th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table { border-collapse: collapse; width: 100%; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.res th, .res td { white-space: nowrap; }
 th { position: sticky; top: 0; background: var(--panel2); font: 600 0.68rem var(--f-mono); color: var(--muted); }
 .err { color: var(--crit); font-size: 0.8rem; white-space: pre-wrap; }
 .diff { font-size: 0.78rem; }
 .diff b { color: var(--crit); }
 .summary { font-size: 0.86rem; font-weight: 500; }
 details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
+.scorewrap { overflow-x: auto; }
+.score td.m { color: var(--muted); }
+.score .v { font-weight: 600; }
+.score .v.ok { color: var(--ok); } .score .v.bad { color: var(--crit); }
 .foot { font-size: 0.78rem; color: var(--muted); display: grid; gap: 4px; }
 </style>
 
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <span class="eyebrow">RDF 1.1 · RDF 1.2 · Neo4j on one ultrapure-water plant</span>
-      <h1>UPW Graph Lab</h1>
+      <span class="eyebrow">RDF 1.1 · RDF 1.2 · Neo4j on one chilled-water plant</span>
+      <h1>Chiller Plant Graph Lab</h1>
     </div>
     <div class="chips" id="chips"></div>
   </header>
   <div id="banner" hidden></div>
 
   <section class="panel">
-    <div class="ph"><h2>What is this?</h2><span class="small muted">A small slice of a fab's ultrapure-water (UPW) plant and the cooling that serves it, stored in three kinds of graph database.</span></div>
+    <div class="ph"><h2>What is this?</h2><span class="small muted">A fab's chilled-water plant, from cooling towers to the tools and cleanroom air, stored in three kinds of graph database.</span></div>
     <div class="pb intro">
-      <div><span class="k rdf11">RDF 1.1</span><p class="small">The standard for shared, governed data models. A pipe with properties has to become its own node (the "n-ary" pattern).</p></div>
-      <div><span class="k rdf12">RDF 1.2</span><p class="small">The new version. A pipe stays one statement, and you can attach statements <i>about</i> it: who documented it, how sure they are, even claims nobody has confirmed.</p></div>
-      <div><span class="k neo4j">LPG · Neo4j</span><p class="small">A property graph built for traversal. A pipe is a relationship with properties; paths and what-ifs are native.</p></div>
+      <div><span class="k rdf11">RDF 1.1</span><p class="small">The standard for shared, governed data models. A pipe with properties becomes its own node.</p></div>
+      <div><span class="k rdf12">RDF 1.2</span><p class="small">The new version. A pipe stays one statement, and you can attach statements <i>about</i> it, including claims nobody has confirmed.</p></div>
+      <div><span class="k neo4j">LPG · Neo4j</span><p class="small">A property graph built for traversal. A pipe is a relationship with properties.</p></div>
     </div>
-    <div class="pb" style="padding-top:0"><p class="small muted">Each step below is an everyday operator question. All three engines answer it, and each answer is checked against a plain JavaScript calculation over the same plant data (the <b>reference</b>). Where an engine <b>differs</b>, that difference is the lesson.</p></div>
+    <div class="pb" style="padding-top:0">
+      <span class="eyebrow">Rules of the comparison</span>
+      <div class="rules">
+        <div><b>Same data, same question</b><span class="muted">One plant, loaded into all three. Each question is asked the way an operator would ask it.</span></div>
+        <div><b>Best exact method</b><span class="muted">Each engine uses the method an expert would use for it. No approximations.</span></div>
+        <div><b>Checked answers</b><span class="muted">Every answer is compared with a plain JavaScript calculation over the same data: the reference.</span></div>
+        <div><b>Effort is counted</b><span class="muted">Extra steps, precomputed shortcuts and upkeep when SCADA changes are shown, not hidden. See the scorecard.</span></div>
+      </div>
+    </div>
   </section>
 
   <section class="panel">
@@ -178,7 +194,7 @@ details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
 
   <div class="g1">
     <section class="panel">
-      <div class="ph"><div><span class="eyebrow">Hover for details · click a unit or a tool</span><h2>The plant</h2></div>
+      <div class="ph"><div><span class="eyebrow">Hover for details · click a unit or a consumer</span><h2>The plant</h2></div>
         <div class="row"><span class="small muted">Colour results from</span><div class="seg" id="hlSeg" role="group" aria-label="Colour the diagram with results from"></div></div></div>
       <div class="pb">
         <div class="topo" id="topo"></div>
@@ -188,20 +204,27 @@ details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
 
     <aside class="rail">
       <section class="panel">
-        <div class="ph"><h2>Take a unit out of service</h2></div>
+        <div class="ph"><h2>Valve positions</h2><span class="pill na">live from SCADA</span></div>
+        <div class="pb">
+          <div class="field"><label for="valveSel">Plant state</label><select id="valveSel"></select></div>
+          <div class="state" id="valveState"></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="ph"><h2>Trip a unit</h2></div>
         <div class="pb">
           <div class="field"><label for="unitSel">Unit</label><select id="unitSel"></select></div>
-          <div class="row"><button class="btn" id="dependBtn">What depends on it</button><button class="btn primary" id="loseBtn">Who loses water</button></div>
+          <div class="row"><button class="btn" id="dependBtn">What depends on it</button><button class="btn primary" id="loseBtn">Who loses cooling</button></div>
         </div>
       </section>
       <section class="panel">
         <div class="ph"><h2>Unconfirmed BIM pipe</h2><span class="pill na" id="claimPill">off</span></div>
         <div class="pb">
-          <p class="small muted">The BIM model shows a pipe nobody has confirmed. RDF 1.2 can store it as a <b>claim</b> without asserting it. What happens when it's imported into Neo4j?</p>
-          <div class="row"><div class="field" style="flex:1"><label for="claimSrc">From loop</label><select id="claimSrc"></select></div>
-            <div class="field" style="flex:1"><label for="claimDst">To tool</label><select id="claimDst"></select></div></div>
+          <p class="small muted">The BIM model shows a pipe nobody has confirmed. RDF 1.2 can store it as a <b>claim</b> without asserting it. What happens when it reaches Neo4j?</p>
+          <div class="row"><div class="field" style="flex:1"><label for="claimSrc">From</label><select id="claimSrc"></select></div>
+            <div class="field" style="flex:1"><label for="claimDst">To</label><select id="claimDst"></select></div></div>
           <div class="field"><label for="claimMode">Import into Neo4j as</label>
-            <select id="claimMode"><option value="n10s">n10s 5.26 import → a real pipe</option><option value="node">Claim node (recommended) → kept aside</option></select></div>
+            <select id="claimMode"><option value="n10s">n10s 5.26 import → a real pipe</option><option value="node">Claim node → kept aside</option></select></div>
           <div class="row"><button class="btn primary" id="claimAdd">Inject claim</button><button class="btn danger" id="claimDel">Remove</button></div>
           <div class="state" id="claimState"></div>
         </div>
@@ -218,6 +241,11 @@ details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
     <div class="pb" id="bench"></div>
   </section>
 
+  <section class="panel">
+    <div class="ph"><div><span class="eyebrow">Fills in as you run questions</span><h2>Scorecard</h2></div><span class="small muted">What each engine needed for an exact answer, whether it matched the reference, and how long it took.</span></div>
+    <div class="pb scorewrap"><table class="score" id="score"></table></div>
+  </section>
+
   <div class="foot" id="foot"></div>
 </div>
 <div class="tip" id="tip" hidden></div>
@@ -229,14 +257,14 @@ const EMBED = window.__EMBED || null;
 const LIVE = !EMBED;
 const ENGINES = ["rdf11", "rdf12", "neo4j"];
 const ENAME = { rdf11: "RDF 1.1 · n-ary", rdf12: "RDF 1.2 · triple terms", neo4j: "LPG · Neo4j" };
-const SHORT = { CoolingTower: "Cooling tower", Chiller: "Chiller", HeatExchanger: "Heat exchanger", CoolingLoop: "PCW loop", Source: "Water source",
-  Tank: "Tank", Filter: "Filter", ReverseOsmosis: "Reverse osmosis", Degasifier: "Degasifier", MixedBed: "Mixed bed", UVReactor: "UV 185 nm",
-  Ultrafilter: "Ultrafilter", DistributionLoop: "Supply loop", WetBench: "Wet bench", CMPTool: "CMP", LithoTrack: "Litho track", EtchTool: "Etch" };
+const SHORT = { CoolingTower: "Cooling tower", Chiller: "Chiller", Header: "CHW header", Valve: "Valve", HeatExchanger: "Heat exchanger",
+  Pump: "PCW pump", CoolingLoop: "PCW loop", AirHandler: "Make-up air", EtchTool: "Etch", CVDTool: "CVD", CMPTool: "CMP",
+  ImplantTool: "Implanter", LithoTool: "Litho", CleanroomBay: "Cleanroom" };
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 let META, CAT, D, IX;
-const st = { q: "Q1", params: {}, edited: {}, res: {}, hl: "neo4j", claim: null, step: 0 };
+const st = { q: "Q1", params: {}, edited: {}, res: {}, hl: "neo4j", claim: null, step: 0, valves: "normal", valveMs: null, score: {} };
 
 /* ---------------- backend: live server or recorded edition ---------------- */
 const claimKey = () => st.claim ? `${st.claim.neo_mode}:${st.claim.src}>${st.claim.dst}` : "none";
@@ -247,15 +275,17 @@ const api = LIVE ? {
   dataset() { return this.get("/api/dataset"); },
   query(engine, text, repeat = 5) { return this.post("/api/query", { engine, text, repeat }); },
   claim(action, src, dst, neo_mode) { return this.post("/api/claim", { action, src, dst, neo_mode }); },
+  valves(preset) { return this.post("/api/valves", { preset }); },
 } : {
   async meta() { return EMBED.meta; },
   async dataset() { return EMBED.dataset; },
   async query(engine, text) {
-    const r = EMBED.rec[claimKey() + "|" + engine + "|" + cyrb53(text)];
-    if (!r) throw new Error("Not recorded in this published copy. It holds every preset exactly as each engine ran it. Run edited or custom queries in the live demo (python upw_demo/server.py).");
+    const r = EMBED.rec[st.valves + "|" + claimKey() + "|" + engine + "|" + cyrb53(text)];
+    if (!r) throw new Error("Not recorded in this published copy. It holds every preset exactly as each engine ran it. Run edited or custom queries in the live demo (python chiller_demo/server.py).");
     return { ...r, recorded: true };
   },
   async claim(action, src, dst, neo_mode) { return { claim: action === "add" ? { src, dst, neo_mode } : null }; },
+  async valves(preset) { return { valves: preset, valve_ms: EMBED.valve_ms[preset] }; },
 };
 function cyrb53(str) {   /* identical to build_published.py: recordings are keyed by the exact query text */
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -268,51 +298,49 @@ window.__cyrb53 = cyrb53;
 
 /* ---------------- plant index + reference answers (independent of every engine) ---------------- */
 function index(d) {
-  const type = {}, node = {}, out = {}, rin = {}, dps = {}, owner = {}, alarms = {};
+  const type = {}, node = {}, dps = {}, owner = {}, alarms = {};
   d.nodes.forEach(n => { type[n.id] = n.type; node[n.id] = n; });
-  const feeds = d.edges.filter(e => e.type === "feeds"), sup = feeds.filter(e => e.medium !== "reclaim");
-  sup.forEach(e => { (out[e.src] = out[e.src] || []).push(e.dst); (rin[e.dst] = rin[e.dst] || []).push(e.src); });
+  const pipes = d.edges.filter(e => e.type === "flowsTo");
   d.edges.forEach(e => { if (e.type === "hasDatapoint") { (dps[e.src] = dps[e.src] || []).push(e.dst); owner[e.dst] = e.src; } });
-  d.edges.forEach(e => { if (e.type === "raisedOn") { const a = node[e.src], o = owner[e.dst]; (alarms[o] = alarms[o] || []).push(a); } });
-  const tools = d.nodes.filter(n => n.category === "tool").map(n => n.id);
-  const units = d.nodes.filter(n => n.category === "cooling" || n.category === "water").map(n => n.id);
-  return { type, node, out, rin, feeds, dps, alarms, tools, units, isTool: id => node[id] && node[id].category === "tool" };
+  d.edges.forEach(e => { if (e.type === "raisedOn") { const o = owner[e.dst]; (alarms[o] = alarms[o] || []).push(node[e.src]); } });
+  const ids = c => d.nodes.filter(n => n.category === c).map(n => n.id);
+  return { type, node, pipes, dps, alarms, units: ids("plant"), consumers: ids("consumer"),
+    chillers: d.nodes.filter(n => n.type === "Chiller").map(n => n.id), isConsumer: id => node[id] && node[id].category === "consumer",
+    isTool: id => node[id] && node[id].category === "consumer" && node[id].type !== "CleanroomBay" };
+}
+const pos = () => CAT.valve_presets[st.valves].positions;
+const isClosed = id => pos()[id] === "closed";
+function openAdj(reverse = false) {
+  const a = {}; IX.pipes.forEach(e => { if (isClosed(e.src) || isClosed(e.dst)) return; const [s, t] = reverse ? [e.dst, e.src] : [e.src, e.dst]; (a[s] = a[s] || []).push(t); }); return a;
 }
 function reach(start, adj, skip) {
   if (start === skip) return new Set(); const seen = new Set(), q = [start];
   while (q.length) for (const v of adj[q.shift()] || []) if (v !== skip && !seen.has(v)) { seen.add(v); q.push(v); }
   return seen;
 }
+const byType = t => Object.keys(IX.type).filter(k => IX.type[k] === t);
 const activeAlarms = id => (IX.alarms[id] || []).filter(a => a.active);
 const REF = {
-  Q1: p => [...reach(p.asset, IX.out)].sort(),
-  Q2: p => { const upw = new Set(IX.feeds.filter(e => e.medium === "upw" && IX.isTool(e.dst)).map(e => e.dst)); const ok = new Set();
-    Object.keys(IX.type).filter(k => IX.type[k] === "Source").forEach(s => reach(s, IX.out, p.asset).forEach(x => ok.add(x)));
-    return [...upw].filter(t => !ok.has(t)).sort(); },
-  Q3: p => IX.feeds.filter(e => e.source === p.source && e.confidence < +p.conf).map(e => e.src + ">" + e.dst).sort(),
-  Q4: p => { const path = refPath(p); return path.length ? ["length " + (path.length - 1)] : ["no path"]; },
-  Q5: p => { const up = reach(p.tool, IX.rin); const r = []; up.forEach(u => activeAlarms(u).forEach(a => r.push(u + "|" + a.text))); return r.sort(); },
-  Q6: () => { const adj = IX.out;   /* physical truth: water only flows along supply pipes, whatever the query follows */
-    const hits = {}; Object.keys(IX.type).filter(k => IX.type[k] === "Ultrafilter").forEach(uf => reach(uf, adj).forEach(t => { if (IX.isTool(t)) (hits[t] = hits[t] || new Set()).add(uf); }));
+  Q1: p => [...reach(p.unit, openAdj())].sort(),
+  Q2: p => { const adj = openAdj(), ok = new Set(); byType("CoolingTower").forEach(ct => reach(ct, adj, p.unit).forEach(x => ok.add(x)));
+    return IX.consumers.filter(c => !ok.has(c)).sort(); },
+  Q3: p => { const rem = IX.chillers.filter(c => c !== p.chiller).reduce((a, c) => a + IX.node[c].capacity_kw, 0);
+    const load = D.nodes.reduce((a, n) => a + (n.design_load_kw || 0), 0); return [`${rem}|${load}`]; },
+  Q4: () => { const adj = openAdj(), live = new Set(); byType("CoolingTower").forEach(ct => reach(ct, adj).forEach(x => live.add(x)));
+    const hits = {}; byType("HeatExchanger").filter(h => live.has(h)).forEach(hx => reach(hx, adj).forEach(t => { if (IX.isTool(t)) (hits[t] = hits[t] || new Set()).add(hx); }));
     return Object.keys(hits).filter(t => hits[t].size === 1).sort(); },
+  Q5: p => { const up = reach(p.consumer, openAdj(true)); const r = []; up.forEach(u => activeAlarms(u).forEach(a => r.push(u + "|" + a.text))); return r.sort(); },
+  Q6: p => IX.pipes.filter(e => e.source === p.source && e.confidence < +p.conf).map(e => e.src + ">" + e.dst).sort(),
 };
-function refPath(p) { const dist = { [p.src]: 0 }, par = {}, q = [p.src];
-  while (q.length) { const u = q.shift(); for (const v of IX.out[u] || []) if (!(v in dist)) { dist[v] = dist[u] + 1; par[v] = u; q.push(v); } }
-  if (!(p.dst in dist)) return []; const path = [p.dst]; while (path[0] !== p.src) path.unshift(par[path[0]]); return path; }
-
-function canon(q, r, p) {
+function canon(q, r) {
   const col = n => r.cols.indexOf(n);
   if (q === "Q1") return [...new Set(r.rows.map(x => x[col("x")]))].sort();
-  if (q === "Q2" || q === "Q6") return r.rows.map(x => x[col("t")]).sort();
-  if (q === "Q3") return r.rows.map(x => x[col("s")] + ">" + x[col("d")]).sort();
-  if (q === "Q4") { const path = enginePath(r, p); return path.length ? ["length " + (path.length - 1)] : ["no path"]; }
+  if (q === "Q2") return r.rows.map(x => x[col("c")]).sort();
+  if (q === "Q3") return r.rows.length ? [`${r.rows[0][col("remaining_kw")]}|${r.rows[0][col("load_kw")]}`] : [];
+  if (q === "Q4") return r.rows.map(x => x[col("t")]).sort();
   if (q === "Q5") return r.rows.map(x => x[col("unit")] + "|" + x[col("alarm")]).sort();
+  if (q === "Q6") return r.rows.map(x => x[col("s")] + ">" + x[col("d")]).sort();
   return [];
-}
-function enginePath(r, p) {
-  if (!r.rows.length) return [];
-  if (r.cols[0] === "path") return r.rows[0][0];
-  return [p.src, ...r.rows[0].slice(1).filter(x => x != null), p.dst];
 }
 const same = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
 function diff(got, want) { const g = new Set(got), w = new Set(want); return { extra: got.filter(x => !w.has(x)), missing: want.filter(x => !g.has(x)) }; }
@@ -320,48 +348,44 @@ function diff(got, want) { const g = new Set(got), w = new Set(want); return { e
 /* ---------------- query text ---------------- */
 const Qdef = id => CAT.questions.find(q => q.id === id);
 function fill(t, p) { let s = t; Object.keys(p).sort((a, b) => b.length - a.length).forEach(k => { s = s.split("$" + k).join(String(p[k])); }); return s; }
-function template(q, engine) { const d = Qdef(q); return d.variants ? d.variants[st.params[q].filter][engine] : d[engine]; }
-function queryText(q, engine) {
-  const k = q + engine; if (LIVE && st.edited[k] != null) return st.edited[k];
-  const p = { ...st.params[q] }; delete p.filter; return fill(template(q, engine), p);
-}
+function queryText(q, engine) { const k = q + engine; if (LIVE && st.edited[k] != null) return st.edited[k]; return fill(Qdef(q)[engine], st.params[q]); }
+const stepCount = (q, e) => queryText(q, e).split(CAT.step_sep).length;
 
 /* ---------------- plant diagram ---------------- */
-const SVGNS = "http://www.w3.org/2000/svg", W = 96, H = 34;
-const POS = { "CT-1": [20, 40], "CT-2": [20, 98], "CH-1": [160, 40], "CH-2": [160, 98], "HX-PCW": [310, 69], "PCW-LOOP": [460, 69],
-  "CITY": [20, 218], "RAW-TK": [140, 218], "MMF-1": [260, 218], "ACF-1": [380, 218], "RO-1": [500, 192], "RO-2": [500, 246], "DEG-1": [620, 218], "MB-1": [740, 218],
-  "UPW-TK": [20, 370], "HX-UPW": [140, 370], "UV-1": [260, 370], "MBP-A": [380, 340], "MBP-B": [380, 402], "UF-A": [500, 340], "UF-B": [500, 402], "LOOP-A": [620, 340], "LOOP-B": [620, 402],
-  "RCL-TK": [620, 520],
-  "WET-01": [800, 320], "WET-02": [800, 366], "WET-03": [800, 412], "WET-04": [800, 458], "CMP-01": [800, 504], "CMP-02": [800, 550],
-  "CMP-03": [920, 320], "LITH-01": [920, 366], "LITH-02": [920, 412], "ETCH-01": [920, 458], "ETCH-02": [920, 504] };
-function route(s, d, e) {
+const SVGNS = "http://www.w3.org/2000/svg", W = 106, H = 34;
+const POS = { "CT-1": [16, 56], "CT-2": [16, 166], "CT-3": [16, 276], "CH-1": [140, 56], "CH-2": [140, 166], "CH-3": [140, 276],
+  "CHW-HDR": [264, 166], "V-HX1": [388, 56], "V-HX2": [388, 200], "V-MAU1": [388, 340], "V-MAU2": [388, 420],
+  "HX-1": [512, 56], "HX-2": [512, 200], "MAU-1": [512, 340], "MAU-2": [512, 420], "P-A1": [636, 28], "P-A2": [636, 84], "P-B1": [636, 200],
+  "PCW-A": [760, 56], "V-TIE": [760, 128], "PCW-B": [760, 200],
+  "ETCH-01": [904, 28], "CVD-01": [904, 74], "CMP-01": [904, 120], "CMP-02": [904, 166], "LITH-01": [904, 212],
+  "ETCH-02": [904, 258], "CVD-02": [904, 304], "IMP-01": [904, 350], "BAY-1": [904, 404], "BAY-2": [904, 450] };
+function route(s, d) {
   const [sx, sy] = POS[s], [dx, dy] = POS[d];
-  if (e.medium === "reclaim" && IX.isTool(s)) { const y = sy + H / 2; return `M${sx + W},${y} H1032 V604 H668 V${POS["RCL-TK"][1] + H}`; }
-  if (s === "RCL-TK") return `M${sx},${sy + H / 2} H122 V${dy + H / 2 + 6} H${dx}`;
-  if (s === "MB-1") return `M${sx + W},${sy + H / 2} H852 V302 H8 V${dy + H / 2} H${dx}`;
-  if (d === "HX-UPW") return `M${sx},${sy + H / 2} H131 V${dy + 9} H${dx}`;
+  if (sx === dx) return dy > sy ? `M${sx + 42},${sy + H} V${dy}` : `M${sx + 64},${sy} V${dy + H}`;   // the loop-A ↔ cross-tie ↔ loop-B links
   const x1 = sx + W, y1 = sy + H / 2, x2 = dx, y2 = dy + H / 2, mx = (x1 + x2) / 2;
   return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
 }
 function drawTopo() {
   const host = $("#topo"); host.innerHTML = "";
-  const svg = document.createElementNS(SVGNS, "svg"); svg.setAttribute("viewBox", "0 0 1044 614");
-  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Ultrapure-water plant and cooling, as a flow diagram");
+  const svg = document.createElementNS(SVGNS, "svg"); svg.setAttribute("viewBox", "0 0 1030 500");
+  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Chilled-water plant, drawn as a flow diagram from cooling towers to consumers");
   const el = (t, a, p = svg) => { const x = document.createElementNS(SVGNS, t); for (const k in a) x.setAttribute(k, a[k]); p.appendChild(x); return x; };
-  [[8, 22, 570, 128, "Cooling: towers → chillers → chilled water → heat exchangers"], [8, 176, 840, 116, "Make-up & primary treatment"],
-   [8, 318, 720, 132, "Polishing & distribution"], [780, 298, 254, 296, "Tools"]].forEach(([x, y, w, h, t]) => {
-    el("rect", { x, y, width: w, height: h, rx: 6, class: "band" }); const l = el("text", { x: x + 8, y: y + 13, class: "row-h" }); l.textContent = t; });
+  el("rect", { x: 896, y: 6, width: 128, height: 488, rx: 6, class: "band" });
+  [["Cooling towers", 16], ["Chillers", 140], ["Header", 264], ["Valves", 388], ["HX / air units", 512], ["Pumps", 636], ["PCW loops", 760], ["Consumers", 904]]
+    .forEach(([t, x]) => { const l = el("text", { x, y: 18, class: "col-h" }); l.textContent = t; });
   const eg = el("g", {});
-  IX.feeds.forEach(e => { if (!POS[e.src] || !POS[e.dst]) return;
-    el("path", { d: route(e.src, e.dst, e), class: `edge ${e.medium}`, "data-k": e.src + ">" + e.dst }, eg); });
-  if (st.claim && POS[st.claim.src] && POS[st.claim.dst]) el("path", { d: route(st.claim.src, st.claim.dst, { medium: "upw" }), class: "edge claim" }, eg);
+  IX.pipes.forEach(e => { if (!POS[e.src] || !POS[e.dst]) return;
+    el("path", { d: route(e.src, e.dst), class: `edge ${e.medium}${isClosed(e.src) || isClosed(e.dst) ? " blocked" : ""}`, "data-k": e.src + ">" + e.dst }, eg); });
+  if (st.claim && POS[st.claim.src] && POS[st.claim.dst]) el("path", { d: route(st.claim.src, st.claim.dst), class: "edge claim" }, eg);
   Object.entries(POS).forEach(([id, [x, y]]) => {
     const n = IX.node[id]; if (!n) return;
-    const g = el("g", { class: `node ${n.category}`, "data-id": id, tabindex: "0", role: "button", "aria-label": `${id}, ${n.name}` });
-    el("rect", { x, y, width: W, height: H, rx: 5 }, g);
+    const g = el("g", { class: `node ${n.category}${isClosed(id) ? " closed" : ""}`, "data-id": id, tabindex: "0", role: "button", "aria-label": `${id}, ${n.name}` });
+    const w = n.category === "consumer" ? 116 : W;
+    el("rect", { x, y, width: w, height: H, rx: 5 }, g);
     const a = el("text", { x: x + 7, y: y + 14 }, g); a.textContent = id;
-    const k = el("text", { x: x + 7, y: y + 27, class: "k" }, g); k.textContent = SHORT[n.type] || n.type;
-    if (activeAlarms(id).length) el("circle", { cx: x + W - 8, cy: y + 8, r: 4.5, class: "alarm" }, g);
+    const sub = n.type === "Valve" ? `Valve · ${pos()[id]}` : n.type === "Chiller" ? `${n.capacity_kw.toLocaleString()} kW · ${n.mode}` : n.design_load_kw ? `${SHORT[n.type]} · ${n.design_load_kw} kW` : SHORT[n.type];
+    const k = el("text", { x: x + 7, y: y + 27, class: "k" }, g); k.textContent = sub;
+    if (activeAlarms(id).length) el("circle", { cx: x + w - 8, cy: y + 8, r: 4.5, class: "alarm" }, g);
     g.addEventListener("click", () => pick(id)); g.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(id); } });
     g.addEventListener("mousemove", ev => tip(ev, id)); g.addEventListener("mouseleave", () => $("#tip").hidden = true);
   });
@@ -369,45 +393,47 @@ function drawTopo() {
 }
 function tip(ev, id) {
   const n = IX.node[id], T = $("#tip"), about = (CAT.types[n.type] || {}).about || "";
-  const ins = IX.feeds.filter(e => e.dst === id), outs = IX.feeds.filter(e => e.src === id);
-  const media = m => (CAT.media[m] || {}).label || m;
+  const ins = IX.pipes.filter(e => e.dst === id), outs = IX.pipes.filter(e => e.src === id);
   let h = `<b class="mono">${esc(id)}</b> · ${esc(n.name)}<br><span class="muted">${esc(about)}</span>`;
-  if (ins.length) h += `<br><b>From:</b> ${ins.map(e => `${esc(e.src)} <span class="muted">(${esc(media(e.medium))}, ${e.flow_m3h}/${e.capacity_m3h} m³/h, ${esc(e.source)} ${e.confidence})</span>`).join(", ")}`;
+  if (n.type === "Valve") h += `<br><b>Position:</b> ${esc(pos()[id])}`;
+  if (n.capacity_kw) h += `<br><b>Capacity:</b> ${n.capacity_kw.toLocaleString()} kW · ${esc(n.mode)}`;
+  if (n.design_load_kw) h += `<br><b>Design load:</b> ${n.design_load_kw} kW`;
+  if (ins.length) h += `<br><b>From:</b> ${ins.map(e => `${esc(e.src)} <span class="muted">(${esc(CAT.media[e.medium])}, ${esc(e.source)} ${e.confidence})</span>`).join(", ")}`;
   if (outs.length) h += `<br><b>To:</b> ${outs.map(e => esc(e.dst)).join(", ")}`;
-  const dps = (IX.dps[id] || []).map(dp => IX.node[dp]);
+  const dps = (IX.dps[id] || []).map(dp => IX.node[dp]).filter(x => !x.tag.endsWith(".Position"));
   if (dps.length) h += `<br><b>SCADA:</b> ${dps.map(x => `<span class="mono">${esc(x.tag)}</span> = ${esc(x.value)} ${esc(x.unit)}`).join("<br>")}`;
   activeAlarms(id).forEach(a => { h += `<br><span class="al">● ${esc(a.severity)}: ${esc(a.text)}</span>`; });
   T.innerHTML = h; T.hidden = false;
-  T.style.left = Math.min(ev.clientX + 14, innerWidth - 330) + "px"; T.style.top = Math.min(ev.clientY + 14, innerHeight - 200) + "px";
+  T.style.left = Math.min(ev.clientX + 14, innerWidth - 340) + "px"; T.style.top = Math.min(ev.clientY + 14, innerHeight - 220) + "px";
 }
 function pick(id) {
-  if (IX.isTool(id)) { st.params.Q5.tool = id; setTab("Q5"); }
-  else { st.params.Q1.asset = id; st.params.Q2.asset = id; $("#unitSel").value = id; setTab("Q1"); }
+  if (IX.isConsumer(id)) { st.params.Q5.consumer = id; setTab("Q5"); }
+  else { st.params.Q1.unit = st.params.Q2.unit = id; $("#unitSel").value = id; if (IX.type[id] === "Chiller") st.params.Q3.chiller = id; setTab("Q2"); }
   runAll();
 }
 function paint() {
-  document.querySelectorAll(".node").forEach(n => n.classList.remove("hit", "src", "lost", "path", "sus", "flag"));
+  document.querySelectorAll(".node").forEach(n => n.classList.remove("hit", "src", "lost", "sus", "flag"));
   document.querySelectorAll(".edge").forEach(e => e.classList.remove("on", "flag"));
   const q = st.q, p = st.params[q] || {};
   const N = id => document.querySelector(`.node[data-id="${CSS.escape(id)}"]`);
   const E = k => document.querySelector(`.edge[data-k="${CSS.escape(k)}"]`);
+  const sel = q === "Q1" || q === "Q2" ? p.unit : q === "Q3" ? p.chiller : q === "Q5" ? p.consumer : null;
+  if (sel) N(sel)?.classList.add("src");
   let set;
-  if (st.hl === "reference") set = q === "Q4" ? refPath(p) : REF[q] ? REF[q](p) : [];
-  else { const r = st.res[q] && st.res[q][st.hl]; if (!r || !r.result) { if (q === "Q1" || q === "Q2") N(p.asset)?.classList.add("src"); return; }
-    set = q === "Q4" ? enginePath(r.result, p) : r.canon; }
-  if (q === "Q1") { const s = new Set(set); s.forEach(id => N(id)?.classList.add("hit")); N(p.asset)?.classList.add("src");
-    IX.feeds.forEach(e => { if (e.medium !== "reclaim" && (s.has(e.src) || e.src === p.asset) && s.has(e.dst)) E(e.src + ">" + e.dst)?.classList.add("on"); }); }
-  if (q === "Q2") { N(p.asset)?.classList.add("src"); set.forEach(id => N(id)?.classList.add("lost")); }
-  if (q === "Q3") set.forEach(k => { E(k)?.classList.add("flag"); k.split(">").forEach(id => N(id)?.classList.add("flag")); });
-  if (q === "Q4") { set.forEach(id => N(id)?.classList.add("path")); for (let i = 1; i < set.length; i++) E(set[i - 1] + ">" + set[i])?.classList.add("on"); }
-  if (q === "Q5") { N(p.tool)?.classList.add("src"); set.forEach(k => N(k.split("|")[0])?.classList.add("sus")); }
-  if (q === "Q6") set.forEach(id => N(id)?.classList.add("lost"));
+  if (st.hl === "reference") set = REF[q] ? REF[q](p) : [];
+  else { const r = st.res[q] && st.res[q][st.hl]; if (!r || !r.result) return; set = r.canon; }
+  if (q === "Q1") { const s = new Set(set); s.forEach(id => N(id)?.classList.add("hit"));
+    IX.pipes.forEach(e => { if ((s.has(e.src) || e.src === p.unit) && s.has(e.dst) && !isClosed(e.src) && !isClosed(e.dst)) E(e.src + ">" + e.dst)?.classList.add("on"); }); }
+  if (q === "Q2" || q === "Q4") set.forEach(id => N(id)?.classList.add("lost"));
+  if (q === "Q3") IX.chillers.filter(c => c !== p.chiller).forEach(c => N(c)?.classList.add("hit"));
+  if (q === "Q5") set.forEach(k => N(k.split("|")[0])?.classList.add("sus"));
+  if (q === "Q6") set.forEach(k => { E(k)?.classList.add("flag"); k.split(">").forEach(id => N(id)?.classList.add("flag")); });
 }
 function legend() {
-  const m = ["cw", "chw", "pcw", "makeup", "ro", "upw", "reclaim"].map(k => `<span><s style="border-color:var(--m-${k});${k === "reclaim" ? "border-top-style:dashed" : ""}"></s>${esc(CAT.media[k].label)}</span>`).join("");
-  $("#legend").innerHTML = m + `<span><i style="background:var(--ink);border-color:var(--ink)"></i>selected unit / tool</span>
-    <span><i style="background:var(--hit);border-color:var(--hit)"></i>downstream</span><span><i style="background:var(--crit);border-color:var(--crit)"></i>loses water / single point of failure</span>
-    <span><i style="background:var(--warn);border-color:var(--warn)"></i>alarm suspect</span><span><i style="background:var(--accent);border-color:var(--accent)"></i>route</span>
+  const m = ["cw", "chw", "pcw", "air"].map(k => `<span><s style="border-color:var(--m-${k});${k === "air" ? "border-top-style:dotted" : ""}"></s>${esc(CAT.media[k])}</span>`).join("");
+  $("#legend").innerHTML = m + `<span><i style="background:var(--panel2);border:1px dashed var(--muted)"></i>closed valve</span>
+    <span><i style="background:var(--ink);border-color:var(--ink)"></i>selected</span><span><i style="background:var(--hit);border-color:var(--hit)"></i>downstream / still running</span>
+    <span><i style="background:var(--crit);border-color:var(--crit)"></i>loses cooling / single point of failure</span><span><i style="background:var(--warn);border-color:var(--warn)"></i>alarm suspect</span>
     <span><span style="color:var(--crit)">●</span> active alarm</span><span><s style="border-color:var(--crit);border-top-style:dashed"></s>BIM claim</span>`;
 }
 
@@ -419,17 +445,18 @@ function renderStory() {
   $("#stTitle").textContent = (st.step ? `Step ${st.step}: ` : "") + s.title;
   const box = (h, t, cls = "") => `<div class="${cls}"><span class="eyebrow">${h}</span><span>${esc(t)}</span></div>`;
   $("#scard").innerHTML = s.q ? box("In the plant", s.plant) + box("The question", s.ask) + box("What to look at", s.look) + box("What it shows about the three models", s.teaches, "teach")
-    : box("The plant", s.plant) + box("Reading the diagram", s.look) + `<div class="teach" style="grid-column:span 2"><span class="eyebrow">Three ways to store it</span><span>${esc(s.teaches)}</span></div>`;
+    : box("The plant", s.plant) + box("Reading the diagram", s.look) + `<div class="teach" style="grid-column:span 2"><span class="eyebrow">How the comparison works</span><span>${esc(s.teaches)}</span></div>`;
   $("#stPrev").disabled = st.step === 0; $("#stNext").disabled = st.step === S.length - 1; $("#stRun").disabled = !s.q;
 }
 async function runStep() {
   const s = CAT.story[st.step]; if (!s.q) return;
-  Object.assign(st.params[s.q], s.params || {}); ENGINES.forEach(e => delete st.edited[s.q + e]);
-  if (s.params && s.params.asset) $("#unitSel").value = s.params.asset;
+  Object.assign(st.params[s.q], s.params || {}); ["rdf11", "rdf12", "neo4j"].forEach(e => delete st.edited[s.q + e]);
+  if (s.params && s.params.unit) { st.params.Q1.unit = st.params.Q2.unit = s.params.unit; $("#unitSel").value = s.params.unit; }
+  const wantValves = s.valves || "normal";
+  if (st.valves !== wantValves) await setValves(wantValves, true);
   if (s.claim) { if (!st.claim) await setClaim("add", true); }
   else if (st.claim) await setClaim("remove", true);
   setTab(s.q); await runAll();
-  $("#bench").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 /* ---------------- workbench ---------------- */
@@ -437,7 +464,7 @@ function setTab(q) { st.q = q; document.querySelectorAll(".tab").forEach(t => t.
 function paramControls(q) {
   const d = Qdef(q); if (!d) return "";
   return Object.entries(d.params).map(([k, spec]) => {
-    const opts = spec.kind === "choice" ? spec.options : spec.kind === "unit" ? IX.units : IX.tools;
+    const opts = spec.kind === "choice" ? spec.options : spec.kind === "unit" ? IX.units : spec.kind === "chiller" ? IX.chillers : IX.consumers;
     return `<div class="field"><label for="p_${k}">${esc(spec.label)}</label><select id="p_${k}" data-k="${k}">${opts.map(o => `<option ${String(o) === String(st.params[q][k]) ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></div>`;
   }).join("");
 }
@@ -454,36 +481,37 @@ function renderBench() {
     <div class="engines">${ENGINES.map(e => engineCard(q, e)).join("")}</div>`;
   b.querySelectorAll("select[data-k]").forEach(s => s.addEventListener("change", () => {
     st.params[q][s.dataset.k] = isNaN(+s.value) || s.value === "" ? s.value : parseFloat(s.value);
-    if (s.dataset.k === "asset") { st.params.Q1.asset = st.params.Q2.asset = s.value; $("#unitSel").value = s.value; }
+    if (s.dataset.k === "unit") { st.params.Q1.unit = st.params.Q2.unit = s.value; $("#unitSel").value = s.value; }
     ENGINES.forEach(e => delete st.edited[q + e]); runAll(); }));
-  bindCards(q);
+  ENGINES.forEach(e => bindCard(q, e));
 }
-function bindCards(q) {
-  const b = $("#bench");
-  b.querySelectorAll("textarea[data-e]").forEach(t => t.addEventListener("input", () => { st.edited[q + t.dataset.e] = t.value; }));
-  b.querySelectorAll("button[data-run]").forEach(btn => btn.addEventListener("click", () => runOne(q, btn.dataset.run)));
-  b.querySelectorAll("button[data-reset]").forEach(btn => btn.addEventListener("click", () => { delete st.edited[q + btn.dataset.reset]; rerenderCard(q, btn.dataset.reset); }));
+function bindCard(q, e) {
+  const c = $("#eng_" + e); if (!c) return;
+  c.querySelector("textarea").addEventListener("input", ev => { st.edited[q + e] = ev.target.value; });
+  c.querySelector("button[data-run]").addEventListener("click", () => runOne(q, e));
+  c.querySelector("button[data-reset]")?.addEventListener("click", () => { delete st.edited[q + e]; rerenderCard(q, e); });
 }
 function engineCard(q, e) {
   const d = Qdef(q), r = st.res[q] && st.res[q][e], online = META.engines[e].online;
   const txt = queryText(q, e), edited = LIVE && st.edited[q + e] != null;
   return `<div class="panel eng ${e}" id="eng_${e}">
     <div><div class="name">${esc(ENAME[e])}</div><div class="sub">${esc(META.engines[e].name)}${online ? "" : " · offline"}</div></div>
+    <div class="method"><b>Method:</b> ${esc(d.method[e])}</div>
     <div>${resultHead(q, r, online)}</div>
     <div class="note">${esc(d.notes[e] || "")}</div>
-    <details class="q" ${edited ? "open" : ""}><summary>Show the ${e === "neo4j" ? "Cypher" : "SPARQL"} query</summary>
+    <details class="q" ${edited ? "open" : ""}><summary>Show the ${e === "neo4j" ? "Cypher" : "SPARQL"} ${stepCount(q, e) > 1 ? "script" : "query"}</summary>
       <textarea data-e="${e}" spellcheck="false" aria-label="${esc(ENAME[e])} query" ${LIVE ? "" : "readonly"}>${esc(txt)}</textarea>
       <div class="row" style="margin-top:6px"><button class="btn" data-run="${e}" ${online ? "" : "disabled"}>Run</button>${edited ? `<button class="btn" data-reset="${e}">Reset query</button>` : ""}</div></details>
     <div>${resultTable(r)}</div></div>`;
 }
+const ms = v => v == null ? "" : `${v < 10 ? v.toFixed(2) : v.toFixed(1)} ms`;
 function resultHead(q, r, online) {
   if (!online) return `<span class="pill na">offline</span> <span class="small muted">${LIVE ? "Start Neo4j, then reload this page." : ""}</span>`;
   if (!r) return "";
   if (r.busy) return `<span class="stat muted">running…</span>`;
   if (r.error) return `<span class="pill bad">error</span><div class="err">${esc(r.error)}</div>`;
-  const x = r.result, t = x.ms != null ? `${x.ms < 10 ? x.ms.toFixed(2) : x.ms.toFixed(1)} ms` : "";
-  const pill = r.ok ? `<span class="pill ok">matches reference</span>` : `<span class="pill bad">differs</span>`;
-  let h = `<div class="stat">${pill}<span class="muted">${t}${x.server_ms != null ? ` · server ${x.server_ms} ms` : ""}${x.recorded ? " · recorded" : ""}</span></div>`;
+  const x = r.result;
+  let h = `<div class="stat">${r.ok ? `<span class="pill ok">matches reference</span>` : `<span class="pill bad">differs</span>`}<span class="muted">${ms(x.ms)}${x.server_ms != null ? ` · server ${x.server_ms} ms` : ""}${x.recorded ? " · recorded" : ""}</span></div>`;
   h += `<div class="summary">${esc(r.summary)}</div>`;
   if (!r.ok && r.d) h += `<div class="diff">${r.d.extra.length ? `<b>+${r.d.extra.length}</b> not in reference: ${esc(r.d.extra.slice(0, 5).join(", "))} ` : ""}${r.d.missing.length ? `<b>−${r.d.missing.length}</b> missing: ${esc(r.d.missing.slice(0, 5).join(", "))}` : ""}</div>`;
   return h;
@@ -494,25 +522,25 @@ function resultTable(r) {
   return `<details class="q"><summary>Raw result (${x.total} row${x.total === 1 ? "" : "s"})</summary><div class="res"><table><thead><tr>${x.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${x.rows.slice(0, 200).map(row => `<tr>${row.map(v => `<td>${esc(fmt(v))}</td>`).join("")}</tr>`).join("")}</tbody></table></div></details>`;
 }
 const fmt = v => v == null ? "" : Array.isArray(v) ? v.join(" → ") : typeof v === "number" && !Number.isInteger(v) ? +v.toFixed(3) : typeof v === "object" ? JSON.stringify(v) : v;
-const list = (a, n = 9) => a.slice(0, n).join(", ") + (a.length > n ? ` and ${a.length - n} more` : "");
+const list = (a, n = 8) => a.slice(0, n).join(", ") + (a.length > n ? ` and ${a.length - n} more` : "");
 function refSummary(q, ref) {
   const p = st.params[q];
-  if (q === "Q1") { const t = ref.filter(IX.isTool); return `${ref.length} units and tools downstream of <b>${esc(p.asset)}</b>; ${t.length} of them are tools${t.length ? ": " + esc(t.join(", ")) : ""}.`; }
-  if (q === "Q2") return ref.length ? `Isolating <b>${esc(p.asset)}</b> leaves <b>${ref.length}</b> tool${ref.length === 1 ? "" : "s"} with no UPW: ${esc(ref.join(", "))}.` : `Isolating <b>${esc(p.asset)}</b> leaves every tool with water: redundancy covers it.`;
-  if (q === "Q3") return `${ref.length} pipe${ref.length === 1 ? "" : "s"} documented only by ${esc(p.source)} below ${p.conf}${ref.length ? ": " + esc(list(ref.map(x => x.replace(">", " → ")), 6)) : ""}.`;
-  if (q === "Q4") { const path = refPath(p); return path.length ? `${path.length - 1} pipes: ${esc(path.join(" → "))}` : "There is no supply route between them."; }
-  if (q === "Q5") return ref.length ? `${ref.length} alarming unit${ref.length === 1 ? "" : "s"} upstream of <b>${esc(p.tool)}</b>: ${esc(ref.map(x => x.split("|")[0]).join(", "))}.` : `No active alarms upstream of ${esc(p.tool)}.`;
-  if (q === "Q6") return `${ref.length} tool${ref.length === 1 ? "" : "s"} rely on a single polishing train${ref.length ? ": " + esc(ref.join(", ")) : ""}.` +
-    (p.filter !== "supply pipes only" ? ` <span class="muted">The reference always follows supply pipes, because that's how the water flows; the query below doesn't.</span>` : "");
+  if (q === "Q1") { const c = ref.filter(IX.isConsumer); return `${ref.length} units and consumers get cooling through <b>${esc(p.unit)}</b>${c.length ? `; consumers: ${esc(c.join(", "))}` : ""}.`; }
+  if (q === "Q2") return ref.length ? `If <b>${esc(p.unit)}</b> trips, <b>${ref.length}</b> consumer${ref.length === 1 ? "" : "s"} lose cooling: ${esc(ref.join(", "))}.` : `If <b>${esc(p.unit)}</b> trips, every consumer keeps cooling: redundancy covers it.`;
+  if (q === "Q3") { const [rem, load] = ref[0].split("|").map(Number); const m = rem - load;
+    return `Without <b>${esc(p.chiller)}</b>: ${rem.toLocaleString()} kW left for a ${load.toLocaleString()} kW design load. ${m >= 0 ? `<b>Yes</b>, ${m} kW margin.` : `<b>No</b>, ${-m} kW short.`}`; }
+  if (q === "Q4") return `${ref.length} tool${ref.length === 1 ? "" : "s"} depend on one heat exchanger right now${ref.length ? ": " + esc(ref.join(", ")) : ""}. <span class="muted">(${esc(CAT.valve_presets[st.valves].label)})</span>`;
+  if (q === "Q5") return ref.length ? `${ref.length} alarming unit${ref.length === 1 ? "" : "s"} upstream of <b>${esc(p.consumer)}</b>: ${esc(ref.map(x => x.split("|")[0]).join(", "))}.` : `No active alarms upstream of ${esc(p.consumer)}.`;
+  if (q === "Q6") return `${ref.length} pipe${ref.length === 1 ? "" : "s"} documented only by ${esc(p.source)} below ${p.conf}${ref.length ? ": " + esc(list(ref.map(x => x.replace(">", " → ")), 6)) : ""}.`;
   return "";
 }
-function engineSummary(q, c, x, p) {
-  if (q === "Q1") return `${c.length} downstream, ${c.filter(IX.isTool).length} tools`;
-  if (q === "Q2") return c.length ? `${c.length} lose water: ${list(c, 6)}` : "No tool loses water";
-  if (q === "Q3") return `${c.length} pipe${c.length === 1 ? "" : "s"}`;
-  if (q === "Q4") { const path = enginePath(x, p); return path.length ? path.join(" → ") : "No path found"; }
+function engineSummary(q, c, x) {
+  if (q === "Q1") return `${c.length} downstream, ${c.filter(IX.isConsumer).length} consumers`;
+  if (q === "Q2") return c.length ? `${c.length} lose cooling: ${list(c, 6)}` : "Nobody loses cooling";
+  if (q === "Q3") { if (!x.rows.length) return "No result"; const r = x.rows[0], col = n => x.cols.indexOf(n); return `${r[col("remaining_kw")]} kW left, margin ${r[col("margin_kw")]} kW`; }
+  if (q === "Q4") return c.length ? `${c.length}: ${c.join(", ")}` : "None";
   if (q === "Q5") return c.length ? `Suspects: ${c.map(k => k.split("|")[0]).join(", ")}` : "No suspects";
-  if (q === "Q6") return c.length ? `${c.length}: ${c.join(", ")}` : "None";
+  if (q === "Q6") return `${c.length} pipe${c.length === 1 ? "" : "s"}`;
   return "";
 }
 async function runOne(q, e) {
@@ -520,19 +548,31 @@ async function runOne(q, e) {
   st.res[q] = st.res[q] || {}; st.res[q][e] = { busy: true }; rerenderCard(q, e);
   const p = st.params[q], text = queryText(q, e);
   try {
-    const x = await api.query(e, text, 5), c = canon(q, x, p), ref = REF[q](p);
-    st.res[q][e] = { result: x, canon: c, ok: same(c, ref), d: diff(c, ref), summary: engineSummary(q, c, x, p) };
+    const x = await api.query(e, text, 5), c = canon(q, x), ref = REF[q](p);
+    st.res[q][e] = { result: x, canon: c, ok: same(c, ref), d: diff(c, ref), summary: engineSummary(q, c, x) };
+    if (!(LIVE && st.edited[q + e] != null)) (st.score[q] = st.score[q] || {})[e] = { ok: st.res[q][e].ok, ms: x.ms, ctx: `${CAT.valve_presets[st.valves].label}${st.claim ? ", claim injected (" + st.claim.neo_mode + ")" : ""}` };
   } catch (err) { st.res[q][e] = { error: err.message }; }
   if (st.q === q) { rerenderCard(q, e); paint(); }
+  renderScore();
 }
 function rerenderCard(q, e) {
   if (st.q !== q) return; const old = $("#eng_" + e); if (!old) return;
-  const tmp = document.createElement("div"); tmp.innerHTML = engineCard(q, e); const nu = tmp.firstElementChild; old.replaceWith(nu);
-  nu.querySelector("textarea").addEventListener("input", ev => { st.edited[q + e] = ev.target.value; });
-  nu.querySelector("button[data-run]").addEventListener("click", () => runOne(q, e));
-  nu.querySelector("button[data-reset]")?.addEventListener("click", () => { delete st.edited[q + e]; rerenderCard(q, e); });
+  const tmp = document.createElement("div"); tmp.innerHTML = engineCard(q, e); old.replaceWith(tmp.firstElementChild); bindCard(q, e);
 }
 async function runAll() { const q = st.q; if (q === "console") return runConsole(); renderBench(); paint(); for (const e of ENGINES) await runOne(q, e); }
+
+/* ---------------- scorecard ---------------- */
+function renderScore() {
+  const cell = (method, r) => `<div>${esc(method)}</div>${r ? `<div><span class="v ${r.ok ? "ok" : "bad"}">${r.ok ? "✓ correct" : "✗ differs"}</span> <span class="muted">${ms(r.ms)}</span></div>` : `<div class="muted">not run yet</div>`}`;
+  let h = `<thead><tr><th>Question</th>${ENGINES.map(e => `<th>${esc(ENAME[e])}</th>`).join("")}</tr></thead><tbody>`;
+  CAT.questions.forEach(q => { h += `<tr><td><b>${q.id}</b> ${esc(q.title)}</td>${ENGINES.map(e => `<td>${cell(q.method[e], (st.score[q.id] || {})[e])}</td>`).join("")}</tr>`; });
+  const vm = st.valveMs;
+  h += `<tr><td><b>Valve move</b> (SCADA)</td>${ENGINES.map(e => `<td><div>${esc(CAT.valve_method[e])}</div>${vm && vm.ms[e] != null ? `<div class="muted">last change: ${ms(vm.ms[e])}</div>` : `<div class="muted">change the valves to measure</div>`}</td>`).join("")}</tr>`;
+  const cm = CAT.claim_method;
+  h += `<tr><td><b>Unconfirmed claim</b></td><td>${esc(cm.rdf11)}<div><span class="v ok">✓ stays out of the network</span></div></td><td>${esc(cm.rdf12)}<div><span class="v ok">✓ stays out of the network</span></div></td>
+    <td>${esc(cm.neo4j.n10s)} <span class="v bad">✗</span><br>${esc(cm.neo4j.node)} <span class="v ok">✓</span></td></tr></tbody>`;
+  $("#score").innerHTML = h;
+}
 
 /* ---------------- console ---------------- */
 function renderConsole() {
@@ -551,55 +591,68 @@ function renderConsole() {
 async function runConsole() {
   const e = $("#cEng").value, text = $("#cTxt").value; $("#cStat").innerHTML = `<span class="muted small">running…</span>`;
   try { const x = await api.query(e, text, 1);
-    $("#cStat").innerHTML = `<span class="stat">${x.total} rows${x.ms != null ? " · " + x.ms.toFixed(2) + " ms" : ""}${x.recorded ? " · recorded" : ""}</span>`;
+    $("#cStat").innerHTML = `<span class="stat">${x.total} rows${x.ms != null ? " · " + ms(x.ms) : ""}${x.recorded ? " · recorded" : ""}</span>`;
     $("#cOut").innerHTML = x.rows.length ? `<div class="res"><table><thead><tr>${x.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${x.rows.slice(0, 200).map(r => `<tr>${r.map(v => `<td>${esc(fmt(v))}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : `<div class="small muted">No rows.</div>`;
   } catch (err) { $("#cStat").innerHTML = ""; $("#cOut").innerHTML = `<div class="err">${esc(err.message)}</div>`; }
 }
 
-/* ---------------- claim + chrome ---------------- */
+/* ---------------- valves, claim, chrome ---------------- */
+function renderValves() {
+  const vm = st.valveMs, ps = pos();
+  let h = `<div>${Object.entries(ps).map(([v, s]) => `<span class="mono">${esc(v)}</span> ${s === "closed" ? "<b>closed</b>" : "open"}`).join(" · ")}</div>`;
+  if (vm && vm.ms) h += `<div class="small"><b>Last change</b> (${Object.entries(vm.changed || {}).map(([v, s]) => esc(v) + " → " + esc(s)).join(", ") || "no valve moved"}). What each engine had to do:</div>
+    <div class="cost">${ENGINES.filter(e => vm.ms[e] != null).map(e => `<span>${esc(ENAME[e].split(" ·")[0])}</span><span class="muted">${esc(CAT.valve_method[e])}</span><span>${ms(vm.ms[e])}</span>`).join("")}</div>`;
+  else h += `<div class="small muted">Change the plant state to see what each engine has to do when SCADA reports a valve move.</div>`;
+  $("#valveState").innerHTML = h;
+}
+async function setValves(preset, quiet) {
+  try { const r = await api.valves(preset); st.valves = r.valves; st.valveMs = r.valve_ms; } catch (err) { alertBanner(err.message); return; }
+  $("#valveSel").value = st.valves; st.res = {}; renderValves(); renderScore(); drawTopo();
+  if (!quiet) runAll();
+}
 function renderClaim() {
   const c = st.claim, pill = $("#claimPill");
   pill.textContent = c ? (c.neo_mode === "n10s" ? "a pipe in Neo4j" : "claim node") : "off"; pill.className = "pill " + (c ? (c.neo_mode === "n10s" ? "bad" : "ok") : "na");
   $("#claimState").innerHTML = !c ? "No claim injected. Every engine works from confirmed pipes only." :
-    `<b>${esc(c.src)} → ${esc(c.dst)}</b>, from BIM, confidence 0.55. RDF 1.1 keeps it as a separate <span class="mono">fab:Claim</span> node; RDF 1.2 as a statement that is <i>claimed but not asserted</i>. ` +
-    (c.neo_mode === "n10s" ? `In Neo4j the n10s importer made it a real <span class="mono">FEEDS</span> pipe, so ${esc(c.dst)} now looks redundant.` : `In Neo4j it's a <span class="mono">:Claim</span> node beside the network, so every engine still agrees.`);
+    `<span><b>${esc(c.src)} → ${esc(c.dst)}</b>, from BIM, confidence 0.55. RDF 1.1 keeps it as a separate <span class="mono">fab:Claim</span> node; RDF 1.2 as a statement that is <i>claimed but not asserted</i>. ` +
+    (c.neo_mode === "n10s" ? `In Neo4j the n10s importer made it a real <span class="mono">FLOWS_TO</span> pipe, so ${esc(c.dst)} now looks redundant.` : `In Neo4j it's a <span class="mono">:Claim</span> node beside the network, so every engine still agrees.`) + `</span>`;
 }
 async function setClaim(action, quiet) {
   const src = $("#claimSrc").value, dst = $("#claimDst").value, mode = $("#claimMode").value;
   try { const r = await api.claim(action, src, dst, mode); st.claim = r.claim; } catch (err) { alertBanner(err.message); return; }
   st.res = {}; renderClaim(); drawTopo();
-  if (!quiet) { setTab("Q6"); st.params.Q6.filter = "supply pipes only"; runAll(); }
+  if (!quiet) { setTab("Q4"); runAll(); }
 }
 function alertBanner(msg) { const b = $("#banner"); b.className = "banner"; b.textContent = msg; b.hidden = false; }
 function chrome() {
   $("#chips").innerHTML = `<span class="mode ${LIVE ? "live" : "rec"}">${LIVE ? "Live engines" : "Recorded edition"}</span>` +
     ENGINES.map(e => `<span class="chip"><span class="dot ${META.engines[e].online ? "on" : "off"}"></span>${esc(ENAME[e])}<span class="muted">${esc(META.counts[e] || "offline")}</span></span>`).join("");
   if (!LIVE) { const b = $("#banner"); b.className = "banner"; b.hidden = false;
-    b.innerHTML = `<b>Recorded edition.</b> Every preset was run on the live engines (${esc(EMBED.meta.engines.rdf12.name)}, ${esc(META.engines.neo4j.name)}) on ${esc(EMBED.recorded_at)}; their exact answers and timings are stored here. The diagram, story and correctness checks run in your browser. Clone the repo and run <span class="mono">python upw_demo/server.py</span> to edit queries live.`; }
+    b.innerHTML = `<b>Recorded edition.</b> Every preset, in every valve and claim state, was run on the live engines (${esc(META.engines.rdf12.name)}, ${esc(META.engines.neo4j.name)}) on ${esc(EMBED.recorded_at)}; their exact answers and timings are stored here. The diagram, story and correctness checks run in your browser. Clone the repo and run <span class="mono">python chiller_demo/server.py</span> to edit queries live.`; }
   else if (!META.engines.neo4j.online) { const b = $("#banner"); b.className = "banner"; b.hidden = false;
     b.innerHTML = `<b>Neo4j is offline</b>, so its column is empty. Everything else works. Start Neo4j (Docker, Neo4j Desktop or the lab launcher; see SETUP.md) and reload this page.`; }
   $("#hlSeg").innerHTML = ["reference", ...ENGINES].map(k => `<button aria-pressed="${st.hl === k}" data-hl="${k}">${k === "reference" ? "Reference" : ENAME[k].split(" ·")[0]}</button>`).join("");
   $("#hlSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { st.hl = b.dataset.hl; $("#hlSeg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); paint(); }));
-  $("#unitSel").innerHTML = IX.units.map(i => `<option ${i === st.params.Q1.asset ? "selected" : ""} value="${i}">${i} · ${esc(IX.node[i].name)}</option>`).join("");
+  $("#valveSel").innerHTML = Object.entries(CAT.valve_presets).map(([k, v]) => `<option value="${k}" ${k === st.valves ? "selected" : ""}>${esc(v.label)}</option>`).join("");
+  $("#unitSel").innerHTML = IX.units.map(i => `<option ${i === st.params.Q1.unit ? "selected" : ""} value="${i}">${i} · ${esc(IX.node[i].name)}</option>`).join("");
   const [cs, cd] = CAT.claim_default;
-  const srcs = LIVE ? IX.units.filter(i => IX.type[i] === "DistributionLoop") : [cs], dsts = LIVE ? IX.tools.filter(t => IX.feeds.some(e => e.dst === t && e.medium === "upw")) : [cd];
+  const srcs = LIVE ? IX.units.filter(i => IX.type[i] === "CoolingLoop") : [cs], dsts = LIVE ? IX.consumers.filter(IX.isTool) : [cd];
   $("#claimSrc").innerHTML = srcs.map(i => `<option ${i === cs ? "selected" : ""}>${i}</option>`).join("");
   $("#claimDst").innerHTML = dsts.map(i => `<option ${i === cd ? "selected" : ""}>${i}</option>`).join("");
   $("#gloss").innerHTML = Object.entries(CAT.types).map(([t, x]) => `<div><dt>${esc(SHORT[t] || t)}</dt><dd>${esc(x.about)}</dd></div>`).join("") +
-    `<div><dt>Resistivity</dt><dd>How well water resists electricity. 18.2 MΩ·cm is theoretically pure; lower means dissolved ions.</dd></div>
-     <div><dt>TOC</dt><dd>Total organic carbon, in ppb. The UV reactor keeps it below ~1 ppb.</dd></div>
+    `<div><dt>N+1</dt><dd>Enough equipment that any one unit can be out and the plant still carries its load.</dd></div>
      <div><dt>DCS / P&amp;ID / BIM</dt><dd>Where a pipe is documented: the live control system, the engineering drawings, or the 3D building model. Confidence says how much it's trusted.</dd></div>`;
-  $("#foot").innerHTML = `<span>The plant is a hand-built illustration, not a design. Every answer is compared with an independent JavaScript calculation over the same data; "differs" means the engine's answer doesn't match the physical plant as the data defines it.</span>
-    <span>Neo4j timings include the network round trip; "server" is Neo4j's own measurement. Oxigraph runs inside the demo process.</span>`;
+  $("#foot").innerHTML = `<span>The plant is a hand-built illustration, not a design. Every answer is compared with an independent JavaScript calculation over the same data; "differs" means the engine's answer doesn't match the plant as the data defines it.</span>
+    <span>Neo4j timings include the network round trip; "server" is Neo4j's own measurement. Oxigraph runs inside the demo process. Times on a tiny plant show the shape of the work, not production performance.</span>`;
 }
 
 async function boot() {
   try { META = await api.meta(); D = await api.dataset(); }
-  catch (err) { alertBanner("Can't reach the demo server. Start it with: python upw_demo/server.py"); return; }
-  CAT = META.catalogue; IX = index(D); st.claim = META.claim || null;
+  catch (err) { alertBanner("Can't reach the demo server. Start it with: python chiller_demo/server.py"); return; }
+  CAT = META.catalogue; IX = index(D); st.claim = META.claim || null; st.valves = META.valves || "normal"; st.valveMs = META.valve_ms || null;
   for (const q of CAT.questions) { st.params[q.id] = {}; for (const [k, s] of Object.entries(q.params)) st.params[q.id][k] = s.default; }
   if (!META.engines.neo4j.online) st.hl = "reference";
-  chrome(); legend(); renderClaim(); drawTopo(); renderStory();
+  chrome(); legend(); renderClaim(); renderValves(); renderScore(); drawTopo(); renderStory();
   $("#tabs").innerHTML = CAT.questions.map(q => `<button class="tab" role="tab" data-q="${q.id}"><span class="n">${q.id}</span>${esc(q.title)}</button>`).join("") +
     `<button class="tab" role="tab" data-q="console"><span class="n">›_</span>Console</button>`;
   $("#tabs").querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { setTab(t.dataset.q); if (t.dataset.q !== "console") runAll(); }));
@@ -607,8 +660,9 @@ async function boot() {
   $("#stPrev").addEventListener("click", () => { st.step = Math.max(0, st.step - 1); renderStory(); if (st.step) runStep(); });
   $("#stNext").addEventListener("click", () => { st.step = Math.min(CAT.story.length - 1, st.step + 1); renderStory(); runStep(); });
   $("#stRun").addEventListener("click", runStep);
-  $("#dependBtn").addEventListener("click", () => { const u = $("#unitSel").value; st.params.Q1.asset = st.params.Q2.asset = u; setTab("Q1"); runAll(); });
-  $("#loseBtn").addEventListener("click", () => { const u = $("#unitSel").value; st.params.Q1.asset = st.params.Q2.asset = u; setTab("Q2"); runAll(); });
+  $("#valveSel").addEventListener("change", ev => setValves(ev.target.value));
+  $("#dependBtn").addEventListener("click", () => { const u = $("#unitSel").value; st.params.Q1.unit = st.params.Q2.unit = u; setTab("Q1"); runAll(); });
+  $("#loseBtn").addEventListener("click", () => { const u = $("#unitSel").value; st.params.Q1.unit = st.params.Q2.unit = u; setTab("Q2"); runAll(); });
   $("#claimAdd").addEventListener("click", () => setClaim("add"));
   $("#claimDel").addEventListener("click", () => setClaim("remove"));
   setTab("Q1"); runAll();
