@@ -34,6 +34,12 @@ CHW header ─► V-MAU1/2 ─► make-up air units MAU-1/2 ─supply air─► 
 - **Pipe metadata:** each pipe has a medium, an install year, its documenting system (DCS, P&ID or BIM) and a confidence.
 - **One relationship type:** "cooling flows from A to B".
 
+## Live shop-floor values
+The live demo runs a **simulated SCADA feed**: 18 numeric tags get a new value every second, and an in-memory historian keeps every sample. The **Live shop-floor values** panel shows where the values go:
+- **The historian** always gets every sample.
+- **The graphs** (optional switch) get the latest value **only when it moves more than its deadband**, for example 0.2 °C or 0.3 mm/s. You can see the value inside each database change in **Inside each database**: it is the value box in RDF, and inside the datapoint box in Neo4j.
+- **Check a unit** runs what an operator screen does: (1) ask the graph which tags belong to the unit and everything it feeds; (2) ask the historian for their latest values in one request; (3) show them together. With the switch on, it also shows the slightly older value stored in the graph.
+
 ## See inside each database
 The **Inside each database** panel draws, side by side, everything each database actually holds about one item, read live from the stores:
 - **RDF 1.1:** every fact is a separate arrow, and each pipe is its own node with its values hanging off it.
