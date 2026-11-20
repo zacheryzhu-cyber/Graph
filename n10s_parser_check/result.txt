@@ -1,0 +1,7 @@
+== RDF-star 2021 (Turtle-star)
+   <<http://example.org/fab#UPS-1 http://example.org/fab#feeds http://example.org/fab#PDU-1>> installed "2012"^^<http://www.w3.org/2001/XMLSchema#integer>   → n10s: RELATIONSHIP PROPERTY
+   <<http://example.org/fab#UPS-1 http://example.org/fab#feeds http://example.org/fab#PDU-1>> sourceSystem "BIM"   → n10s: RELATIONSHIP PROPERTY
+== RDF 1.2 triple term + reifier
+   PARSE FAILED: Expected an RDF value here, found '(' [line 2]
+== RDF 1.2 annotation syntax
+   PARSE FAILED: Expected '.', found '~' [line 2]

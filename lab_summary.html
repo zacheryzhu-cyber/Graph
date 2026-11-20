@@ -1,0 +1,502 @@
+<title>Three Graphs, One Fab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column (≈1080px) like an engineering test report; HMI-style "faceplates" only for the three models and findings. */
+:root {
+  --bg: #f3f5f7;            /* control-room light grey, slight blue bias */
+  --panel: #ffffff;
+  --ink: #16202b;
+  --muted: #566372;
+  --line: #d5dce3;
+  --accent: #0b7a8a;        /* process teal — the page's own accent */
+  --rdf11: #7a5af5;         /* model colours, used consistently in every chart */
+  --rdf12: #0b7a8a;
+  --lpg: #d9711c;
+  --ok: #1f8a4c;
+  --warn: #b7791f;
+  --crit: #c2373b;
+  --code-bg: #eef1f4;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f151b; --panel: #161e26; --ink: #e4eaf0; --muted: #93a1af; --line: #2a3541;
+  --accent: #3cc3d3; --rdf11: #a08bff; --rdf12: #3cc3d3; --lpg: #f2994a;
+  --ok: #4cc27f; --warn: #e2b04a; --crit: #ff6b6f; --code-bg: #1c2630; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f151b; --panel: #161e26; --ink: #e4eaf0; --muted: #93a1af; --line: #2a3541;
+  --accent: #3cc3d3; --rdf11: #a08bff; --rdf12: #3cc3d3; --lpg: #f2994a;
+  --ok: #4cc27f; --warn: #e2b04a; --crit: #ff6b6f; --code-bg: #1c2630; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.3rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.05rem; font-weight: 700; }
+p { margin: 0; max-width: 68ch; }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.eyebrow { font: 600 0.72rem/1 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 18px; padding-block: 44px 0; }
+.lede { font-size: 1.12rem; color: var(--muted); max-width: 62ch; }
+.muted { color: var(--muted); }
+
+/* hero */
+.hero { display: grid; gap: 20px; padding-bottom: 8px; border-bottom: 1px solid var(--line); padding-block: 8px 36px; }
+.statrow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.stat { border-left: 2px solid var(--accent); padding: 2px 0 2px 12px; }
+.stat b { display: block; font: 700 1.9rem/1.1 var(--f-display); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 0.86rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.9rem; }
+.chip { display: inline-flex; align-items: center; gap: 7px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.sw.r11 { background: var(--rdf11); } .sw.r12 { background: var(--rdf12); } .sw.lpg { background: var(--lpg); }
+
+/* panels */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.face { display: grid; gap: 10px; grid-template-rows: auto auto 1fr auto; }
+.face .tag { font: 600 0.72rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.face.r11 { border-top: 3px solid var(--rdf11); } .face.r11 .tag { color: var(--rdf11); }
+.face.r12 { border-top: 3px solid var(--rdf12); } .face.r12 .tag { color: var(--rdf12); }
+.face.lpg { border-top: 3px solid var(--lpg); }   .face.lpg .tag { color: var(--lpg); }
+pre { margin: 0; background: var(--code-bg); border-radius: 6px; padding: 12px; overflow-x: auto;
+  font: 0.78rem/1.55 var(--f-mono); color: var(--ink); }
+.cost { display: flex; justify-content: space-between; gap: 8px; border-top: 1px dashed var(--line); padding-top: 8px; font-size: 0.86rem; }
+.cost b { font-variant-numeric: tabular-nums; }
+
+/* diagram */
+.diagram { overflow-x: auto; }
+.diagram svg { display: block; min-width: 680px; width: 100%; height: auto; }
+.n rect { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
+.n.pw rect { stroke: var(--lpg); } .n.cw rect { stroke: var(--rdf12); } .n.tl rect { stroke: var(--ink); stroke-width: 1.6; }
+.n.dp rect { stroke: var(--muted); stroke-dasharray: 3 3; } .n.al rect { stroke: var(--crit); }
+.n text { fill: var(--ink); font: 600 12px var(--f-mono); }
+.n text.s { fill: var(--muted); font: 400 10.5px var(--f-body); }
+.e { fill: none; stroke-width: 1.6; }
+.e.pw { stroke: var(--lpg); } .e.cw { stroke: var(--rdf12); } .e.mt { stroke: var(--muted); stroke-dasharray: 4 3; }
+.e.ph { stroke: var(--crit); stroke-dasharray: 6 4; stroke-width: 2; }
+.lbl { font: 500 10.5px var(--f-body); fill: var(--muted); }
+.lbl.crit { fill: var(--crit); font-weight: 600; }
+
+/* questions table */
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 0.72rem/1.3 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td.num { text-align: right; white-space: nowrap; }
+.yes { color: var(--ok); font-weight: 600; } .no { color: var(--crit); font-weight: 600; } .meh { color: var(--warn); font-weight: 600; }
+
+/* timeline */
+.tl { display: grid; gap: 0; }
+.step { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.step .k { font: 700 1.05rem/1.2 var(--f-mono); color: var(--accent); padding-top: 2px; }
+.step h3 { margin-bottom: 4px; }
+.step p { font-size: 0.93rem; color: var(--muted); }
+.step p b { color: var(--ink); font-weight: 600; }
+.pill { display: inline-block; font: 600 0.68rem/1 var(--f-mono); letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 4px 7px; border-radius: 4px; margin-left: 6px; vertical-align: 2px; border: 1px solid currentColor; }
+.pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.crit { color: var(--crit); }
+.refine { border-top: 2px solid var(--accent); margin-top: 6px; padding-top: 8px; font: 600 0.75rem/1 var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+/* charts */
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .ax { stroke: var(--line); stroke-width: 1; }
+.chart .tk { fill: var(--muted); font: 400 10.5px var(--f-mono); }
+.chart .ttl { fill: var(--muted); font: 500 11px var(--f-body); }
+.chart .ln { fill: none; stroke-width: 2.2; stroke-linejoin: round; }
+.chart .end { font: 600 11px var(--f-body); }
+.cap { font-size: 0.86rem; color: var(--muted); }
+
+/* findings */
+.find { display: grid; gap: 8px; border-left: 3px solid var(--sev, var(--accent)); }
+.find.crit { --sev: var(--crit); } .find.warn { --sev: var(--warn); } .find.ok { --sev: var(--ok); }
+.find .big { font: 800 2rem/1 var(--f-display); font-variant-numeric: tabular-nums; color: var(--sev, var(--accent)); }
+.find p { font-size: 0.92rem; color: var(--muted); }
+.find h3 { font-size: 1rem; }
+
+/* decision */
+.dec ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 0.92rem; }
+.dec .when { font: 600 0.72rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.arch svg { width: 100%; height: auto; display: block; min-width: 640px; }
+.arch { overflow-x: auto; }
+.box rect { fill: var(--panel); stroke-width: 1.6; }
+.box text { fill: var(--ink); font: 600 12.5px var(--f-body); }
+.box text.s { fill: var(--muted); font: 400 11px var(--f-body); }
+.ol { counter-reset: b; display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.ol li { counter-increment: b; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; font-size: 0.93rem; }
+.ol li::before { content: counter(b); font: 700 0.85rem/1.5 var(--f-mono); color: var(--crit); }
+.files { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 18px; font-size: 0.88rem; }
+.files div { min-width: 0; }
+.files code { color: var(--accent); }
+footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--muted); display: grid; gap: 6px; }
+
+@media (max-width: 820px) {
+  .grid3, .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .statrow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Hands-on lab report · semiconductor fab facilities · Nov 2026</div>
+  <h1>Three graphs, one fab</h1>
+  <p class="lede">The same fab utility network was built as plain RDF, as RDF&nbsp;1.2 (the successor to RDF-star), and as a Neo4j property graph. All three answered the same six engineering questions, at four sizes, and every answer was checked against an independent reference.</p>
+  <div class="statrow">
+    <div class="stat"><b>6</b><span>questions, identical across models</span></div>
+    <div class="stat"><b>4</b><span>scales, up to 502k triples / 78k relationships</span></div>
+    <div class="stat"><b>92 / 92</b><span>ground-truth checks passed</span></div>
+    <div class="stat"><b>9</b><span>bottlenecks reproduced and measured</span></div>
+  </div>
+  <div class="legend">
+    <span class="chip"><i class="sw r11"></i>RDF 1.1 (n-ary edges) · Oxigraph</span>
+    <span class="chip"><i class="sw r12"></i>RDF 1.2 triple terms · Oxigraph</span>
+    <span class="chip"><i class="sw lpg"></i>Property graph · Neo4j 5.26</span>
+  </div>
+</header>
+
+<section id="usecase">
+  <div class="eyebrow">The use case</div>
+  <h2>A fab building's utility chain, down to the SCADA tag</h2>
+  <p class="muted">Switchgear feeds UPSs and PDUs, which power the production tools. Switchgear also powers the chillers, which cool the process-cooling-water (PCW) loops. Every tool has WinCC&nbsp;OA-style datapoints, and some datapoints carry alarms. Each <code>feeds</code> link carries seven engineering attributes. Those attributes are where the three models differ.</p>
+  <div class="panel diagram">
+    <svg viewBox="0 0 900 330" role="img" aria-label="Topology: switchgear to UPS to PDU to tool, switchgear to chiller to cooling loop to tool, tool to datapoint to alarm">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker>
+      </defs>
+      <!-- edges -->
+      <path class="e pw" d="M150,70 L220,70" marker-end="url(#ah)"/>
+      <path class="e pw" d="M330,70 L400,70" marker-end="url(#ah)"/>
+      <path class="e pw" d="M510,70 C560,70 560,150 600,150" marker-end="url(#ah)"/>
+      <path class="e pw" d="M95,92 C95,210 150,230 220,230" marker-end="url(#ah)"/>
+      <path class="e cw" d="M330,230 L400,230" marker-end="url(#ah)"/>
+      <path class="e cw" d="M510,230 C560,230 560,170 600,170" marker-end="url(#ah)"/>
+      <path class="e mt" d="M710,160 L760,160" marker-end="url(#ah)"/>
+      <path class="e mt" d="M815,182 L815,240" marker-end="url(#ah)"/>
+      <path class="e ph" d="M455,92 C470,120 520,118 600,140" marker-end="url(#ah)"/>
+      <text class="lbl crit" x="470" y="128">BIM claim, not asserted</text>
+      <text class="lbl" x="152" y="60">power</text>
+      <text class="lbl" x="105" y="160">power</text>
+      <text class="lbl" x="335" y="220">pcw</text>
+      <text class="lbl" x="716" y="150">hasDatapoint</text>
+      <text class="lbl" x="822" y="215">raisedOn</text>
+      <!-- nodes -->
+      <g class="n pw"><rect x="40" y="48" width="110" height="44" rx="5"/><text x="52" y="68">SWG-B01-A</text><text class="s" x="52" y="84">Switchgear</text></g>
+      <g class="n pw"><rect x="220" y="48" width="110" height="44" rx="5"/><text x="232" y="68">UPS-B01-1</text><text class="s" x="232" y="84">UPS</text></g>
+      <g class="n pw"><rect x="400" y="48" width="110" height="44" rx="5"/><text x="412" y="68">PDU-B01-01</text><text class="s" x="412" y="84">PDU</text></g>
+      <g class="n cw"><rect x="220" y="208" width="110" height="44" rx="5"/><text x="232" y="228">CH-B01-03</text><text class="s" x="232" y="244">Chiller</text></g>
+      <g class="n cw"><rect x="400" y="208" width="110" height="44" rx="5"/><text x="412" y="228">PCW-B01-2</text><text class="s" x="412" y="244">Cooling loop</text></g>
+      <g class="n tl"><rect x="600" y="138" width="110" height="44" rx="5"/><text x="612" y="158">T-B01-101</text><text class="s" x="612" y="174">EUV scanner</text></g>
+      <g class="n dp"><rect x="760" y="138" width="124" height="44" rx="5"/><text x="770" y="158">…101.ChuckTemp</text><text class="s" x="770" y="174">degC · WinCC OA tag</text></g>
+      <g class="n al"><rect x="760" y="240" width="124" height="44" rx="5"/><text x="770" y="260">ALM-…Temp</text><text class="s" x="770" y="276">critical · active</text></g>
+      <text class="lbl" x="40" y="318">Each feeds link carries: medium · installed · redundant · capacity_kW · load_kW · source system · confidence</text>
+    </svg>
+  </div>
+  <div class="panel tbl">
+    <table>
+      <thead><tr><th>#</th><th>Question an engineer would ask</th><th>What it stresses</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">Q1</td><td>SWG-B01-A trips. Which production tools are affected?</td><td>Transitive traversal across power and cooling, plus class hierarchy</td></tr>
+        <tr><td class="mono">Q2</td><td>Non-redundant feeds installed before 2018 running above 70&nbsp;% load</td><td>Filtering on edge properties</td></tr>
+        <tr><td class="mono">Q3</td><td>Links that only the BIM model asserts, with confidence below 0.8</td><td>Provenance per statement</td></tr>
+        <tr><td class="mono">Q4</td><td>The actual chain from SWG-B01-A to tool T-B01-101</td><td>Returning a path, not just reachability</td></tr>
+        <tr><td class="mono">Q5</td><td>Datapoints and active alarms per cleanroom area</td><td>Aggregation</td></tr>
+        <tr><td class="mono">Q6</td><td>Tools whose power comes from exactly one switchgear (single point of failure)</td><td>A path where every edge must satisfy <code>medium = power</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="encodings">
+  <div class="eyebrow">Same edge, three encodings</div>
+  <h2>Where a link's attributes live</h2>
+  <div class="grid3">
+    <div class="panel face r11">
+      <span class="tag">RDF 1.1 · n-ary relation</span>
+      <h3>The edge becomes a node</h3>
+      <pre>fab:feed/e12 a fab:Feed ;
+  fab:feedFrom fab:UPS-B01-1 ;
+  fab:feedTo   fab:PDU-B01-01 ;
+  fab:installed 2012 ;
+  fab:redundant false ;
+  fab:sourceSystem "BIM" ;
+  fab:confidence 0.7 .
+# no direct "UPS feeds PDU" triple</pre>
+      <div class="cost"><span>Cost per edge</span><b>10 triples · 53 % of graph</b></div>
+    </div>
+    <div class="panel face r12">
+      <span class="tag">RDF 1.2 · triple term + reifier</span>
+      <h3>The edge stays, a reifier carries the facts</h3>
+      <pre>fab:UPS-B01-1 fab:feeds fab:PDU-B01-01
+  ~ fab:feed/e12 {|
+    fab:installed 2012 ;
+    fab:sourceSystem "BIM" ;
+    fab:confidence 0.7 |} .
+# expands to: the triple +
+# feed/e12 rdf:reifies &lt;&lt;( … )&gt;&gt;</pre>
+      <div class="cost"><span>Cost per edge</span><b>9 triples</b></div>
+    </div>
+    <div class="panel face lpg">
+      <span class="tag">LPG · Neo4j relationship</span>
+      <h3>The edge has a property map</h3>
+      <pre>(:UPS {id:'UPS-B01-1'})
+  -[:FEEDS {installed: 2012,
+            redundant: false,
+            source: 'BIM',
+            confidence: 0.7}]-&gt;
+(:PDU {id:'PDU-B01-01'})</pre>
+      <div class="cost"><span>Cost per edge</span><b>1 relationship</b></div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline">
+  <div class="eyebrow">What I did, in order</div>
+  <h2>The run, including what got in the way</h2>
+  <div class="panel tl">
+    <div class="step"><div class="k">S0</div><div><h3>Checked the toolchain instead of trusting memory <span class="pill warn">2 blockers</span></h3>
+      <p><b>RDF 1.2 is still a W3C Working Draft.</b> pyoxigraph 0.5.13 parses triple terms, reifiers and annotations. The old RDF-star syntax <code>&lt;&lt; s p o &gt;&gt; :p o</code> now loads as a reifier, so its meaning changes silently. Docker had no daemon and the Neo4j download site was blocked, so I ran <b>Neo4j 5.26 (the final 5.x LTS) embedded</b> from Maven Central with a Bolt port. The n10s plugin was unreachable.</p></div></div>
+    <div class="step"><div class="k">S1</div><div><h3>Generated one model-neutral dataset</h3>
+      <p>Seeded and deterministic. One building gives <b>261 nodes and 398 edges</b>, of which 138 <code>feeds</code> edges carry 7 properties each. Scales 10, 50 and 200 repeat the building.</p></div></div>
+    <div class="step"><div class="k">S2</div><div><h3>Plain RDF 1.1 in Oxigraph <span class="pill ok">all correct</span></h3>
+      <p>The class hierarchy answers "is this a production tool?" through <code>rdfs:subClassOf*</code>. SPARQL could not return a path, so I spelled out each depth with UNION branches. Q1 slowed in step with graph size, even though its answer never changed.</p></div></div>
+    <div class="step"><div class="k">S3</div><div><h3>RDF 1.2 triple terms and reifiers <span class="pill ok">all correct</span></h3>
+      <p>Q1 dropped to <b>0.3 ms at every scale</b>. I showed two things a property graph can't hold: a claim that isn't asserted, and two independent sources about the same link (CMMS 0.83, WinCC OA 0.99).</p></div></div>
+    <div class="step"><div class="k">S4</div><div><h3>Neo4j property graph with Cypher <span class="pill ok">all correct</span></h3>
+      <p><code>shortestPath</code> returns the chain natively. The planner turned <code>[:FEEDS*]</code> plus DISTINCT into a pruning BFS. "Production tool" works only because the loader set that label.</p></div></div>
+    <div class="step"><div class="k">S5</div><div><h3>RDF ⇄ property graph round trip, plus SHACL <span class="pill warn">tool gap</span></h3>
+      <p>The clean round trip was <b>lossless (2,457 → 2,457 triples)</b>. Adding RDF 1.2-only provenance lost 6 triples. pyshacl caught exactly the 2 defects I injected, but rdflib 7.6 <b>can't parse RDF 1.2</b>, so validation ran on the RDF 1.1 copy.</p></div></div>
+    <div class="step"><div class="k">S6</div><div><h3>Bottlenecks</h3>
+      <p>Counting paths in Cypher grew exponentially on a redundant mesh. A per-value write loop was 200× slower than batching. Q1's slowdown in plain RDF came from a <b>bad join order</b>, not from the n-ary pattern itself.</p></div></div>
+    <div class="step"><div class="k">S7</div><div><h3>Summary, runner, push</h3>
+      <p><code>./run_all.sh</code> reproduces everything. Each stage has its own commit on the session branch.</p></div></div>
+    <div class="refine">Refinement pass</div>
+    <div class="step"><div class="k">R1</div><div><h3>Checked how the real n10s handles RDF-star <span class="pill crit">critical finding</span></h3>
+      <p>Building the cloned n10s source was blocked by the session's permission policy, and I didn't work around it. Instead I read its source and ran its bundled parser (rdf4j 4.3.12). <b>That parser rejects both RDF 1.2 syntaxes.</b> It also creates an edge for every quoted triple, even one that isn't asserted. One phantom BIM edge hid a real single point of failure.</p></div></div>
+    <div class="step"><div class="k">R2</div><div><h3>Added Q6, a single-point-of-failure audit</h3>
+      <p>Ignoring the <code>medium</code> edge property turns <b>30 at-risk tools into 0</b>. Cypher filters each edge inside the path. SPARQL can't, so RDF needed a separate <code>fab:feedsPower</code> property built first.</p></div></div>
+    <div class="step"><div class="k">R3</div><div><h3>Tighter numbers</h3>
+      <p>Each query now gets 1 warm-up and 15 runs, reported as p50 and p95. I added SCALE&nbsp;200, durable on-disk writes in Oxigraph, and a relationship-property index test in Neo4j. The full run takes 1 min 43 s.</p></div></div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="eyebrow">Measured results</div>
+  <h2>What the numbers said</h2>
+  <div class="grid2">
+    <div class="panel chart"><h3>Q1 impact analysis vs graph size</h3><div id="c1"></div>
+      <p class="cap">Median ms, log–log. The answer is the same 40 tools at every scale. RDF 1.1 "as written" grows with the whole graph. A traversal-first rewrite of the same query, or RDF 1.2's direct edge, stays flat. Neo4j times are client-side, Bolt round trip included.</p></div>
+    <div class="panel chart"><h3>Redundant 2N mesh: paths vs reachability</h3><div id="c2"></div>
+      <p class="cap">k tiers give 2<sup>k</sup> distinct paths. Asking what is reachable stays flat in both engines. Enumerating paths (Cypher only) takes 2.7 s at about 1M paths, and each extra tier doubles it. The k = 8 Neo4j points are cold-start.</p></div>
+  </div>
+  <div class="panel tbl">
+    <h3 style="margin-bottom:10px">SCALE 200: 51k nodes, 78k relationships, 475–502k triples (median ms)</h3>
+    <table>
+      <thead><tr><th>Question</th><th style="text-align:right">RDF 1.1</th><th style="text-align:right">RDF 1.2</th><th style="text-align:right">Neo4j client</th><th style="text-align:right">Neo4j server</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Load</td><td class="num">2,571</td><td class="num">3,794</td><td class="num">6,091</td><td class="num">—</td><td class="muted">Neo4j writes durable transactions over Bolt</td></tr>
+        <tr><td>Q1 impact</td><td class="num">802 <span class="muted">/ 7.3 rewritten</span></td><td class="num">0.3</td><td class="num">3.7</td><td class="num">1</td><td class="muted">Join order made the 110× difference</td></tr>
+        <tr><td>Q2 edge-property filter</td><td class="num">105</td><td class="num">100</td><td class="num">103</td><td class="num">57</td><td class="muted">RDF 1.2 is easier to read, not faster</td></tr>
+        <tr><td>Q3 provenance filter</td><td class="num">88</td><td class="num">76</td><td class="num">202</td><td class="num">29</td><td class="muted">Moving ~15k rows over Bolt dominates</td></tr>
+        <tr><td>Q4 return the path</td><td class="num">1.4</td><td class="num">0.5</td><td class="num">2.9</td><td class="num">2</td><td class="muted">RDF only by unrolling depths 1–5</td></tr>
+        <tr><td>Q5 aggregate</td><td class="num">65</td><td class="num">69</td><td class="num">46</td><td class="num">24</td><td></td></tr>
+        <tr><td>Q6 SPOF audit</td><td class="num">98 <span class="muted">+114 prep</span></td><td class="num">140 <span class="muted">+118 prep</span></td><td class="num">135</td><td class="num">26</td><td class="muted">RDF must first build <code>fab:feedsPower</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid2">
+    <div class="panel chart"><h3>Live SCADA value writes</h3><div id="c3"></div>
+      <p class="cap">Values per second, log scale. A mid-size fab produces 10k–100k tag changes per second. Neither graph should be the historian.</p></div>
+    <div class="panel tbl"><h3 style="margin-bottom:10px">Capability check</h3>
+      <table>
+        <thead><tr><th></th><th>RDF 1.1</th><th>RDF 1.2</th><th>LPG</th></tr></thead>
+        <tbody>
+          <tr><td>Return a path</td><td class="no">no</td><td class="no">no</td><td class="yes">native</td></tr>
+          <tr><td>Filter edges inside a path</td><td class="no">no</td><td class="no">no</td><td class="yes">QPP</td></tr>
+          <tr><td>Class hierarchy in queries</td><td class="yes">yes</td><td class="yes">yes</td><td class="meh">labels by hand</td></tr>
+          <tr><td>Two sources on one edge</td><td class="meh">awkward</td><td class="yes">native</td><td class="no">overwrite</td></tr>
+          <tr><td>Claim, not asserted</td><td class="meh">awkward</td><td class="yes">native</td><td class="no">dropped</td></tr>
+          <tr><td>SHACL validation</td><td class="yes">yes</td><td class="meh">tooling lags</td><td class="meh">constraints</td></tr>
+          <tr><td>Import via n10s 5.26</td><td class="yes">yes</td><td class="no">parse error</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+  </div>
+</section>
+
+<section id="findings">
+  <div class="eyebrow">Findings that change decisions</div>
+  <h2>Six results worth repeating to a customer</h2>
+  <div class="grid3">
+    <div class="panel find crit"><span class="big">30 → 0</span><h3>Ignore one edge attribute, lose every SPOF</h3>
+      <p>A single-point-of-failure audit that doesn't filter on <code>medium = power</code> treats cooling paths as power redundancy, and finds none of the 30 at-risk tools.</p></div>
+    <div class="panel find crit"><span class="big">30 → 29</span><h3>n10s turns a claim into an edge</h3>
+      <p>An unasserted BIM claim ("this PDU also powers T-B01-107"), imported the way n10s 5.26 does it, became a real <code>feeds</code> edge. That faked redundancy and hid the tool at risk.</p></div>
+    <div class="panel find warn"><span class="big">parse error</span><h3>The bridge isn't RDF 1.2-ready</h3>
+      <p>The parser bundled with n10s 5.26 (rdf4j 4.3.12) rejects <code>&lt;&lt;( )&gt;&gt;</code> and <code>~ {| |}</code>. rdflib 7.6, which pyshacl depends on, fails too. Only the 2021 Turtle-star syntax imports.</p></div>
+    <div class="panel find ok"><span class="big">2,700×</span><h3>Model shape beats engine speed</h3>
+      <p>The same impact query went from 802 ms (RDF 1.1, as written) to 0.3 ms (RDF 1.2 direct edge) on 500k triples. Rewriting the query alone gave 110×.</p></div>
+    <div class="panel find warn"><span class="big">2.7 s</span><h3>Redundancy makes paths explode</h3>
+      <p>1M paths through a 20-tier 2N mesh. Reachability takes 2 ms. Never run an unbounded <code>MATCH p=…-[*]-&gt;…</code> on N+1 or 2N topologies.</p></div>
+    <div class="panel find warn"><span class="big">140×</span><h3>Batch your writes</h3>
+      <p>Neo4j: 46k values/s batched vs 326/s with one transaction per value. Before the index finished building, batched writes ran at only 1.6k/s.</p></div>
+  </div>
+</section>
+
+<section id="decide">
+  <div class="eyebrow">Decision guide</div>
+  <h2>When to use which, and how they fit together</h2>
+  <div class="grid3 dec">
+    <div class="panel face r11"><span class="tag">Plain RDF 1.1</span><span class="when">Use for integration</span>
+      <ul><li>A shared asset model across BIM, CMMS, MES and SCADA</li><li>Standard ontologies: Brick, ISA-95, ECLASS, AAS</li><li>SHACL quality gates in pipelines</li><li>Most mature tooling</li></ul></div>
+    <div class="panel face r12"><span class="tag">RDF 1.2</span><span class="when">Use for provenance</span>
+      <ul><li>As-designed (BIM) vs as-operated (WinCC OA) reconciliation</li><li>Who asserted each link, when, and how confidently</li><li>Contradictory claims kept side by side</li><li>Check every tool in the chain first</li></ul></div>
+    <div class="panel face lpg"><span class="tag">Property graph</span><span class="when">Use for operations</span>
+      <ul><li>Impact and root-cause analysis</li><li>Path and redundancy audits, GDS algorithms</li><li>Apps and dashboards built quickly in Cypher</li><li>Set labels deliberately: there's no ontology</li></ul></div>
+  </div>
+  <div class="panel arch">
+    <svg viewBox="0 0 900 230" role="img" aria-label="Reference architecture: sources to RDF 1.2 semantic layer to Neo4j operational projection; live values stay in the historian, joined by tag name">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/></marker></defs>
+      <g class="box"><rect x="20" y="30" width="170" height="70" rx="6" style="stroke:var(--muted)"/><text x="34" y="58">BIM · CMMS · MES</text><text class="s" x="34" y="78">WinCC OA configuration</text></g>
+      <g class="box"><rect x="270" y="30" width="220" height="70" rx="6" style="stroke:var(--rdf12)"/><text x="284" y="58">RDF 1.2 semantic layer</text><text class="s" x="284" y="78">ontology · IRIs · SHACL · provenance</text></g>
+      <g class="box"><rect x="580" y="30" width="200" height="70" rx="6" style="stroke:var(--lpg)"/><text x="594" y="58">Neo4j projection</text><text class="s" x="594" y="78">impact · paths · GDS · apps</text></g>
+      <g class="box"><rect x="20" y="140" width="170" height="70" rx="6" style="stroke:var(--muted)"/><text x="34" y="168">WinCC OA live values</text><text class="s" x="34" y="188">10k–100k changes / s</text></g>
+      <g class="box"><rect x="270" y="140" width="220" height="70" rx="6" style="stroke:var(--muted)"/><text x="284" y="168">Historian / TSDB</text><text class="s" x="284" y="188">time series stays here</text></g>
+      <path d="M190,65 L266,65" stroke="var(--muted)" stroke-width="1.6" fill="none" marker-end="url(#ah2)"/>
+      <path d="M490,65 L576,65" stroke="var(--lpg)" stroke-width="1.6" fill="none" marker-end="url(#ah2)"/>
+      <path d="M190,175 L266,175" stroke="var(--muted)" stroke-width="1.6" fill="none" marker-end="url(#ah2)"/>
+      <path d="M490,175 C560,175 680,175 680,104" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 3" fill="none" marker-end="url(#ah2)"/>
+      <text class="lbl" x="498" y="22">asserted triples only,</text>
+      <text class="lbl" x="498" y="36">as Turtle-star 2021 (n10s)</text>
+      <text class="lbl" x="560" y="198">joined by tag name at query time</text>
+    </svg>
+  </div>
+</section>
+
+<section id="bottlenecks">
+  <div class="eyebrow">Bottlenecks, each one hit for real</div>
+  <h2>Where each model hits the wall</h2>
+  <div class="panel">
+    <ol class="ol">
+      <li><span><b>Path explosion in Cypher</b> on N+1 or 2N topologies. Use DISTINCT reachability, <code>shortestPath</code>, a depth bound, or GDS.</span></li>
+      <li><span><b>SPARQL can't return a path.</b> You unroll depths or post-process in code.</span></li>
+      <li><span><b>Optimizer join order.</b> Starting from every tool instead of the tripped switchgear cost 110×. Check query plans.</span></li>
+      <li><span><b>Neo4j writes</b> need batching and indexes that have finished building.</span></li>
+      <li><span><b>RDF 1.2 tooling lag:</b> rdflib, pyshacl and n10s 5.26 can't parse it. Oxigraph can.</span></li>
+      <li><span><b>Label drift in an LPG:</b> a label you forget to set gives a silent wrong answer in impact analysis.</span></li>
+      <li><span><b>n10s phantom edges:</b> a quoted triple becomes a real relationship, asserted or not.</span></li>
+      <li><span><b>Property paths can't filter on edge metadata</b> (RDF 1.1 or 1.2). Put attributes you traverse on into the predicate.</span></li>
+      <li><span><b>Bolt result transfer</b> dominates Neo4j client time for wide results. Aggregate on the server.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section id="files">
+  <div class="eyebrow">In the repository</div>
+  <h2>Where to look next</h2>
+  <div class="panel files">
+    <div><code>SUMMARY.md</code><br><span class="muted">Decision guide</span></div>
+    <div><code>LEARNING_NOTES.md</code><br><span class="muted">Why each stage, with measured results</span></div>
+    <div><code>DECISIONS.md</code><br><span class="muted">D1–D12, including the blockers</span></div>
+    <div><code>RESULTS.md</code><br><span class="muted">Full p50/p95 tables</span></div>
+    <div><code>run_all.sh</code> · <code>Makefile</code><br><span class="muted">Reproduce everything in ~2 minutes</span></div>
+    <div><code>step0 … step6_*.py</code><br><span class="muted">Each stage runs on its own</span></div>
+    <div><code>step5b_n10s_compat.py</code><br><span class="muted">The phantom-edge demonstration</span></div>
+    <div><code>n10s_parser_check/</code><br><span class="muted">The rdf4j 4.3.12 parser test</span></div>
+    <div><code>neo4j_embedded/</code><br><span class="muted">Neo4j 5.26 with Bolt, no Docker</span></div>
+  </div>
+  <footer>
+    <span>Status checked Nov 2026: <a href="https://www.w3.org/TR/2026/WD-rdf12-concepts-20260328/">RDF 1.2 Concepts, Working Draft</a> · <a href="https://neo4j.com/blog/developer/neo4j-v5-lts-evolution/">Neo4j 5.26 LTS</a> · <a href="https://www.github.com/neo4j-labs/neosemantics/releases">neosemantics releases</a> · <a href="https://docs.rs/crate/oxigraph/0.5.12">Oxigraph rdf-12 feature</a></span>
+    <span>Timings are from a cloud container. Differences under 5 ms are noise. Oxigraph runs in-process, while Neo4j is reached over Bolt, so server-side times are the fairer comparison.</span>
+  </footer>
+</section>
+</div>
+
+<script>
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+  const txt = (p, x, y, s, cls, anchor, color) => { const t = el("text", { x, y, class: cls, "text-anchor": anchor || "start" }, p); if (color) t.style.fill = color; t.textContent = s; return t; };
+  const L = Math.log10;
+
+  // Generic chart: x linear or log, y log. series: [{name, color, pts:[[x,y]...]}]
+  function chart(host, cfg) {
+    const W = 520, H = 300, m = { l: 52, r: 128, t: 14, b: 40 };
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": cfg.aria });
+    host.appendChild(svg);
+    const fx = cfg.xlog ? v => L(v) : v => v;
+    const [x0, x1] = cfg.xr.map(fx), [y0, y1] = cfg.yr.map(L);
+    const X = v => m.l + (fx(v) - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Y = v => H - m.b - (L(v) - y0) / (y1 - y0) * (H - m.t - m.b);
+    cfg.yticks.forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: "ax" }, svg); txt(svg, m.l - 6, Y(v) + 3.5, cfg.yfmt(v), "tk", "end"); });
+    cfg.xticks.forEach(v => txt(svg, X(v), H - m.b + 16, cfg.xfmt(v), "tk", "middle"));
+    txt(svg, (m.l + W - m.r) / 2, H - 6, cfg.xlabel, "ttl", "middle");
+    txt(svg, 4, m.t + 2, cfg.ylabel, "ttl", "start").setAttribute("transform", "");
+    const ends = [];
+    cfg.series.forEach(s => {
+      const d = s.pts.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" ");
+      const path = el("path", { d, class: "ln" }, svg); path.style.stroke = s.color; if (s.dash) path.setAttribute("stroke-dasharray", s.dash);
+      s.pts.forEach(p => { const c = el("circle", { cx: X(p[0]), cy: Y(p[1]), r: 3 }, svg); c.style.fill = s.color; });
+      const last = s.pts[s.pts.length - 1]; ends.push({ y: Y(last[1]), x: X(last[0]), s });
+    });
+    // de-overlap end labels
+    ends.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 13) ends[i].y = ends[i - 1].y + 13;
+    ends.forEach(e => txt(svg, W - m.r + 8, e.y + 4, e.s.name, "end", "start", e.s.color));
+  }
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const fmtMs = v => v >= 1000 ? (v / 1000) + " s" : v + " ms";
+
+  function draw() {
+    ["c1", "c2", "c3"].forEach(id => document.getElementById(id).innerHTML = "");
+    const c11 = css("--rdf11"), c12 = css("--rdf12"), cl = css("--lpg");
+    const sc = [1, 10, 50, 200];
+    chart(document.getElementById("c1"), {
+      aria: "Q1 latency vs scale", xlog: true, xr: [1, 200], yr: [0.1, 1000],
+      xticks: sc, xfmt: v => "×" + v, yticks: [0.1, 1, 10, 100, 1000], yfmt: fmtMs,
+      xlabel: "SCALE (fab buildings)", ylabel: "",
+      series: [
+        { name: "RDF 1.1 as written", color: c11, pts: [[1, 1.7], [10, 40.3], [50, 195.2], [200, 802.2]] },
+        { name: "RDF 1.1 rewritten", color: c11, dash: "5 4", pts: [[1, 0.2], [10, 0.4], [50, 1.5], [200, 7.3]] },
+        { name: "Neo4j (client)", color: cl, pts: [[1, 3.1], [10, 3.3], [50, 4.1], [200, 3.7]] },
+        { name: "RDF 1.2", color: c12, pts: [[1, 0.3], [10, 0.2], [50, 0.3], [200, 0.3]] },
+      ]});
+    chart(document.getElementById("c2"), {
+      aria: "Path enumeration vs reachability on a redundant mesh", xlog: false, xr: [8, 22], yr: [0.1, 10000],
+      xticks: [8, 12, 16, 18, 20, 22], xfmt: v => "k=" + v, yticks: [0.1, 1, 10, 100, 1000, 10000], yfmt: fmtMs,
+      xlabel: "tiers k (paths = 2^k)", ylabel: "",
+      series: [
+        { name: "Cypher count(paths)", color: cl, pts: [[8, 90.1], [12, 55.2], [16, 270.4], [18, 718.0], [20, 2675.6]] },
+        { name: "Cypher reach", color: cl, dash: "5 4", pts: [[8, 46.1], [12, 2.7], [16, 2.1], [18, 2.0], [20, 2.5], [22, 3.2]] },
+        { name: "SPARQL feeds+", color: c12, pts: [[8, 0.41], [12, 0.28], [16, 0.24], [18, 0.19], [20, 0.20], [22, 0.23]] },
+      ]});
+    // horizontal log bars for writes
+    const host = document.getElementById("c3");
+    const rows = [["Oxigraph in-memory, batched", 215386, c12], ["Oxigraph on-disk, batched", 91071, c12], ["Neo4j batched", 45773, cl],
+                  ["Oxigraph on-disk, per value", 13071, c12], ["Neo4j one tx per value", 326, cl]];
+    const W = 520, rowH = 34, top = 10, l = 190, r = 70, H = top + rows.length * rowH + 30;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Write throughput" }); host.appendChild(svg);
+    const X = v => l + (L(v) - 2) / (6 - 2) * (W - l - r);
+    [100, 1000, 10000, 100000, 1000000].forEach(v => { el("line", { x1: X(v), x2: X(v), y1: top - 4, y2: H - 26, class: "ax" }, svg);
+      txt(svg, X(v), H - 10, v >= 1e6 ? "1M" : v >= 1000 ? v / 1000 + "k" : v, "tk", "middle"); });
+    const band = el("rect", { x: X(10000), y: top - 4, width: X(100000) - X(10000), height: H - 26 - top + 4, rx: 3 }, svg);
+    band.style.fill = css("--warn"); band.style.opacity = "0.12";
+    rows.forEach((rw, i) => { const y = top + i * rowH;
+      txt(svg, l - 8, y + 17, rw[0], "tk", "end");
+      const b = el("rect", { x: l, y: y + 6, width: Math.max(2, X(rw[1]) - l), height: 16, rx: 2 }, svg); b.style.fill = rw[2];
+      txt(svg, X(rw[1]) + 6, y + 18, rw[1] >= 1000 ? Math.round(rw[1] / 1000) + "k/s" : rw[1] + "/s", "end", "start", css("--ink")); });
+    txt(svg, X(31623), top + 2 + rows.length * rowH - 2, "fab demand band", "tk", "middle").style.fill = css("--warn");
+  }
+  draw();
+  try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw); } catch (e) {}
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
