@@ -8,7 +8,9 @@ URI = os.environ.get("NEO4J_URI", "bolt://127.0.0.1:7687")
 
 
 def driver():
-    d = GraphDatabase.driver(URI, auth=None)
+    # no auth by default (lab); set NEO4J_USER / NEO4J_PASSWORD for a server with a password (e.g. Neo4j Desktop)
+    pw = os.environ.get("NEO4J_PASSWORD")
+    d = GraphDatabase.driver(URI, auth=(os.environ.get("NEO4J_USER", "neo4j"), pw) if pw else None)
     try:
         d.verify_connectivity()
     except Exception as e:
