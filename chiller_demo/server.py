@@ -1,6 +1,6 @@
-r"""UPW demo server: one ultrapure-water plant, three engines, one browser UI.
+r"""Chiller plant demo server: one chilled-water plant, three engines, one browser UI.
 
-  python upw_demo/server.py        → http://127.0.0.1:8766   (Windows: py upw_demo\server.py)
+  python chiller_demo/server.py    → http://127.0.0.1:8766   (Windows: py chiller_demo\server.py)
   (Neo4j optional: Docker / Neo4j Desktop / ./neo4j_embedded/run.sh — without it the Neo4j column shows "offline")
   Note: loading wipes the Neo4j database it connects to (it's a lab database).
 
@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parent)); sys.path.insert(0, str(ROOT))
 import pyoxigraph as ox
-from scenario import dataset, build_rdf, load_lpg, catalogue, PREFIXES, UPDATES, fill
+from scenario import dataset, build_rdf, load_lpg, catalogue, positions, PREFIXES, UPDATES, STEP_SEP, fill
 
 FAB = "http://example.org/fab#"
 
@@ -45,7 +45,7 @@ class Engines:
     def __init__(self):
         self.lock = threading.RLock()
         self.scale = None; self.stores = {}; self.drv = None; self.neo_version = None; self.counts = {}
-        self.claim = None; self.dataset = None; self.load_ms = {}
+        self.claim = None; self.dataset = None; self.load_ms = {}; self.valves = "normal"; self.valve_ms = None
         self._connect()
 
     def _connect(self, quiet=False):
@@ -72,7 +72,7 @@ class Engines:
                 n = self.drv.execute_query("MATCH (n) RETURN count(n) AS c")[0][0]["c"]
                 r = self.drv.execute_query("MATCH ()-[r]->() RETURN count(r) AS c")[0][0]["c"]
                 self.counts["neo4j"] = f"{n:,} nodes · {r:,} rels"
-            self.scale, self.claim, self.load_ms = scale, None, t
+            self.scale, self.claim, self.load_ms, self.valves, self.valve_ms = scale, None, t, "normal", None
 
     def reconnect(self):
         """Neo4j started after the demo? Pick it up on the next page load."""
@@ -82,13 +82,20 @@ class Engines:
             if self.drv: self.load()
 
     def meta(self):
-        return {"mode": "live", "scenario": "upw",
+        return {"mode": "live", "scenario": "chiller", "valves": self.valves, "valve_ms": self.valve_ms,
                 "engines": {"rdf11": {"name": f"Oxigraph {md.version('pyoxigraph')} · RDF 1.1", "online": True},
                             "rdf12": {"name": f"Oxigraph {md.version('pyoxigraph')} · RDF 1.2", "online": True},
                             "neo4j": {"name": self.neo_version or "Neo4j", "online": self.drv is not None}},
                 "counts": self.counts, "load_ms": self.load_ms, "claim": self.claim, "catalogue": catalogue()}
 
     def _once(self, engine, text):
+        if engine in self.stores and STEP_SEP in text:   # multi-step script: updates + one query, run in order
+            out = None
+            for step in text.split(STEP_SEP):
+                body = "\n".join(l for l in step.splitlines() if not l.lstrip().startswith("#")).lstrip().upper()
+                if body.startswith(("SELECT", "ASK", "CONSTRUCT", "DESCRIBE")): out = self._once(engine, step)
+                else: self.stores[engine].update(PREFIXES + step)
+            return out
         if engine in self.stores:
             res = self.stores[engine].query(PREFIXES + text)
             if isinstance(res, ox.QueryBoolean): return ["ask"], [[bool(res)]], None
@@ -117,6 +124,24 @@ class Engines:
         with self.lock:
             if engine in self.stores: self.stores[engine].update(PREFIXES + text)
             elif engine == "neo4j" and self.drv: self.drv.execute_query(text)
+
+    def set_valves(self, preset):
+        """SCADA reports valve positions. Each engine does what it must for its queries to stay right; timed."""
+        with self.lock:
+            want, have = positions(preset), positions(self.valves)
+            changed = {v: p for v, p in want.items() if have.get(v) != p}
+            ms = {}
+            for e in ("rdf11", "rdf12"):
+                t0 = time.perf_counter()
+                for v, p in changed.items(): self.update(e, fill(UPDATES["valve_set_rdf"], {"valve": v, "position": p}))
+                self.update(e, UPDATES["recompute_open_" + e])
+                ms[e] = round((time.perf_counter() - t0) * 1000, 2)
+            if self.drv:
+                t0 = time.perf_counter()
+                for v, p in changed.items(): self.update("neo4j", fill(UPDATES["valve_set_neo4j"], {"valve": v, "position": p}))
+                ms["neo4j"] = round((time.perf_counter() - t0) * 1000, 2)
+            self.valves, self.valve_ms = preset, {"changed": changed, "ms": ms}
+            return {"valves": preset, "valve_ms": self.valve_ms}
 
     def set_claim(self, action, src=None, dst=None, neo_mode="n10s"):
         with self.lock:
@@ -158,6 +183,8 @@ class H(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
             if self.path == "/api/query":
                 return self._send(200, ENG.query(body["engine"], body["text"], int(body.get("repeat", 5))))
+            if self.path == "/api/valves":
+                return self._send(200, ENG.set_valves(body["preset"]))
             if self.path == "/api/reconnect":
                 ENG.reconnect(); return self._send(200, ENG.meta())
             if self.path == "/api/claim":
@@ -171,7 +198,7 @@ def main():
     global ENG
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8766
     ENG = Engines(); ENG.load()
-    print(f"UPW graph demo on http://127.0.0.1:{port}  ({ENG.counts})")
+    print(f"Chiller plant demo on http://127.0.0.1:{port}  ({ENG.counts})")
     ThreadingHTTPServer(("127.0.0.1", port), H).serve_forever()
 
 

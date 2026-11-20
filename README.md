@@ -3,7 +3,7 @@
 One dataset (fab utility chain → production tools → WinCC OA-style datapoints → alarms), modelled three ways,
 asked the same six questions (Q6 = single-point-of-failure audit), with every answer checked against a Python ground truth.
 
-**Start here if you're new: the UPW Graph Lab** (ultrapure water + cooling, guided story): `python upw_demo/server.py` → http://127.0.0.1:8766 (see [`upw_demo/README.md`](upw_demo/README.md)).
+**Start here if you're new: the Chiller Plant Graph Lab** (a fab's chilled-water plant, guided story, fair three-engine scorecard): `python chiller_demo/server.py` → http://127.0.0.1:8766 (see [`chiller_demo/README.md`](chiller_demo/README.md)).
 
 | Stage | Script | What it shows |
 |---|---|---|
