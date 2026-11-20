@@ -64,6 +64,7 @@ CHW header ─► V-MAU1/2 ─► make-up air units MAU-1/2 ─supply air─► 
 | `scenario.py` | Plant data, RDF 1.1 / 1.2 builders, Neo4j loader, questions with each engine's method, valve presets, story text, Python reference |
 | `server.py` | Local server (stdlib only), port 8766; runs multi-step SPARQL scripts and valve changes |
 | `web/app.html` | The UI (live and recorded modes) |
+| `export.py` | Writes the plant as RDF 1.1 and RDF 1.2 Turtle files (`out/chiller_rdf11.ttl`, `out/chiller_rdf12.ttl`) so you can read how each stores it |
 | `check.py` | Engine-vs-reference check over every parameter, valve state and claim state |
 | `build_published.py` | Builds the recorded single-file edition |
 | `tests/ui_smoke.js` | Playwright walkthrough (`node chiller_demo/tests/ui_smoke.js`) |
