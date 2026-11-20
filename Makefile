@@ -1,4 +1,4 @@
-.PHONY: all neo4j env data rdf star lpg interop n10s bench scada export demo demo-build demo-test clean
+.PHONY: upw upw-check upw-build upw-test all neo4j env data rdf star lpg interop n10s bench scada export demo demo-build demo-test clean
 all: ; ./run_all.sh
 neo4j: ; ./neo4j_embedded/run.sh
 env: ; python step0_env_check.py
@@ -15,3 +15,7 @@ clean: ; rm -rf out neo4j_data oxi_db data/facility_s*.json
 demo: ; python demo/server.py
 demo-build: ; python demo/build_published.py
 demo-test: ; node demo/tests/ui_smoke.js
+upw: ; python upw_demo/server.py
+upw-check: ; python upw_demo/check.py
+upw-build: ; python upw_demo/build_published.py
+upw-test: ; node upw_demo/tests/ui_smoke.js
