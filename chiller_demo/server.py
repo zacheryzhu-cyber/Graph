@@ -7,7 +7,7 @@ r"""Chiller plant demo server: one chilled-water plant, three engines, one brows
 Standard library only, plus the lab's own modules. Runs locally; the console endpoint executes whatever
 SPARQL/Cypher you type, so don't expose it beyond localhost."""
 import importlib.metadata as md
-import json, re, statistics, sys, threading, time
+import json, math, re, statistics, sys, threading, time
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
@@ -198,7 +198,118 @@ class Engines:
             return self.claim
 
 
+# ---------------------------------------------------------------- simulated shop floor: SCADA → historian (→ graphs)
+DEADBAND = {"°C": 0.2, "%": 2.0, "mm/s": 0.3, "K": 0.2, "Pa": 5.0}
+
+
+class ShopFloor:
+    """Every second, SCADA produces a new value for every numeric tag. Every sample goes to the historian.
+    If 'write to graphs' is on, a value is also written into the three databases, but only when it has moved
+    more than its deadband since the last graph write (what real projects do)."""
+
+    def __init__(self, eng):
+        self.eng, self.lock, self.sync = eng, threading.Lock(), False
+        self.tags = {}   # tag -> {dp, unit, base}
+        for n in eng.dataset["nodes"]:
+            if n["type"] == "Datapoint" and isinstance(n.get("value"), (int, float)):
+                self.tags[n["tag"]] = {"dp": n["id"], "unit": n["unit"], "base": float(n["value"])}
+        self.hist = {t: [] for t in self.tags}           # the historian: tag -> [(time, value)]
+        self.in_graph = {t: v["base"] for t, v in self.tags.items()}   # last value written into the graphs
+        self.stats = {"samples": 0, "graph_writes": 0, "skipped": 0, "ms": {}, "last": None}
+        self.tick = 0
+        threading.Thread(target=self.run, daemon=True).start()
+
+    def value(self, tag, t):
+        b, i = self.tags[tag]["base"], hash(tag) % 7
+        if tag.endswith("PCW_B.SupplyTemp"): return round(19.6 + 0.5 * math.sin(t / 12), 2)
+        if tag.endswith("P_B1.Vibration"): return round(7.8 + 0.7 * math.sin(t / 7 + 1), 2)
+        if tag.endswith(".Load"): return round(max(0, b + (3 * math.sin(t / 9 + i) if b else 0)), 1)
+        return round(b + 0.02 * b * math.sin(t / (5 + i) + i), 2)
+
+    def run(self):
+        while True:
+            time.sleep(1.0)
+            now = time.time(); self.tick += 1
+            with self.lock:
+                changed = {}
+                for tag in self.tags:
+                    v = self.value(tag, self.tick)
+                    h = self.hist[tag]; h.append((now, v)); del h[:-300]
+                    self.stats["samples"] += 1
+                    if self.sync:
+                        if abs(v - self.in_graph[tag]) >= DEADBAND.get(self.tags[tag]["unit"], 0.5): changed[tag] = v
+                        else: self.stats["skipped"] += 1
+            if changed: self.write_graphs(changed)
+
+    def write_graphs(self, changed):
+        e, ms = self.eng, {}
+        rows = [(self.tags[t]["dp"], v) for t, v in changed.items()]
+        sparql = " ;\n".join(f'DELETE {{ fab:{dp} fab:value ?v }} INSERT {{ fab:{dp} fab:value {v} }} WHERE {{ fab:{dp} fab:value ?v }}' for dp, v in rows)
+        with e.lock:
+            for eng in ("rdf11", "rdf12"):
+                t0 = time.perf_counter(); e.stores[eng].update(PREFIXES + sparql); ms[eng] = round((time.perf_counter() - t0) * 1000, 2)
+            if e.drv:
+                t0 = time.perf_counter()
+                e.drv.execute_query("UNWIND $rows AS r MATCH (d:Datapoint {id: r[0]}) SET d.value = r[1]", rows=[list(r) for r in rows])
+                ms["neo4j"] = round((time.perf_counter() - t0) * 1000, 2)
+        with self.lock:
+            self.in_graph.update(changed); self.stats["graph_writes"] += len(changed)
+            self.stats["ms"] = ms; self.stats["last"] = {"tags": list(changed)[:6], "n": len(changed)}
+
+    def set_sync(self, on):
+        with self.lock:
+            self.sync = bool(on)
+            if not on: return
+        # switching on: bring the graphs up to the current values once
+        with self.lock: cur = {t: h[-1][1] for t, h in self.hist.items() if h}
+        if cur: self.write_graphs(cur)
+
+    def snapshot(self):
+        with self.lock:
+            return {"tick": self.tick, "sync": self.sync, "stats": self.stats,
+                    "values": {t: h[-1][1] for t, h in self.hist.items() if h},
+                    "in_graph": dict(self.in_graph) if self.sync else None,
+                    "trend": {t: [v for _, v in h[-60:]] for t, h in self.hist.items()}}
+
+    def latest(self, tags):
+        with self.lock:
+            return {t: (self.hist[t][-1][1] if self.hist.get(t) else None) for t in tags}
+
+
+CHECK = {
+    "rdf": "SELECT ?item ?tag WHERE {{\n  {{ BIND(fab:{u} AS ?item) }} UNION {{ fab:{u} fab:openFlow+ ?item }}\n  ?item fab:hasDatapoint ?dp . ?dp fab:tag ?tag .\n}} ORDER BY ?item",
+    "neo4j": "MATCH (x:Entity {{id: '{u}'}})\nOPTIONAL MATCH (x)((a)-[:FLOWS_TO]->(b) WHERE coalesce(a.position,'open') = 'open' AND coalesce(b.position,'open') = 'open')+(y)\nWITH x, collect(DISTINCT y) AS ys\nUNWIND [x] + ys AS i\nMATCH (i)-[:HAS_DATAPOINT]->(dp)\nRETURN DISTINCT i.id AS item, dp.tag AS tag ORDER BY item",
+}
+
+
+def check_unit(eng, floor, unit):
+    """What a screen does: (1) ask the graph which tags matter, (2) ask the historian for their latest values, (3) combine."""
+    if not re.fullmatch(r"[A-Za-z0-9._-]+", unit): raise ValueError("bad id")
+    out = {}
+    for e in ("rdf11", "rdf12", "neo4j"):
+        if e == "neo4j" and not eng.drv: out[e] = {"offline": True}; continue
+        text = CHECK["neo4j" if e == "neo4j" else "rdf"].format(u=unit)
+        t0 = time.perf_counter(); cols, rows, _ = eng._once(e, text); g_ms = (time.perf_counter() - t0) * 1000
+        tags = [r[1] for r in rows if r[1] in floor.tags]
+        t1 = time.perf_counter(); vals = floor.latest(tags); h_ms = (time.perf_counter() - t1) * 1000
+        in_graph = None
+        if floor.sync:   # the value stored inside this graph, for comparison
+            dps = {floor.tags[t]["dp"]: t for t in tags}
+            if e == "neo4j":
+                res = eng.drv.execute_query("UNWIND $ids AS i MATCH (d:Datapoint {id: i}) RETURN d.id AS id, d.value AS v", ids=list(dps))[0]
+                in_graph = {dps[r["id"]]: r["v"] for r in res}
+            else:
+                in_graph = {}
+                for dp, t in dps.items():
+                    q = list(eng.stores[e].query(PREFIXES + f"SELECT ?v WHERE {{ fab:{dp} fab:value ?v }}"))
+                    in_graph[t] = float(q[0][0].value) if q else None
+        out[e] = {"graph_query": text, "graph_rows": [[r[0], r[1]] for r in rows], "graph_ms": round(g_ms, 2),
+                  "historian_ms": round(h_ms, 3), "values": vals, "in_graph": in_graph}
+    return out
+
+
 ENG = None
+FLOOR = None
 
 
 class H(BaseHTTPRequestHandler):
@@ -218,6 +329,7 @@ class H(BaseHTTPRequestHandler):
         if self.path == "/api/meta":
             ENG.reconnect(); return self._send(200, ENG.meta())
         if self.path == "/api/dataset": return self._send(200, ENG.dataset)
+        if self.path == "/api/live": return self._send(200, FLOOR.snapshot())
         self._send(404, {"error": "not found"})
 
     def do_POST(self):
@@ -225,6 +337,10 @@ class H(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
             if self.path == "/api/query":
                 return self._send(200, ENG.query(body["engine"], body["text"], int(body.get("repeat", 5))))
+            if self.path == "/api/live":
+                FLOOR.set_sync(body.get("sync")); return self._send(200, FLOOR.snapshot())
+            if self.path == "/api/check":
+                return self._send(200, check_unit(ENG, FLOOR, body["unit"]))
             if self.path == "/api/explore":
                 return self._send(200, ENG.explore(body["engine"], body["id"]))
             if self.path == "/api/valves":
@@ -239,9 +355,9 @@ class H(BaseHTTPRequestHandler):
 
 
 def main():
-    global ENG
+    global ENG, FLOOR
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8766
-    ENG = Engines(); ENG.load()
+    ENG = Engines(); ENG.load(); FLOOR = ShopFloor(ENG)
     print(f"Chiller plant demo on http://127.0.0.1:{port}  ({ENG.counts})")
     ThreadingHTTPServer(("127.0.0.1", port), H).serve_forever()
 

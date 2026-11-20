@@ -156,6 +156,28 @@ details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
 .score .v { font-weight: 600; }
 .score .v.ok { color: var(--ok); } .score .v.bad { color: var(--crit); }
 .foot { font-size: 0.78rem; color: var(--muted); display: grid; gap: 4px; }
+/* live shop floor */
+.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 900px) { .flow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.fbox { background: var(--panel2); border-radius: 6px; padding: 10px 12px; display: grid; gap: 4px; align-content: start; position: relative; }
+.fbox .big { font: 600 1.1rem/1.2 var(--f-display); font-variant-numeric: tabular-nums; }
+.fbox.off { opacity: .45; }
+.fbox .fstep { font: 600 0.7rem var(--f-mono); color: var(--accent); }
+.live-tags { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.ltag { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; display: grid; gap: 2px; font-size: 0.8rem; }
+.ltag .v { font: 600 1.05rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.ltag svg { width: 100%; height: 26px; display: block; }
+.ltag polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+.ltag .g { color: var(--muted); }
+.ltag .g b { color: var(--warn); font-weight: 600; }
+.trace { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 1000px) { .trace { grid-template-columns: minmax(0, 1fr); } }
+.tcol { border-top: 3px solid var(--c); padding: 10px; display: grid; gap: 8px; align-content: start; }
+.tcol.rdf11 { --c: var(--rdf11); } .tcol.rdf12 { --c: var(--rdf12); } .tcol.neo4j { --c: var(--lpg); }
+.tstep { background: var(--panel2); border-radius: 6px; padding: 8px 10px; font-size: 0.82rem; display: grid; gap: 4px; }
+.tstep .h { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+.tstep .h span { font: 500 0.78rem var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.switch { display: inline-flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
 /* inside-the-database drawings */
 .exgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 1000px) { .exgrid { grid-template-columns: minmax(0, 1fr); } }
@@ -265,6 +287,21 @@ details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
     </aside>
   </div>
 
+  <section class="panel" id="livePanel">
+    <div class="ph"><div><span class="eyebrow">Simulated SCADA · new values every second</span><h2>Live shop-floor values: where they go, and how a screen gets them</h2></div>
+      <label class="switch"><input type="checkbox" id="syncBox"> Also write the latest values into the graphs</label></div>
+    <div class="pb">
+      <div class="flow" id="flow"></div>
+      <div class="live-tags" id="liveTags"></div>
+      <div class="row" style="justify-content:space-between;align-items:end">
+        <div style="display:grid;gap:4px"><span class="eyebrow">Check a unit the way an operator screen does</span>
+          <span class="small muted">Step 1 asks the graph which tags belong to the unit and everything it feeds. Step 2 asks the historian for their latest values. Step 3 puts them together.</span></div>
+        <div class="row"><div class="field"><label for="chkSel">Unit</label><select id="chkSel"></select></div><button class="btn primary" id="chkBtn">Check it</button></div>
+      </div>
+      <div class="trace" id="trace"></div>
+    </div>
+  </section>
+
   <section class="panel" id="exPanel">
     <div class="ph"><div><span class="eyebrow">Drawn from what each database actually holds</span><h2>Inside each database</h2></div>
       <div class="row"><div class="field"><label for="exSel">Show everything stored about</label><select id="exSel"></select></div></div></div>
@@ -326,6 +363,9 @@ const api = LIVE ? {
   claim(action, src, dst, neo_mode) { return this.post("/api/claim", { action, src, dst, neo_mode }); },
   valves(preset) { return this.post("/api/valves", { preset }); },
   explore(engine, id) { return this.post("/api/explore", { engine, id }); },
+  live() { return this.get("/api/live"); },
+  setSync(sync) { return this.post("/api/live", { sync }); },
+  check(unit) { return this.post("/api/check", { unit }); },
 } : {
   async meta() { return EMBED.meta; },
   async dataset() { return EMBED.dataset; },
@@ -648,6 +688,45 @@ async function runConsole() {
   } catch (err) { $("#cStat").innerHTML = ""; $("#cOut").innerHTML = `<div class="err">${esc(err.message)}</div>`; }
 }
 
+/* ---------------- live shop floor ---------------- */
+const LIVE_SHOW = ["CHW:PCW_B.SupplyTemp", "CHW:P_B1.Vibration", "CHW:CH_2.LeavingTemp", "CHW:CH_1.Load"];
+let liveTimer = null, liveSnap = null, exTimer = 0;
+const spark = vs => { if (!vs || vs.length < 2) return ""; const lo = Math.min(...vs), hi = Math.max(...vs), r = hi - lo || 1;
+  return `<svg viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><polyline points="${vs.map((v, i) => `${(i / (vs.length - 1) * 100).toFixed(1)},${(24 - (v - lo) / r * 22).toFixed(1)}`).join(" ")}"/></svg>`; };
+function renderLive() {
+  const L = liveSnap;
+  if (!LIVE) { $("#flow").innerHTML = ""; $("#liveTags").innerHTML = `<div class="small muted">Live values need the live demo (python chiller_demo/server.py). This published copy has no running SCADA feed.</div>`; return; }
+  if (!L) return;
+  const st_ = L.stats, ms_ = Object.entries(st_.ms || {}).map(([e, v]) => `${ENAME[e].split(" ·")[0]} ${v} ms`).join(" · ");
+  $("#flow").innerHTML = `
+    <div class="fbox"><span class="fstep">1 · SCADA</span><span class="big">${Object.keys(L.values).length} tags</span><span class="small muted">A new value for every tag, every second.</span></div>
+    <div class="fbox"><span class="fstep">2 · Historian</span><span class="big">${st_.samples.toLocaleString()} samples</span><span class="small muted">Every sample is kept, with its time. This is where trends and history live.</span></div>
+    <div class="fbox ${L.sync ? "" : "off"}"><span class="fstep">3 · The graphs (optional)</span><span class="big">${L.sync ? st_.graph_writes.toLocaleString() + " writes" : "off"}</span>
+      <span class="small muted">${L.sync ? `Only when a value moves more than its deadband: ${st_.skipped.toLocaleString()} samples not written. Last batch: ${ms_ || "–"}.` : "Turn on the switch to also keep the latest value inside RDF 1.1, RDF 1.2 and Neo4j."}</span></div>
+    <div class="fbox"><span class="fstep">4 · Your screen</span><span class="big">graph + historian</span><span class="small muted">Asks the graph what belongs together, then the historian for the values. Try "Check it" below.</span></div>`;
+  $("#liveTags").innerHTML = LIVE_SHOW.filter(t => t in L.values).map(t => {
+    const g = L.in_graph ? L.in_graph[t] : null, dp = D.nodes.find(n => n.tag === t);
+    return `<div class="ltag"><span class="mono small">${esc(t)}</span><span class="v">${L.values[t]} ${esc(dp ? dp.unit : "")}</span>${spark(L.trend[t])}
+      <span class="g">${L.sync ? `inside the graphs: <b>${g}</b>${g !== L.values[t] ? " (within deadband)" : ""}` : "not stored in the graphs"}</span></div>`; }).join("");
+}
+async function pollLive() { try { liveSnap = await api.live(); renderLive();
+  if (liveSnap.sync && ++exTimer % 3 === 0 && !document.hidden) showInside(st.ex.focus, true); } catch (e) { /* server stopped */ } }
+async function runCheck() {
+  const u = $("#chkSel").value; $("#trace").innerHTML = `<div class="small muted">checking…</div>`;
+  let r; try { r = await api.check(u); } catch (err) { $("#trace").innerHTML = `<div class="err">${esc(err.message)}</div>`; return; }
+  $("#trace").innerHTML = ENGINES.map(e => { const x = r[e];
+    if (!x || x.offline) return `<div class="panel tcol ${e}"><div class="name" style="font:600 .72rem var(--f-mono);color:var(--c)">${esc(ENAME[e])}</div><div class="small muted">offline</div></div>`;
+    const tags = x.graph_rows.map(rw => rw[1]);
+    return `<div class="panel tcol ${e}"><div style="font:600 .72rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--c)">${esc(ENAME[e])}</div>
+      <div class="tstep"><div class="h">1 · Ask the graph which tags matter<span>${ms(x.graph_ms)}</span></div>
+        <span>${x.graph_rows.length} tag${x.graph_rows.length === 1 ? "" : "s"} found for ${esc(u)} and what it feeds.</span>
+        <details class="q"><summary>Show the ${e === "neo4j" ? "Cypher" : "SPARQL"} query</summary><textarea readonly style="min-height:110px">${esc(x.graph_query)}</textarea></details></div>
+      <div class="tstep"><div class="h">2 · Ask the historian for those tags<span>${ms(x.historian_ms)}</span></div><span>One request for ${tags.length === 1 ? "the tag" : `all ${tags.length} tags`}, latest value each.</span></div>
+      <div class="tstep"><div class="h">3 · Show them together</div>
+        <div class="res"><table><thead><tr><th>item</th><th>tag</th><th>live (historian)</th>${x.in_graph ? "<th>inside this graph</th>" : ""}</tr></thead><tbody>
+        ${x.graph_rows.map(([it, tg]) => `<tr><td>${esc(it)}</td><td class="mono">${esc(tg.replace("CHW:", ""))}</td><td>${esc(x.values[tg] ?? "")}</td>${x.in_graph ? `<td>${esc(x.in_graph[tg] ?? "")}</td>` : ""}</tr>`).join("")}</tbody></table></div></div></div>`; }).join("");
+}
+
 /* ---------------- inside each database: drawings of the real stored data ---------------- */
 const RDFNS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#", RDFSNS = "http://www.w3.org/2000/01/rdf-schema#";
 const shortP = p => p.startsWith(RDFNS) ? "rdf:" + p.slice(RDFNS.length) : p.startsWith(RDFSNS) ? "rdfs:" + p.slice(RDFSNS.length) : p;
@@ -676,7 +755,8 @@ function lpgModel(res) {
   nodes.set(res.focus, { id: res.focus, kind: "card focus", label: res.focus, sub: ":" + mainLabel(res.node.labels), props: res.node.props, labels: res.node.labels });
   let nprops = Object.keys(res.node.props || {}).length;
   res.rels.forEach(r => {
-    if (!nodes.has(r.n)) { nodes.set(r.n, { id: r.n, kind: "card", label: r.n.startsWith("claim:") ? "Claim" : r.n, sub: ":" + mainLabel(r.nl), props: r.np, labels: r.nl }); nprops += Object.keys(r.np || {}).length; }
+    if (!nodes.has(r.n)) { const isDp = (r.nl || []).includes("Datapoint");
+      nodes.set(r.n, { id: r.n, kind: "card", label: r.n.startsWith("claim:") ? "Claim" : r.n, sub: ":" + mainLabel(r.nl) + (isDp && r.np ? ` · value ${r.np.value} ${r.np.unit || ""}` : ""), props: r.np, labels: r.nl }); nprops += Object.keys(r.np || {}).length; }
     const rp = clean(r.rp); nprops += Object.keys(r.rp || {}).length;
     edges.push({ s: r.s, d: r.d, label: r.t, props: rp, cls: r.t === "FLOWS_TO" ? "flow" : "" });
   });
@@ -758,11 +838,12 @@ const EXPLAIN = {
   rdf12: m => `The pipe is one direct arrow (bold). A separate note (teal) points at that arrow (dashed box) and carries the pipe's facts.`,
   neo4j: m => `The pipe is one arrow. Its facts are written on the arrow, and each item's facts are stored inside its box.`,
 };
-async function showInside(id) {
+async function showInside(id, quiet) {
   st.ex.focus = id; $("#exSel").value = id;
-  $("#exGrid").innerHTML = ENGINES.map(e => `<div class="panel expanel ${e}"><div class="name">${esc(ENAME[e])}</div><div class="excount" id="exc_${e}">…</div><div class="small muted" id="exe_${e}"></div><div class="exsvg" id="exs_${e}"></div></div>`).join("");
+  if (!quiet) $("#exGrid").innerHTML = ENGINES.map(e => `<div class="panel expanel ${e}"><div class="name">${esc(ENAME[e])}</div><div class="excount" id="exc_${e}">…</div><div class="small muted" id="exe_${e}"></div><div class="exsvg" id="exs_${e}"></div></div>`).join("");
   for (const e of ENGINES) {
     if (!META.engines[e].online) { $("#exc_" + e).textContent = "offline"; $("#exe_" + e).textContent = LIVE ? "Start Neo4j and reload the page to see its side." : ""; continue; }
+    if (!$("#exc_" + e)) continue;
     try { const r = await api.explore(e, id), m = e === "neo4j" ? lpgModel(r) : rdfModel(e, r);
       $("#exc_" + e).textContent = m.count; $("#exe_" + e).textContent = EXPLAIN[e](m) + (!LIVE && (st.valves !== "normal" || st.claim) ? " (Shown in normal operation, without the claim.)" : "");
       drawGraph($("#exs_" + e), m, e);
@@ -842,6 +923,10 @@ async function boot() {
   $("#exSel").innerHTML = [...IX.units, ...IX.consumers].map(i => `<option value="${i}" ${i === st.ex.focus ? "selected" : ""}>${i} · ${esc(IX.node[i].name)}</option>`).join("");
   $("#exSel").addEventListener("change", ev => showInside(ev.target.value));
   showInside(st.ex.focus);
+  $("#chkSel").innerHTML = IX.units.map(i => `<option value="${i}" ${i === "HX-2" ? "selected" : ""}>${i} · ${esc(IX.node[i].name)}</option>`).join("");
+  $("#chkBtn").addEventListener("click", runCheck);
+  $("#syncBox").addEventListener("change", async ev => { try { liveSnap = await api.setSync(ev.target.checked); renderLive(); showInside(st.ex.focus, true); } catch (err) { alertBanner(err.message); } });
+  if (LIVE) { pollLive(); liveTimer = setInterval(pollLive, 1000); } else { $("#syncBox").disabled = true; $("#chkBtn").disabled = true; renderLive(); }
   setTab("Q1"); runAll();
 }
 boot();
