@@ -7,7 +7,7 @@ r"""Chiller plant demo server: one chilled-water plant, three engines, one brows
 Standard library only, plus the lab's own modules. Runs locally; the console endpoint executes whatever
 SPARQL/Cypher you type, so don't expose it beyond localhost."""
 import importlib.metadata as md
-import json, statistics, sys, threading, time
+import json, re, statistics, sys, threading, time
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
@@ -17,6 +17,7 @@ import pyoxigraph as ox
 from scenario import dataset, build_rdf, load_lpg, catalogue, positions, PREFIXES, UPDATES, STEP_SEP, fill
 
 FAB = "http://example.org/fab#"
+RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label"
 
 
 def local(term):
@@ -125,6 +126,47 @@ class Engines:
             if engine in self.stores: self.stores[engine].update(PREFIXES + text)
             elif engine == "neo4j" and self.drv: self.drv.execute_query(text)
 
+    def explore(self, engine, ident):
+        """What the database itself holds around one thing: raw triples (RDF) or nodes + relationships (Neo4j).
+        For RDF this includes the helper resources that belong to it: pipe nodes (1.1), reifiers (1.2), claims, datapoints."""
+        if not re.fullmatch(r"[A-Za-z0-9._-]+", ident): raise ValueError("bad id")
+        with self.lock:
+            if engine in self.stores:
+                st, X = self.stores[engine], ox.NamedNode(FAB + ident)
+                RDF_REIFIES = ox.NamedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies")
+                quads, extra = [], []
+                for q in st.quads_for_pattern(X, None, None, ox.DefaultGraph()):
+                    quads.append(q)
+                    if q.predicate.value == FAB + "hasDatapoint": extra.append(q.object)
+                for q in st.quads_for_pattern(None, None, X, ox.DefaultGraph()):
+                    quads.append(q)
+                    if q.predicate.value in (FAB + "from", FAB + "to", FAB + "claimFrom", FAB + "claimTo"): extra.append(q.subject)
+                for q in st.quads_for_pattern(None, RDF_REIFIES, None, ox.DefaultGraph()):
+                    t = q.object
+                    if isinstance(t, ox.Triple) and X in (t.subject, t.object): extra.append(q.subject)
+                for r in dict.fromkeys(extra):
+                    quads += list(st.quads_for_pattern(r, None, None, ox.DefaultGraph()))
+                seen, out = set(), []
+                for q in quads:
+                    k = (str(q.subject), str(q.predicate), str(q.object))
+                    if k in seen or (q.subject != X and q.object == X and q.predicate.value == RDFS_LABEL): continue
+                    seen.add(k)
+                    o = q.object
+                    kind = "triple" if isinstance(o, ox.Triple) else "literal" if isinstance(o, ox.Literal) else "iri"
+                    out.append([local(q.subject), local(q.predicate), local(o), kind])
+                return {"engine": engine, "focus": ident, "triples": out}
+            if engine == "neo4j":
+                if not self.drv: raise RuntimeError("Neo4j is offline.")
+                rec = self.drv.execute_query(
+                    "MATCH (x:Entity {id: $id}) OPTIONAL MATCH (x)-[r]-(n) "
+                    "RETURN labels(x) AS xl, properties(x) AS xp, collect(CASE WHEN r IS NULL THEN NULL ELSE "
+                    "{s: coalesce(startNode(r).id, 'claim:' + elementId(startNode(r))), t: type(r), d: coalesce(endNode(r).id, 'claim:' + elementId(endNode(r))), rp: properties(r), "
+                    "n: coalesce(n.id, 'claim:' + elementId(n)), nl: labels(n), np: properties(n)} END) AS rels", id=ident)[0]
+                if not rec: return {"engine": engine, "focus": ident, "node": None, "rels": []}
+                r0 = rec[0]
+                return {"engine": engine, "focus": ident, "node": {"labels": r0["xl"], "props": r0["xp"]}, "rels": r0["rels"]}
+            raise ValueError("unknown engine")
+
     def set_valves(self, preset):
         """SCADA reports valve positions. Each engine does what it must for its queries to stay right; timed."""
         with self.lock:
@@ -183,6 +225,8 @@ class H(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
             if self.path == "/api/query":
                 return self._send(200, ENG.query(body["engine"], body["text"], int(body.get("repeat", 5))))
+            if self.path == "/api/explore":
+                return self._send(200, ENG.explore(body["engine"], body["id"]))
             if self.path == "/api/valves":
                 return self._send(200, ENG.set_valves(body["preset"]))
             if self.path == "/api/reconnect":

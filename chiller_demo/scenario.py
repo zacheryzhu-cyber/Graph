@@ -198,9 +198,9 @@ def load_lpg(drv, d):
         drv.execute_query(f"UNWIND $rows AS r CREATE (n:{':'.join(['Entity', t] + extra_labels(t))}) SET n = r", rows=rows)
     rel = {"flowsTo": "FLOWS_TO", "hasDatapoint": "HAS_DATAPOINT", "raisedOn": "RAISED_ON"}
     by_rel = defaultdict(list)
-    for e in d["edges"]: by_rel[e["type"]].append({k: v for k, v in e.items() if k != "type"})
+    for e in d["edges"]: by_rel[e["type"]].append({"src": e["src"], "dst": e["dst"], "p": {k: v for k, v in e.items() if k not in ("type", "src", "dst")}})
     for t, rows in by_rel.items():
-        drv.execute_query(f"UNWIND $rows AS r MATCH (a:Entity {{id: r.src}}), (b:Entity {{id: r.dst}}) CREATE (a)-[x:{rel[t]}]->(b) SET x = r", rows=rows)
+        drv.execute_query(f"UNWIND $rows AS r MATCH (a:Entity {{id: r.src}}), (b:Entity {{id: r.dst}}) CREATE (a)-[x:{rel[t]}]->(b) SET x = r.p", rows=rows)
 
 
 # ---------------------------------------------------------------- the questions

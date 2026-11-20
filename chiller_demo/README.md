@@ -34,6 +34,14 @@ CHW header ─► V-MAU1/2 ─► make-up air units MAU-1/2 ─supply air─► 
 - **Pipe metadata:** each pipe has a medium, an install year, its documenting system (DCS, P&ID or BIM) and a confidence.
 - **One relationship type:** "cooling flows from A to B".
 
+## See inside each database
+The **Inside each database** panel draws, side by side, everything each database actually holds about one item, read live from the stores:
+- **RDF 1.1:** every fact is a separate arrow, and each pipe is its own node with its values hanging off it.
+- **RDF 1.2:** the pipe is one direct arrow, and a separate note points at that arrow and carries its values.
+- **Neo4j:** values are stored inside the boxes and on the arrows.
+
+Pick any unit or consumer. Change the valves and the RDF "openFlow (shortcut)" arrows change; inject the BIM claim and it appears in each store. Hover over any element for details.
+
 ## Rules of the comparison
 1. **Same data, same question.** One plant is loaded into all three engines.
 2. **Best exact method per engine.** No approximations or strawmen. Where SPARQL can't express something in one query, the RDF column runs the exact multi-step method an RDF developer would use.
