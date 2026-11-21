@@ -12,3 +12,5 @@ demo_server.log
 oxi_db/
 chiller_demo/dist/
 hands_on_db/
+mini_db/
+mini.ttl

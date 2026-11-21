@@ -1,20 +1,19 @@
 # Hands-on: feel the difference between RDF and LPG yourself
 
-The same chiller plant sits in two databases:
-- **Oxigraph** (RDF) in one browser window;
-- **Neo4j** (LPG) in another.
+There are two parts:
+- **Part A: build it by hand** (about 30 minutes). No scripts. You type a 4-item plant **yourself**, as an RDF file and as Neo4j commands. You load it, look at it, ask it questions and change it. This is where you learn what RDF actually *is*.
+- **Part B: the full plant** (about 45 minutes). A script loads the 60-item chiller plant, because typing 532 facts by hand teaches nothing new. Then 10 exercises show the differences on something realistic.
 
-You do 10 small tasks in both. Each task is chosen so you **feel** one difference. Two of them (7 and 8) are where RDF wins clearly. Every query below was run and checked before this sheet was written.
-
-Time: about 45 minutes.
+Everything below was run and checked before this sheet was written.
 
 ---
 
-## 0. Set up (once)
+## Set up the tools (once)
 
 You need:
 - Python;
-- Neo4j **with its browser page**, meaning Docker or Neo4j Desktop. The lab's embedded launcher has no browser page.
+- Oxigraph;
+- Neo4j **with its browser page**, meaning Docker or Neo4j Desktop.
 
 ```powershell
 cd D:\work\RDF\Graph
@@ -23,35 +22,213 @@ py -m pip install -r requirements.txt
 py -m pip install oxigraph
 ```
 
-**Start Neo4j with Docker**, in its own window, and leave it open:
+**Neo4j:** start it with Docker in its own window, and leave that window open:
 ```powershell
 docker run --name neo4j-lab -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=none neo4j:5.26-community
 ```
-If you created this container before, run `docker start -a neo4j-lab` instead.
+If you created this container before, run `docker start -a neo4j-lab` instead. Then open **http://localhost:7474**, choose **No authentication** and connect. You type commands in the box at the top and run them with Ctrl+Enter.
 
-**Load the plant into both databases:**
+**Oxigraph:** pip puts it in a folder that isn't on your PATH. Save its location in a variable. You need this line again in every new PowerShell window:
 ```powershell
-py hands_on\setup.py
+$ox = "$env:LOCALAPPDATA\Programs\Python\Python314\Scripts\oxigraph.exe"
 ```
-- It loads the plant into a new folder `hands_on_db\` (Oxigraph) and into Neo4j.
-- At the end it prints the exact command to start Oxigraph.
-- To start again from a clean plant at any time, run `py hands_on\setup.py --reset`.
-
-**Start Oxigraph** in its own window, using the command the script printed. It looks like this:
-```powershell
-& "$env:LOCALAPPDATA\Programs\Python\Python314\Scripts\oxigraph.exe" serve --location hands_on_db --bind 127.0.0.1:7878
-```
-
-**Open the two pages side by side:**
-
-| | Address | Where you type | Notes |
-|---|---|---|---|
-| **RDF** | http://127.0.0.1:7878 | The SPARQL editor | Check the endpoint box ends in **`/sparql`**; it accepts both queries and changes. Every SPARQL block below starts with the `PREFIX` lines: keep them. |
-| **LPG** | http://localhost:7474 | The box at the top | Connect with **No authentication**. Run with Ctrl+Enter. |
-
-Don't run `chiller_demo/server.py` at the same time: it reloads the same Neo4j database.
 
 ---
+
+# Part A: build a tiny plant by hand
+
+The plant: **chiller CH-1 → valve V-1 → pump P-1 → etch tool ETCH-1.** That's 4 items and 3 pipes.
+
+## A1. Write it as RDF: a text file
+RDF data is just text. In this format, Turtle, every statement is **subject, predicate, object** followed by a full stop, like a short sentence.
+
+Open Notepad, paste the following, and save it as **`D:\work\RDF\Graph\mini.ttl`**. Use "All files" and UTF-8, so Notepad doesn't add `.txt`.
+```turtle
+@prefix fab:  <http://example.org/fab#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# 1. The vocabulary: what kinds of things exist, and how they relate
+fab:Chiller   rdfs:subClassOf fab:Equipment .
+fab:Valve     rdfs:subClassOf fab:Equipment .
+fab:Pump      rdfs:subClassOf fab:Equipment .
+fab:EtchTool  rdfs:subClassOf fab:Consumer .
+
+# 2. The things in the plant
+fab:CH-1    a fab:Chiller ;   rdfs:label "Chiller 1" ;  fab:capacityKW 1800 .
+fab:V-1     a fab:Valve ;     rdfs:label "Valve 1" ;    fab:position "open" .
+fab:P-1     a fab:Pump ;      rdfs:label "Pump 1" .
+fab:ETCH-1  a fab:EtchTool ;  rdfs:label "Etch 1" .
+
+# 3. How the cooling flows
+fab:CH-1  fab:flowsTo  fab:V-1 .
+fab:V-1   fab:flowsTo  fab:P-1 .
+fab:P-1   fab:flowsTo  fab:ETCH-1 .
+```
+**How to read it:**
+- **`fab:CH-1`** is a short form of the full, worldwide-unique name `<http://example.org/fab#CH-1>`. The `@prefix` line defines the short form. **Global names** are why RDF from different systems can be merged: the same name always means the same thing.
+- **`a`** means "is of type". So `fab:CH-1 a fab:Chiller` reads "CH-1 is a chiller".
+- **`;`** means "same subject, next fact". The CH-1 line is 3 facts: its type, its label and its capacity.
+- **`rdfs:subClassOf`** builds the vocabulary: "an etch tool is a kind of consumer". **That meaning is data**, stored just like the plant itself.
+- **`"Chiller 1"`** and **`1800`** are plain values ("literals"). Everything else is a name.
+
+If you get stuck, compare with `hands_on\mini_plant.ttl`; it's the same file.
+
+## A2. Load it and look at it (RDF)
+```powershell
+& $ox load --location mini_db --file mini.ttl
+& $ox serve --location mini_db --bind 127.0.0.1:7878
+```
+Leave that window open and go to **http://127.0.0.1:7878**. Check the endpoint box ends in **`/sparql`**. Paste and run:
+```sparql
+SELECT ?subject ?predicate ?object WHERE { ?subject ?predicate ?object }
+```
+→ **17 rows.** These are exactly the 17 facts you wrote, each as one row. **That's all an RDF database is: a big set of these 3-part facts.** There are no tables and no boxes, only facts linking names to names or to values.
+
+## A3. Ask it questions (RDF)
+**What gets cooling from CH-1?** `+` means "follow flowsTo one or more times":
+```sparql
+PREFIX fab: <http://example.org/fab#>
+SELECT ?x WHERE { fab:CH-1 fab:flowsTo+ ?x }
+```
+→ V-1, P-1, ETCH-1.
+
+**Which consumers are there?** Try it two ways:
+```sparql
+PREFIX fab: <http://example.org/fab#>
+SELECT ?c WHERE { ?c a fab:Consumer }
+```
+→ **nothing.** You never wrote "ETCH-1 is a consumer".
+```sparql
+PREFIX fab: <http://example.org/fab#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?c WHERE { ?c a/rdfs:subClassOf* fab:Consumer }
+```
+→ **ETCH-1.** The query followed your vocabulary: ETCH-1 is an etch tool, and an etch tool is a kind of consumer. **This is the main thing RDF gives you: meaning you can query.**
+
+## A4. Add details to a pipe (RDF 1.2)
+The pipe P-1 → ETCH-1 is documented in the DCS with confidence 0.98. Add that fact *about the pipe*:
+```sparql
+PREFIX fab: <http://example.org/fab#>
+INSERT DATA { fab:P-1 fab:flowsTo fab:ETCH-1 {| fab:sourceSystem "DCS" ; fab:confidence 0.98 |} . }
+```
+Now see what RDF really stored:
+```sparql
+PREFIX fab: <http://example.org/fab#>
+SELECT ?subject ?predicate ?object WHERE {
+  ?subject ?predicate ?object FILTER(isTRIPLE(?object) || ?predicate IN (fab:sourceSystem, fab:confidence)) }
+```
+→ 3 new facts about an **unnamed note** (shown as `_:…`):
+- the note **reifies**, meaning "is about", the statement `P-1 flowsTo ETCH-1`;
+- the note has **sourceSystem** DCS;
+- the note has **confidence** 0.98.
+
+So RDF 1.2 doesn't put properties "on the arrow". It creates **a note that points at the arrow**, and that is what lets several sources each keep their own note (Part B, exercise 8). Read the details back the short way:
+```sparql
+PREFIX fab: <http://example.org/fab#>
+SELECT ?source ?confidence WHERE { fab:P-1 fab:flowsTo fab:ETCH-1 {| fab:sourceSystem ?source ; fab:confidence ?confidence |} }
+```
+
+## A5. Close the valve (RDF)
+```sparql
+PREFIX fab: <http://example.org/fab#>
+DELETE { fab:V-1 fab:position ?p } INSERT { fab:V-1 fab:position "closed" } WHERE { fab:V-1 fab:position ?p }
+```
+Ask A3's first question again: **V-1, P-1 and ETCH-1 are still listed.** `flowsTo+` doesn't know what a valve is. Now try filtering:
+```sparql
+PREFIX fab: <http://example.org/fab#>
+SELECT ?x WHERE { fab:CH-1 fab:flowsTo+ ?x FILTER NOT EXISTS { ?x fab:position "closed" } }
+```
+→ the valve disappears, but **P-1 and ETCH-1 are still there.** The filter runs *after* the walk, so it can remove the valve but not what lies behind it. **This is the RDF limitation from the demo, in 4 facts.**
+
+## A6. Build the same plant in Neo4j (LPG)
+Neo4j has nothing like the text file: you **create boxes and arrows** with commands. In Neo4j Browser, first clear the database (**this deletes everything in it**; Part B reloads the big plant):
+```cypher
+MATCH (n) DETACH DELETE n
+```
+Then create the plant:
+```cypher
+CREATE (ch:Chiller:Equipment {id: 'CH-1', name: 'Chiller 1', capacity_kw: 1800})
+CREATE (v:Valve:Equipment   {id: 'V-1',  name: 'Valve 1', position: 'open'})
+CREATE (p:Pump:Equipment    {id: 'P-1',  name: 'Pump 1'})
+CREATE (t:EtchTool          {id: 'ETCH-1', name: 'Etch 1'})
+CREATE (ch)-[:FLOWS_TO]->(v)
+CREATE (v)-[:FLOWS_TO]->(p)
+CREATE (p)-[:FLOWS_TO {source: 'DCS', confidence: 0.98}]->(t)
+```
+**How to read it:**
+- `(ch:Chiller:Equipment {…})` is **a box** with **labels** (Chiller, Equipment) and **properties** stored inside it.
+- `-[:FLOWS_TO {…}]->` is **an arrow** with its own properties. The pipe's source and confidence sit **on the arrow** itself: no note, no extra facts.
+- There's **no vocabulary.** Notice you had to write `Equipment` on every box by hand.
+- The `id` values are only names inside this database. Nothing makes them globally unique.
+
+Look at it:
+```cypher
+MATCH p = ()-[:FLOWS_TO]->() RETURN p
+```
+→ a **drawing**: 4 boxes and 3 arrows. Click the last arrow to see `source` and `confidence` on it.
+
+## A7. Ask the same questions (LPG)
+**What gets cooling from CH-1?**
+```cypher
+MATCH ({id: 'CH-1'})-[:FLOWS_TO*]->(x) RETURN x.id
+```
+→ V-1, P-1, ETCH-1.
+
+**Which consumers are there?**
+```cypher
+MATCH (c:Consumer) RETURN c.id
+```
+→ **nothing**, and here there's no vocabulary to follow. Neo4j only knows the labels you typed. You have to add it yourself:
+```cypher
+MATCH (t {id: 'ETCH-1'}) SET t:Consumer
+```
+Run the consumer question again → ETCH-1.
+
+## A8. Close the valve (LPG)
+```cypher
+MATCH (v {id: 'V-1'}) SET v.position = 'closed'
+```
+The plain question `MATCH ({id: 'CH-1'})-[:FLOWS_TO*]->(x) RETURN x.id` still lists all three. Neo4j isn't magic either. But here you **can** check the valve *during* the walk:
+```cypher
+MATCH ({id: 'CH-1'})((a)-[:FLOWS_TO]->(b) WHERE coalesce(b.position, 'open') = 'open')+(x)
+RETURN x.id
+```
+→ **nothing**: the walk stops at the closed valve, so the pump and the tool behind it are cut off too. Compare with A5, where RDF could only hide the valve itself.
+
+## What Part A taught you
+| | RDF | LPG |
+|---|---|---|
+| What the data **is** | A file or set of **facts**: subject, predicate, object | **Boxes and arrows** with properties inside |
+| Names | **Global** (`http://example.org/fab#CH-1`), so data from different systems merges | Local ids inside one database |
+| Meaning ("etch tool is a consumer") | **Stored as data**, and queries follow it (A3) | Not stored; you add labels by hand (A7) |
+| Details about a pipe | A **note** that points at the statement (A4); can have many | **Properties on the arrow** (A6); one set |
+| Respecting a closed valve during a walk | **Can't** inside `flowsTo+`; filtering afterwards is too late (A5) | **Can**: the check sits inside the walk (A8) |
+| Looking at it | A table of facts | A drawing |
+
+Stop the Oxigraph window (Ctrl+C) before Part B; Part B uses the same port.
+
+---
+
+# Part B: the full plant, 10 exercises
+
+**Load the plant into both databases.** This replaces the mini plant in Neo4j:
+```powershell
+py hands_on\setup.py --reset
+```
+- Oxigraph gets the plant in a separate folder, `hands_on_db\`. The script prints the command to start it, the same as A2 but with `hands_on_db`.
+- To see what the script loaded into RDF, open **`out\chiller_rdf12.ttl`** in Notepad. It's the same kind of file you wrote in A1, just longer.
+
+**Start Oxigraph on the big plant**, in its own window:
+```powershell
+& $ox serve --location hands_on_db --bind 127.0.0.1:7878
+```
+
+| | Address | Notes |
+|---|---|---|
+| **RDF** | http://127.0.0.1:7878 | Endpoint box ends in **`/sparql`**. Keep the `PREFIX` lines at the top of each SPARQL block. |
+| **LPG** | http://localhost:7474 | No authentication. Ctrl+Enter to run. |
+
+Don't run `chiller_demo/server.py` at the same time: it reloads the same Neo4j database.
 
 ## 1. Look at it
 **RDF:**

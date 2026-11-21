@@ -1,0 +1,19 @@
+@prefix fab:  <http://example.org/fab#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# 1. The vocabulary: what kinds of things exist, and how they relate
+fab:Chiller   rdfs:subClassOf fab:Equipment .
+fab:Valve     rdfs:subClassOf fab:Equipment .
+fab:Pump      rdfs:subClassOf fab:Equipment .
+fab:EtchTool  rdfs:subClassOf fab:Consumer .
+
+# 2. The things in the plant
+fab:CH-1    a fab:Chiller ;   rdfs:label "Chiller 1" ;  fab:capacityKW 1800 .
+fab:V-1     a fab:Valve ;     rdfs:label "Valve 1" ;    fab:position "open" .
+fab:P-1     a fab:Pump ;      rdfs:label "Pump 1" .
+fab:ETCH-1  a fab:EtchTool ;  rdfs:label "Etch 1" .
+
+# 3. How the cooling flows
+fab:CH-1  fab:flowsTo  fab:V-1 .
+fab:V-1   fab:flowsTo  fab:P-1 .
+fab:P-1   fab:flowsTo  fab:ETCH-1 .
