@@ -3,6 +3,8 @@
 One dataset (fab utility chain → production tools → WinCC OA-style datapoints → alarms), modelled three ways,
 asked the same six questions (Q6 = single-point-of-failure audit), with every answer checked against a Python ground truth.
 
+**Hands-on, in your own browser: [`HANDS_ON.md`](HANDS_ON.md)**. The same plant in Oxigraph (RDF) and Neo4j (LPG), with 10 exercises to feel the differences and a when-to-propose-what guide (including vector RAG / GraphRAG).
+
 **Start here if you're new: the Chiller Plant Graph Lab** (a fab's chilled-water plant, guided story, fair three-engine scorecard): `python chiller_demo/server.py` → http://127.0.0.1:8766 (see [`chiller_demo/README.md`](chiller_demo/README.md)).
 
 | Stage | Script | What it shows |
