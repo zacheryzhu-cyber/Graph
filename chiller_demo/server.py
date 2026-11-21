@@ -7,7 +7,7 @@ r"""Chiller plant demo server: one chilled-water plant, three engines, one brows
 Standard library only, plus the lab's own modules. Runs locally; the console endpoint executes whatever
 SPARQL/Cypher you type, so don't expose it beyond localhost."""
 import importlib.metadata as md
-import json, math, re, statistics, sys, threading, time
+import json, math, os, re, statistics, sys, threading, time
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
@@ -202,6 +202,93 @@ class Engines:
 DEADBAND = {"°C": 0.2, "%": 2.0, "mm/s": 0.3, "K": 0.2, "Pa": 5.0}
 
 
+class MemoryHistorian:
+    """Stand-in historian: keeps the last hour in memory. Used when no HISTORIAN_DSN is set."""
+    name = "in-memory (no database)"
+
+    def __init__(self):
+        self.data, self.lock = {}, threading.Lock()
+
+    def insert(self, rows):   # rows: [(time, tag, value)]
+        with self.lock:
+            for t, tag, v in rows:
+                h = self.data.setdefault(tag, []); h.append((t, v)); del h[:-3600]
+
+    def latest(self, tags):
+        with self.lock: return {t: (self.data[t][-1][1] if self.data.get(t) else None) for t in tags}, "latest value of each tag, from memory"
+
+    def window(self, tags, minutes):
+        since, out, trend = time.time() - minutes * 60, {}, {}
+        with self.lock:
+            for t in tags:
+                vs = [v for ts, v in self.data.get(t, []) if ts >= since]
+                if vs: out[t] = {"samples": len(vs), "min": round(min(vs), 2), "avg": round(sum(vs) / len(vs), 2), "max": round(max(vs), 2), "last": vs[-1]}
+                n = max(1, len(vs) // 30); trend[t] = [round(sum(vs[i:i + n]) / len(vs[i:i + n]), 2) for i in range(0, len(vs), n)]
+        return out, trend, f"min / avg / max over the last {minutes} min, computed in memory"
+
+
+class SqlHistorian:
+    """A real time-series database: TimescaleDB (PostgreSQL + the timescaledb extension), or plain PostgreSQL.
+    All queries are plain PostgreSQL SQL, so they run unchanged on both."""
+
+    def __init__(self, dsn):
+        import psycopg
+        self.conn = psycopg.connect(dsn, autocommit=True); self.lock = threading.Lock()
+        c = self.conn.cursor()
+        ver = c.execute("SHOW server_version").fetchone()[0].split()[0]
+        try:
+            c.execute("CREATE EXTENSION IF NOT EXISTS timescaledb")
+            ts = c.execute("SELECT extversion FROM pg_extension WHERE extname = 'timescaledb'").fetchone()
+        except Exception:
+            ts = None
+        c.execute("CREATE TABLE IF NOT EXISTS samples (ts timestamptz NOT NULL, tag text NOT NULL, value double precision)")
+        if ts:   # TimescaleDB: partition the table by time (a "hypertable")
+            c.execute("SELECT create_hypertable('samples', 'ts', if_not_exists => TRUE, migrate_data => TRUE)")
+        c.execute("CREATE INDEX IF NOT EXISTS samples_tag_ts ON samples (tag, ts DESC)")
+        self.name = f"TimescaleDB {ts[0]} on PostgreSQL {ver}" if ts else f"PostgreSQL {ver} (no TimescaleDB extension)"
+
+    def insert(self, rows):
+        with self.lock, self.conn.cursor() as c:
+            c.executemany("INSERT INTO samples (ts, tag, value) VALUES (to_timestamp(%s), %s, %s)", rows)
+
+    LATEST = ("SELECT DISTINCT ON (tag) tag, value, ts\nFROM samples\nWHERE tag = ANY(%(tags)s)\nORDER BY tag, ts DESC")
+    WINDOW = ("SELECT tag, count(*) AS samples,\n       round(min(value)::numeric, 2) AS min,\n       round(avg(value)::numeric, 2) AS avg,\n"
+              "       round(max(value)::numeric, 2) AS max,\n       (array_agg(value ORDER BY ts DESC))[1] AS last\nFROM samples\n"
+              "WHERE tag = ANY(%(tags)s)\n  AND ts >= now() - make_interval(mins => %(minutes)s)\nGROUP BY tag ORDER BY tag")
+    TREND = ("SELECT tag, date_bin(make_interval(secs => %(bucket)s), ts, TIMESTAMPTZ '2000-01-01') AS bucket, avg(value)\n"
+             "FROM samples WHERE tag = ANY(%(tags)s) AND ts >= now() - make_interval(mins => %(minutes)s)\nGROUP BY tag, bucket ORDER BY tag, bucket")
+
+    @staticmethod
+    def shown(sql, params):   # the SQL with its parameters written in, for display
+        out = sql
+        for k, v in params.items():
+            out = out.replace(f"%({k})s", "ARRAY[" + ", ".join(f"'{x}'" for x in v) + "]" if isinstance(v, list) else str(v))
+        return out
+
+    def latest(self, tags):
+        with self.lock, self.conn.cursor() as c:
+            rows = c.execute(self.LATEST, {"tags": tags}).fetchall()
+        return {t: v for t, v, _ in rows}, self.shown(self.LATEST, {"tags": tags})
+
+    def window(self, tags, minutes):
+        p = {"tags": tags, "minutes": int(minutes), "bucket": max(1, int(minutes) * 2)}
+        with self.lock, self.conn.cursor() as c:
+            stats = {r[0]: {"samples": r[1], "min": float(r[2]), "avg": float(r[3]), "max": float(r[4]), "last": r[5]} for r in c.execute(self.WINDOW, p).fetchall()}
+            trend = {}
+            for t, _, v in c.execute(self.TREND, p).fetchall(): trend.setdefault(t, []).append(round(v, 2))
+        return stats, trend, self.shown(self.WINDOW, p)
+
+
+def make_historian():
+    dsn = os.environ.get("HISTORIAN_DSN")
+    if not dsn: return MemoryHistorian()
+    try:
+        return SqlHistorian(dsn)
+    except Exception as e:
+        print(f"Historian database not reachable ({str(e).splitlines()[0][:120]}); using the in-memory historian instead.")
+        return MemoryHistorian()
+
+
 class ShopFloor:
     """Every second, SCADA produces a new value for every numeric tag. Every sample goes to the historian.
     If 'write to graphs' is on, a value is also written into the three databases, but only when it has moved
@@ -209,6 +296,7 @@ class ShopFloor:
 
     def __init__(self, eng):
         self.eng, self.lock, self.sync = eng, threading.Lock(), False
+        self.historian = make_historian()
         self.tags = {}   # tag -> {dp, unit, base}
         for n in eng.dataset["nodes"]:
             if n["type"] == "Datapoint" and isinstance(n.get("value"), (int, float)):
@@ -230,15 +318,19 @@ class ShopFloor:
         while True:
             time.sleep(1.0)
             now = time.time(); self.tick += 1
+            batch = []
             with self.lock:
                 changed = {}
                 for tag in self.tags:
                     v = self.value(tag, self.tick)
                     h = self.hist[tag]; h.append((now, v)); del h[:-300]
+                    batch.append((now, tag, v))
                     self.stats["samples"] += 1
                     if self.sync:
                         if abs(v - self.in_graph[tag]) >= DEADBAND.get(self.tags[tag]["unit"], 0.5): changed[tag] = v
                         else: self.stats["skipped"] += 1
+            try: self.historian.insert(batch)        # every sample goes to the historian
+            except Exception as e: print("historian write failed:", str(e)[:120])
             if changed: self.write_graphs(changed)
 
     def write_graphs(self, changed):
@@ -266,7 +358,7 @@ class ShopFloor:
 
     def snapshot(self):
         with self.lock:
-            return {"tick": self.tick, "sync": self.sync, "stats": self.stats,
+            return {"tick": self.tick, "sync": self.sync, "stats": self.stats, "historian": self.historian.name,
                     "values": {t: h[-1][1] for t, h in self.hist.items() if h},
                     "in_graph": dict(self.in_graph) if self.sync else None,
                     "trend": {t: [v for _, v in h[-60:]] for t, h in self.hist.items()}}
@@ -282,8 +374,8 @@ CHECK = {
 }
 
 
-def check_unit(eng, floor, unit):
-    """What a screen does: (1) ask the graph which tags matter, (2) ask the historian for their latest values, (3) combine."""
+def check_unit(eng, floor, unit, minutes=0):
+    """What a screen does: (1) ask the graph which tags matter, (2) ask the historian (latest value, or a time range), (3) combine."""
     if not re.fullmatch(r"[A-Za-z0-9._-]+", unit): raise ValueError("bad id")
     out = {}
     for e in ("rdf11", "rdf12", "neo4j"):
@@ -291,7 +383,10 @@ def check_unit(eng, floor, unit):
         text = CHECK["neo4j" if e == "neo4j" else "rdf"].format(u=unit)
         t0 = time.perf_counter(); cols, rows, _ = eng._once(e, text); g_ms = (time.perf_counter() - t0) * 1000
         tags = [r[1] for r in rows if r[1] in floor.tags]
-        t1 = time.perf_counter(); vals = floor.latest(tags); h_ms = (time.perf_counter() - t1) * 1000
+        t1 = time.perf_counter()
+        if minutes: stats, trend, h_query = floor.historian.window(tags, minutes); vals = {t: (stats.get(t) or {}).get("last") for t in tags}
+        else: (vals, h_query), stats, trend = floor.historian.latest(tags), None, None
+        h_ms = (time.perf_counter() - t1) * 1000
         in_graph = None
         if floor.sync:   # the value stored inside this graph, for comparison
             dps = {floor.tags[t]["dp"]: t for t in tags}
@@ -304,7 +399,8 @@ def check_unit(eng, floor, unit):
                     q = list(eng.stores[e].query(PREFIXES + f"SELECT ?v WHERE {{ fab:{dp} fab:value ?v }}"))
                     in_graph[t] = float(q[0][0].value) if q else None
         out[e] = {"graph_query": text, "graph_rows": [[r[0], r[1]] for r in rows], "graph_ms": round(g_ms, 2),
-                  "historian_ms": round(h_ms, 3), "values": vals, "in_graph": in_graph}
+                  "historian_ms": round(h_ms, 3), "historian": floor.historian.name, "historian_query": h_query,
+                  "minutes": minutes, "values": vals, "stats": stats, "trend": trend, "in_graph": in_graph}
     return out
 
 
@@ -340,7 +436,7 @@ class H(BaseHTTPRequestHandler):
             if self.path == "/api/live":
                 FLOOR.set_sync(body.get("sync")); return self._send(200, FLOOR.snapshot())
             if self.path == "/api/check":
-                return self._send(200, check_unit(ENG, FLOOR, body["unit"]))
+                return self._send(200, check_unit(ENG, FLOOR, body["unit"], int(body.get("minutes", 0))))
             if self.path == "/api/explore":
                 return self._send(200, ENG.explore(body["engine"], body["id"]))
             if self.path == "/api/valves":

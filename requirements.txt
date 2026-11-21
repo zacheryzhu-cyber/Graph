@@ -4,5 +4,7 @@ rdflib==7.6.0
 pyshacl==0.40.2
 neo4j==6.4.1
 asyncua==2.1.0
+# optional: a real historian database (TimescaleDB / PostgreSQL) for chiller_demo, see chiller_demo/README.md
+psycopg[binary]==3.3.9
 # optional: Oxigraph SPARQL server CLI (SETUP.md A2)
 # oxigraph==0.5.13

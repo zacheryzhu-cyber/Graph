@@ -40,6 +40,33 @@ The live demo runs a **simulated SCADA feed**: 18 numeric tags get a new value e
 - **The graphs** (optional switch) get the latest value **only when it moves more than its deadband**, for example 0.2 °C or 0.3 mm/s. You can see the value inside each database change in **Inside each database**: it is the value box in RDF, and inside the datapoint box in Neo4j.
 - **Check a unit** runs what an operator screen does: (1) ask the graph which tags belong to the unit and everything it feeds; (2) ask the historian for their latest values in one request; (3) show them together. With the switch on, it also shows the slightly older value stored in the graph.
 
+## A real time-series database (TimescaleDB)
+Without any setup, the demo keeps the last hour of samples in memory. To use a **real historian database** instead:
+
+```powershell
+# 1. Start TimescaleDB, in its own window or with -d (needs Docker Desktop running)
+docker run -d --name tsdb -p 5432:5432 -e POSTGRES_PASSWORD=lab timescale/timescaledb:latest-pg16
+
+# 2. Tell the demo where it is, then start the demo in the same window
+$env:HISTORIAN_DSN = "postgresql://postgres:lab@localhost:5432/postgres"
+py chiller_demo\server.py
+```
+- On macOS/Linux, use `export HISTORIAN_DSN=...` instead.
+- The **Historian** box in the live panel names the database it's using, e.g. "TimescaleDB 2.x on PostgreSQL 16".
+- On first start the demo creates a `samples` table. It turns the table into a TimescaleDB **hypertable** (partitioned by time) when the extension is there, and adds an index on `(tag, time)`.
+- Every sample from the simulated SCADA feed goes in: 18 rows per second.
+- If port 5432 is already used by another PostgreSQL on your PC, map another port (`-p 5442:5432`) and use it in the address.
+
+**Check a unit** now has a **From the historian** choice: *latest value*, or *last 1 / 5 / 15 / 60 minutes*. For a time range, step 2 sends **one SQL query** for all the tags the graph returned, and gets back min, average, maximum, the latest value and a trend line. **Show the SQL** displays the exact query. It's plain PostgreSQL SQL, so it works the same with or without the TimescaleDB extension.
+
+**Look at the raw historian data yourself:**
+```powershell
+docker exec -it tsdb psql -U postgres -c "SELECT count(*), count(DISTINCT tag), min(ts), max(ts) FROM samples;"
+docker exec -it tsdb psql -U postgres -c "SELECT ts, tag, value FROM samples ORDER BY ts DESC LIMIT 10;"
+docker exec -it tsdb psql -U postgres -c "SELECT time_bucket('1 minute', ts) AS minute, round(avg(value)::numeric, 2) AS avg FROM samples WHERE tag = 'CHW:PCW_B.SupplyTemp' GROUP BY minute ORDER BY minute DESC LIMIT 10;"
+```
+`time_bucket` is TimescaleDB's own time-grouping function. On plain PostgreSQL, use `date_bin('1 minute', ts, TIMESTAMPTZ '2000-01-01')` instead.
+
 ## See inside each database
 The **Inside each database** panel draws, side by side, everything each database actually holds about one item, read live from the stores:
 - **RDF 1.1:** every fact is a separate arrow, and each pipe is its own node with its values hanging off it.

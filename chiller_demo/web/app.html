@@ -295,8 +295,10 @@ details.q summary { cursor: pointer; font-size: 0.8rem; color: var(--muted); }
       <div class="live-tags" id="liveTags"></div>
       <div class="row" style="justify-content:space-between;align-items:end">
         <div style="display:grid;gap:4px"><span class="eyebrow">Check a unit the way an operator screen does</span>
-          <span class="small muted">Step 1 asks the graph which tags belong to the unit and everything it feeds. Step 2 asks the historian for their latest values. Step 3 puts them together.</span></div>
-        <div class="row"><div class="field"><label for="chkSel">Unit</label><select id="chkSel"></select></div><button class="btn primary" id="chkBtn">Check it</button></div>
+          <span class="small muted">Step 1 asks the graph which tags belong to the unit and everything it feeds. Step 2 asks the historian for those tags: the latest value, or min / average / max over a time range. Step 3 puts them together.</span></div>
+        <div class="row"><div class="field"><label for="chkSel">Unit</label><select id="chkSel"></select></div>
+          <div class="field"><label for="chkRange">From the historian</label><select id="chkRange"><option value="0">latest value</option><option value="1">last 1 minute</option><option value="5" selected>last 5 minutes</option><option value="15">last 15 minutes</option><option value="60">last hour</option></select></div>
+          <button class="btn primary" id="chkBtn">Check it</button></div>
       </div>
       <div class="trace" id="trace"></div>
     </div>
@@ -365,7 +367,7 @@ const api = LIVE ? {
   explore(engine, id) { return this.post("/api/explore", { engine, id }); },
   live() { return this.get("/api/live"); },
   setSync(sync) { return this.post("/api/live", { sync }); },
-  check(unit) { return this.post("/api/check", { unit }); },
+  check(unit, minutes) { return this.post("/api/check", { unit, minutes }); },
 } : {
   async meta() { return EMBED.meta; },
   async dataset() { return EMBED.dataset; },
@@ -700,7 +702,7 @@ function renderLive() {
   const st_ = L.stats, ms_ = Object.entries(st_.ms || {}).map(([e, v]) => `${ENAME[e].split(" ·")[0]} ${v} ms`).join(" · ");
   $("#flow").innerHTML = `
     <div class="fbox"><span class="fstep">1 · SCADA</span><span class="big">${Object.keys(L.values).length} tags</span><span class="small muted">A new value for every tag, every second.</span></div>
-    <div class="fbox"><span class="fstep">2 · Historian</span><span class="big">${st_.samples.toLocaleString()} samples</span><span class="small muted">Every sample is kept, with its time. This is where trends and history live.</span></div>
+    <div class="fbox"><span class="fstep">2 · Historian</span><span class="big">${st_.samples.toLocaleString()} samples</span><span class="small muted">Every sample is kept, with its time, in <b>${esc(L.historian || "")}</b>. This is where trends and history live.</span></div>
     <div class="fbox ${L.sync ? "" : "off"}"><span class="fstep">3 · The graphs (optional)</span><span class="big">${L.sync ? st_.graph_writes.toLocaleString() + " writes" : "off"}</span>
       <span class="small muted">${L.sync ? `Only when a value moves more than its deadband: ${st_.skipped.toLocaleString()} samples not written. Last batch: ${ms_ || "–"}.` : "Turn on the switch to also keep the latest value inside RDF 1.1, RDF 1.2 and Neo4j."}</span></div>
     <div class="fbox"><span class="fstep">4 · Your screen</span><span class="big">graph + historian</span><span class="small muted">Asks the graph what belongs together, then the historian for the values. Try "Check it" below.</span></div>`;
@@ -713,7 +715,7 @@ async function pollLive() { try { liveSnap = await api.live(); renderLive();
   if (liveSnap.sync && ++exTimer % 3 === 0 && !document.hidden) showInside(st.ex.focus, true); } catch (e) { /* server stopped */ } }
 async function runCheck() {
   const u = $("#chkSel").value; $("#trace").innerHTML = `<div class="small muted">checking…</div>`;
-  let r; try { r = await api.check(u); } catch (err) { $("#trace").innerHTML = `<div class="err">${esc(err.message)}</div>`; return; }
+  let r; try { r = await api.check(u, +$("#chkRange").value); } catch (err) { $("#trace").innerHTML = `<div class="err">${esc(err.message)}</div>`; return; }
   $("#trace").innerHTML = ENGINES.map(e => { const x = r[e];
     if (!x || x.offline) return `<div class="panel tcol ${e}"><div class="name" style="font:600 .72rem var(--f-mono);color:var(--c)">${esc(ENAME[e])}</div><div class="small muted">offline</div></div>`;
     const tags = x.graph_rows.map(rw => rw[1]);
@@ -721,10 +723,13 @@ async function runCheck() {
       <div class="tstep"><div class="h">1 · Ask the graph which tags matter<span>${ms(x.graph_ms)}</span></div>
         <span>${x.graph_rows.length} tag${x.graph_rows.length === 1 ? "" : "s"} found for ${esc(u)} and what it feeds.</span>
         <details class="q"><summary>Show the ${e === "neo4j" ? "Cypher" : "SPARQL"} query</summary><textarea readonly style="min-height:110px">${esc(x.graph_query)}</textarea></details></div>
-      <div class="tstep"><div class="h">2 · Ask the historian for those tags<span>${ms(x.historian_ms)}</span></div><span>One request for ${tags.length === 1 ? "the tag" : `all ${tags.length} tags`}, latest value each.</span></div>
+      <div class="tstep"><div class="h">2 · Ask the historian for those tags<span>${ms(x.historian_ms)}</span></div>
+        <span>One request for ${tags.length === 1 ? "the tag" : `all ${tags.length} tags`}: ${x.minutes ? `min / average / max over the last ${x.minutes} min` : "latest value each"}. <span class="muted">${esc(x.historian)}</span></span>
+        <details class="q"><summary>${/^select/i.test(x.historian_query || "") ? "Show the SQL" : "How it's computed"}</summary><textarea readonly style="min-height:120px">${esc(x.historian_query || "")}</textarea></details></div>
       <div class="tstep"><div class="h">3 · Show them together</div>
-        <div class="res"><table><thead><tr><th>item</th><th>tag</th><th>live (historian)</th>${x.in_graph ? "<th>inside this graph</th>" : ""}</tr></thead><tbody>
-        ${x.graph_rows.map(([it, tg]) => `<tr><td>${esc(it)}</td><td class="mono">${esc(tg.replace("CHW:", ""))}</td><td>${esc(x.values[tg] ?? "")}</td>${x.in_graph ? `<td>${esc(x.in_graph[tg] ?? "")}</td>` : ""}</tr>`).join("")}</tbody></table></div></div></div>`; }).join("");
+        <div class="res"><table><thead><tr><th>tag</th>${x.minutes ? "<th>min</th><th>avg</th><th>max</th><th>trend</th><th>n</th>" : "<th>live (historian)</th>"}${x.in_graph ? "<th>inside this graph</th>" : ""}</tr></thead><tbody>
+        ${x.graph_rows.map(([it, tg]) => { const s = x.stats ? x.stats[tg] : null;
+          return `<tr><td class="mono">${esc(tg.replace("CHW:", ""))}</td>${x.minutes ? (s ? `<td>${s.min}</td><td>${s.avg}</td><td>${s.max}</td><td style="min-width:56px;width:56px"><span class="ltag" style="border:0;padding:0">${spark(x.trend[tg])}</span></td><td>${s.samples}</td>` : `<td colspan="5" class="muted">no samples yet</td>`) : `<td>${esc(x.values[tg] ?? "")}</td>`}${x.in_graph ? `<td>${esc(x.in_graph[tg] ?? "")}</td>` : ""}</tr>`; }).join("")}</tbody></table></div></div></div>`; }).join("");
 }
 
 /* ---------------- inside each database: drawings of the real stored data ---------------- */
